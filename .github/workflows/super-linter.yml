@@ -1,0 +1,44 @@
+# This workflow executes several linters on changed files based on languages,
+# used in your code base whenever you push a code or open a pull request.
+#
+# You can adjust the behavior by modifying this file.
+# For more information, see: https://github.com/actions/checkout
+# For more information, see: https://github.com/super-linter/super-linter
+#
+# Please note:
+# GitHub time is based on UTC+0, so you may need to make a time zone correction!
+---
+name: Super-Linter
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 08 * * 1-5'
+  # push:
+  #   branches:
+  #     - main
+  pull_request:
+    branches:
+      - main
+
+permissions: read-all
+
+jobs:
+  build:
+    name: Super-Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: false
+          fetch-tags: false
+      - name: Super-linter
+        uses: super-linter/super-linter@v6.3.0
+        env:
+          VALIDATE_SHELL_SHFMT: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
