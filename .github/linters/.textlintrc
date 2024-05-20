@@ -1,0 +1,514 @@
+{
+  "filters": {
+    "comments": true,
+    "allowlist": {
+      "allow": [
+        "Airbnb",
+        "AJAX",
+        "Android",
+        "API",
+        "AppleScript",
+        "AppVeyor",
+        "AVA",
+        "BrowserStack",
+        "Browsersync",
+        "Codecov",
+        "CodePen",
+        "CodeSandbox",
+        "CSS",
+        "DefinitelyTyped",
+        "EditorConfig",
+        "ESLint",
+        "GIF",
+        "GitHub",
+        "GraphiQL",
+        "GraphQL",
+        "HTML",
+        "HTTPS",
+        "I/O",
+        "ID",
+        "iOS",
+        "IoT",
+        "JavaScript",
+        "JetBrains",
+        "JPEG",
+        "jQuery",
+        "LinkedIn",
+        "Lodash",
+        "MacBook",
+        "markdown",
+        "Markdown",
+        "MIME",
+        "OK",
+        "OpenType",
+        "PaaS",
+        "PayPal",
+        "PDF",
+        "PhpStorm",
+        "PNG",
+        "RubyMine",
+        "SaaS",
+        "SemVer",
+        "smartphones",
+        "Smartphones",
+        "TypeScript",
+        "UglifyJS",
+        "URL",
+        "Wasm",
+        "WebAssembly",
+        "Website",
+        "website",
+        "WebStorm",
+        "WordPress",
+        "YouTube"
+      ]
+    }
+  },
+  "rules": {
+    "terminology": {
+      "defaultTerms": false,
+      "skip": [
+        "Blockquote",
+        "Link"
+      ],
+      "terms": [
+        [
+          "3-D",
+          "3D"
+        ],
+        [
+          "a npm",
+          "an npm"
+        ],
+        [
+          "HTTP[ /]2(?:\\.0)?",
+          "HTTP/2"
+        ],
+        [
+          "Mac ?OS",
+          "macOS"
+        ],
+        [
+          "OS X",
+          "macOS"
+        ],
+        [
+          "StackOverflow",
+          "Stack Overflow"
+        ],
+        [
+          "styled ?components",
+          "styled-components"
+        ],
+        [
+          "API['’]?s",
+          "APIs"
+        ],
+        [
+          "I-O",
+          "I/O"
+        ],
+        [
+          "URL['’]?s",
+          "URLs"
+        ],
+        [
+          "an URL",
+          "a URL"
+        ],
+        [
+          "wi[- ]?fi",
+          "Wi-Fi"
+        ],
+        [
+          "CVE['’]?s",
+          "CVEs"
+        ],
+        [
+          "id['’]?s",
+          "IDs"
+        ],
+        [
+          "backwards compatible",
+          "backward compatible"
+        ],
+        [
+          "build system(s)?",
+          "build tool$1"
+        ],
+        [
+          "CLI tool(s)?",
+          "command-line tool$1"
+        ],
+        [
+          "he or she",
+          "they"
+        ],
+        [
+          "he/she",
+          "they"
+        ],
+        [
+          "\\(s\\)he",
+          "they"
+        ],
+        [
+          "his/her",
+          "their"
+        ],
+        [
+          "his or her",
+          "their"
+        ],
+        [
+          "repo\\b",
+          "repository"
+        ],
+        [
+          "spread operator",
+          "spread syntax"
+        ],
+        [
+          "re-direct",
+          "redirect"
+        ],
+        [
+          "auto[- ]complete",
+          "autocomplete"
+        ],
+        [
+          "auto[- ]format",
+          "autoformat"
+        ],
+        [
+          "auto[- ]fix",
+          "autofix"
+        ],
+        [
+          "auto[- ]fixing",
+          "autofixing"
+        ],
+        [
+          "bug[- ]fix(es)?",
+          "bugfix$1"
+        ],
+        [
+          "change[- ]log(s)?",
+          "changelog$1"
+        ],
+        [
+          "check[- ]box(es)?",
+          "checkbox$1"
+        ],
+        [
+          "code[- ]base(es)?",
+          "codebase$1"
+        ],
+        [
+          "co[- ]locate(d?)",
+          "colocate$1"
+        ],
+        [
+          "end[- ]point(s)?",
+          "endpoint$1"
+        ],
+        [
+          "e[- ]mail(s)?",
+          "email$1"
+        ],
+        [
+          "file[- ]name(s)?",
+          "filename$1"
+        ],
+        [
+          "hack[- ]a[- ]thon(s)?",
+          "hackathon$1"
+        ],
+        [
+          "host[- ]name(s)?",
+          "hostname$1"
+        ],
+        [
+          "hot[- ]key(s)?",
+          "hotkey$1"
+        ],
+        [
+          "lock[- ]file(s)?",
+          "lockfile$1"
+        ],
+        [
+          "mark-up",
+          "markup"
+        ],
+        [
+          "meta[- ]data",
+          "metadata"
+        ],
+        [
+          "micro[- ]service(s)?",
+          "microservice$1"
+        ],
+        [
+          "name[- ]space(s)?",
+          "namespace$1"
+        ],
+        [
+          "pre[- ]condition(s)?",
+          "precondition$1"
+        ],
+        [
+          "pre[- ]defined",
+          "predefined"
+        ],
+        [
+          "pre[- ]release(s)?",
+          "prerelease$1"
+        ],
+        [
+          "re[- ]write",
+          "rewrite"
+        ],
+        [
+          "run[- ]time",
+          "runtime"
+        ],
+        [
+          "screen[- ]shot(s)?",
+          "screenshot$1"
+        ],
+        [
+          "screen[- ]?snap(s)?",
+          "screenshot$1"
+        ],
+        [
+          "sub[- ]class((?:es|ing)?)",
+          "subclass$1"
+        ],
+        [
+          "sub[- ]tree(s)?",
+          "subtree$1"
+        ],
+        [
+          "time[- ]stamp(s)?",
+          "timestamp$1"
+        ],
+        [
+          "touch[- ]screen(s)?",
+          "touchscreen$1"
+        ],
+        [
+          "user[- ]name(s)?",
+          "username$1"
+        ],
+        [
+          "walk[- ]through",
+          "walkthrough"
+        ],
+        [
+          "white[- ]space",
+          "whitespace"
+        ],
+        [
+          "wild[- ]card(s)?",
+          "wildcard$1"
+        ],
+        [
+          "css-?in-?js",
+          "CSS in JS"
+        ],
+        [
+          "code-?review(s)?",
+          "code review$1"
+        ],
+        [
+          "code-?splitting",
+          "code splitting"
+        ],
+        [
+          "end-?user(s)?",
+          "end user$1"
+        ],
+        [
+          "file-?type(s)?",
+          "file type$1"
+        ],
+        [
+          "style-?guide(s)?",
+          "style guide$1"
+        ],
+        [
+          "source-?map(s)?",
+          "source map$1"
+        ],
+        [
+          "style-?sheet(s)?",
+          "style sheet$1"
+        ],
+        [
+          "user-?base",
+          "user base"
+        ],
+        [
+          "web-page(s)?",
+          "webpage$1"
+        ],
+        [
+          "built ?in",
+          "built-in"
+        ],
+        [
+          "command ?line",
+          "command-line"
+        ],
+        [
+          "end ?to ?end",
+          "end-to-end"
+        ],
+        [
+          "end[- ]?2[- ]?end",
+          "end-to-end"
+        ],
+        [
+          "error ?prone",
+          "error-prone"
+        ],
+        [
+          "higher ?order",
+          "higher-order"
+        ],
+        [
+          "key[/ ]?value",
+          "key-value"
+        ],
+        [
+          "two ?steps? authentication",
+          "two-step authentication"
+        ],
+        [
+          "two ?steps? verification",
+          "two-step verification"
+        ],
+        [
+          "2 ?steps? authentication",
+          "two-step authentication"
+        ],
+        [
+          "2 ?steps? verification",
+          "two-step verification"
+        ],
+        [
+          "3rd[- ]party",
+          "third-party"
+        ],
+        [
+          "(?<=(?:\\w+[^.?!])? )stylelint\\b",
+          "stylelint"
+        ],
+        [
+          "(?<=(?:\\w+[^.?!])? )webpack\\b",
+          "webpack"
+        ],
+        [
+          "(?<=(?:\\w+[^.?!])? )npm\\b",
+          "npm"
+        ],
+        [
+          "accidentially",
+          "accidentally"
+        ],
+        [
+          "busineess",
+          "business"
+        ],
+        [
+          "busines",
+          "business"
+        ],
+        [
+          "analysed",
+          "analyzed"
+        ],
+        [
+          "cancelling",
+          "canceling"
+        ],
+        [
+          "environemnt(s)?",
+          "environment$1"
+        ],
+        [
+          "explotation",
+          "exploitation"
+        ],
+        [
+          "encyprtion",
+          "encryption"
+        ],
+        [
+          "flacky test(s)?",
+          "flaky test$1"
+        ],
+        [
+          "falsey",
+          "falsy"
+        ],
+        [
+          "hsot",
+          "host"
+        ],
+        [
+          "intiated",
+          "initiated"
+        ],
+        [
+          "localised",
+          "localized"
+        ],
+        [
+          "pacakge(s)?",
+          "package$1"
+        ],
+        [
+          "perfomed",
+          "performed"
+        ],
+        [
+          "refernece(s)?",
+          "reference$1"
+        ],
+        [
+          "renegotiaion(s)?",
+          "renegotiation$1"
+        ],
+        [
+          "traget",
+          "target"
+        ],
+        [
+          "tagret",
+          "target"
+        ],
+        [
+          "tilda",
+          "tilde"
+        ],
+        [
+          "teh",
+          "the"
+        ],
+        [
+          "transfered",
+          "transferred"
+        ],
+        [
+          "unlkely",
+          "unlikely"
+        ],
+        [
+          "utilising",
+          "utilizing"
+        ]
+      ]
+    }
+  }
+}
