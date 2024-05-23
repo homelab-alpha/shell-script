@@ -10,4 +10,5 @@ updates:
     commit-message:
       prefix: "dependabot"
     labels:
+      - "auto-merge"
       - "dependencies"
