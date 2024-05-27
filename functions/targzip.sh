@@ -1,15 +1,20 @@
 #!/bin/bash
 
-# Script: targzip.sh
-# Description: This script creates a tar archive of a directory or file and compresses it using gzip.
+# Script Name: targzip.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:26Z
+# Date: 2024-05-26T11:59:29+02:00
+# Version: 1.0.1
+
+# Description: This script creates a tar archive of a directory or file and
+# compresses it using gzip.
+
+# Usage: targzip <directory or file>
 
 # Function: targzip
-# Usage: targzip <directory or file>
-# This function takes a directory or file as input and creates a tar archive of it.
-# Then, it compresses the tar archive using gzip. The resulting compressed file is named with a timestamp.
-# If successful, it outputs a message indicating the successful creation and verification of the compressed file.
+# This function takes a directory or file as input and creates a tar archive of
+# it. Then, it compresses the tar archive using gzip. The resulting compressed
+# file is named with a timestamp. If successful, it outputs a message indicating
+# the successful creation and verification of the compressed file.
 
 function targzip() {
   local source

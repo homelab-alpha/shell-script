@@ -1,12 +1,14 @@
 #!/bin/bash
 
-# Script: mkdirg.sh
-# Description: This script creates a directory if it doesn't exist and navigates into it.
+# Script Name: mkdirg.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:32Z
+# Date: 2024-05-26T11:59:35+02:00
+# Version: 1.0.1
+
+# Description: This script creates a directory if it doesn't exist and navigates
+# into it.
 
 # Function: mkdirg
-# Description: Creates a directory if it doesn't exist and navigates into it.
 # Parameters:
 #   $1: The name of the directory to create.
 # Returns:

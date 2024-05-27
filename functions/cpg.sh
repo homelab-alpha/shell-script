@@ -1,14 +1,19 @@
 #!/bin/bash
 
-# Script: cpg.sh
-# Description: This script provides a function 'cpg' to copy files or directories from a source to a destination. It handles both single files and directories, including recursive copying.
+# Script Name: cpg.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:41Z
+# Date: 2024-05-26T11:59:55+02:00
+# Version: 1.0.1
 
-# Function: cpg
+# Description: This script provides a function 'cpg' to copy files or
+# directories from a source to a destination. It handles both single files and
+# directories, including recursive copying.
+
 # Usage: cpg source destination
 #   - source: The file or directory to be copied.
 #   - destination: The location where the source will be copied.
+
+# Function: cpg
 
 function cpg() {
   # Check if the number of arguments is not equal to 2

@@ -1,15 +1,20 @@
 #!/bin/bash
 
-# Script: tarzip.sh
-# Description: This script creates a compressed archive (.zip) of a specified folder using tar and zip commands.
+# Script Name: tarzip.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:23Z
+# Date: 2024-05-26T11:59:24+02:00
+# Version: 1.0.1
+
+# Description: This script creates a compressed archive (.zip) of a specified
+# folder using tar and zip commands.
+
+# Usage: tarzip <directory or file>
 
 # Function: tarzip
-# Usage: tarzip <directory or file>
-# This function takes a directory or file as input and creates a tar archive of it.
-# Then, it compresses the tar archive using gzip. The resulting compressed file is named with a timestamp.
-# If successful, it outputs a message indicating the successful creation and verification of the compressed file.
+# This function takes a directory or file as input and creates a tar archive of
+# it. Then, it compresses the tar archive using gzip. The resulting compressed
+# file is named with a timestamp. If successful, it outputs a message indicating
+# the successful creation and verification of the compressed file.
 
 function tarzip() {
   local input_folder

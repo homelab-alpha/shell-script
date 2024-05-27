@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# Script: dns_check.sh
-# Description: This script checks network connectivity and DNS server availability. It does not perform any specific task but can be used to diagnose network issues.
+# Script Name: dns_check.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-12T15:08:17Z
+# Date: 2024-05-26T11:59:51+02:00
+# Version: 1.0.1
+
+# Description: This script checks network connectivity and DNS server
+# availability. It does not perform any specific task but can be used to
+# diagnose network issues.
 
 # Usage example: $ ./dns_check.sh
 

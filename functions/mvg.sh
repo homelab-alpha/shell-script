@@ -1,12 +1,16 @@
 #!/bin/bash
 
-# Script: mvg.sh
-# Description: This script moves a file or directory to a specified destination and then enters the destination directory.
+# Script Name: mvg.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:29Z
+# Date: 2024-05-26T11:59:32+02:00
+# Version: 1.0.1
+
+# Description: This script moves a file or directory to a specified destination
+# and then enters the destination directory.
+
+# Example usage: source_file.txt destination_directory/
 
 # Function: mvg
-# Example usage: source_file.txt destination_directory/
 
 function mvg() {
   # Check the number of arguments

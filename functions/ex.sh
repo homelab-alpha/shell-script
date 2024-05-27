@@ -1,12 +1,18 @@
 #!/bin/bash
 
-# Script: ex.sh
-# Description: This script provides a convenient way to extract various archive formats including tar, zip, gzip, bzip2, rar, etc. It simplifies the extraction process by automatically detecting the file format and applying the appropriate extraction method.
+# Script Name: ex.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:35Z
+# Date: 2024-05-26T11:59:43+02:00
+# Version: 1.0.1
+
+# Description: This script provides a convenient way to extract various archive
+# formats including tar, zip, gzip, bzip2, rar, etc. It simplifies the
+# extraction process by automatically detecting the file format and applying the
+# appropriate extraction method.
+
+# Usage: ex <input_file_or_directory>
 
 # Function: ex
-# Usage: ex <input_file_or_directory>
 
 # Function to extract various archive formats
 function ex() {

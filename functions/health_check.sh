@@ -1,9 +1,12 @@
 #!/bin/bash
 
-# Script: health_check.sh
-# Description: This script checks the availability of a given URL using both HTTP and HTTPS protocols.
+# Script Name: health_check.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-12T15:08:42Z
+# Date: 2024-05-26T11:59:40+02:00
+# Version: 1.0.1
+
+# Description: This script checks the availability of a given URL using both
+# HTTP and HTTPS protocols.
 
 # Example usage:
 # This script can be executed by providing a URL as an argument.

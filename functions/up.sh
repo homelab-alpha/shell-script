@@ -1,14 +1,16 @@
 #!/bin/bash
 
-# Script: up.sh
-# Description: This is a template for bash scripts. It serves as a starting point for creating new scripts.
+# Script Name: up.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-03-13T07:38:20Z
+# Date: 2024-05-26T11:59:21+02:00
+# Version: 1.0.1
+
+# Description: This script defines a function 'up()' to navigate up a specified
+# number of directory levels in the file system. To use it, execute the script
+# in a terminal and provide the number of levels to move up.
 
 # Function: up
-# Example:
-# This script defines a function 'up()' to navigate up a specified number of directory levels in the file system.
-# To use it, execute the script in a terminal and provide the number of levels to move up.
+
 # Example usage:
 #   # Move up one directory level (equivalent to 'cd ..')
 #   up
