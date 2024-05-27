@@ -2,8 +2,10 @@
 
 [![Super-Linter](https://github.com/homelab-alpha/shell-script/actions/workflows/super-linter.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super-linter.yml)
 
-Welcome to the Homelab-Alpha shell-script repository. This is the source for
-[Homelab-Alpha - Shell Script].
+Welcome to the Homelab-Alpha Shell Script Repository!
+
+For all related documentation and more information about this repository, please
+visit [Homelab-Alpha/Shell-Script].
 
 ## Provide feedback
 
@@ -56,7 +58,7 @@ learn how to contribute, see [contributing].
 &copy; 2024 Homelab-Alpha and its repositories are licensed under the terms of
 the [license] agreement.
 
-[Homelab-Alpha - Shell Script]: https://homelab-alpha.nl/shell-script
+[Homelab-Alpha/Shell-Script]: https://homelab-alpha.nl/shell-script
 [community]: https://github.com/homelab-alpha/shell-script/discussions
 [bug report]:
   https://github.com/homelab-alpha/shell-script/issues/new?&template=bug_report.md
