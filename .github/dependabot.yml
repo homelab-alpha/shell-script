@@ -3,7 +3,7 @@ version: 2
 updates:
   - package-ecosystem: "github-actions"
     target-branch: "main"
-    directory: "/.github/workflows"
+    directory: "/"
     schedule:
       interval: "daily"
       time: "02:00"
@@ -13,3 +13,5 @@ updates:
     labels:
       - "auto-merge"
       - "dependencies"
+      - "github-actions"
+    open-pull-requests-limit: 5
