@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: check_pi_throttling.sh
+# Filename: check_pi_throttling.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:08:40+02:00
 # Version: 1.0

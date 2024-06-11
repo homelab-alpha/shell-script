@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: check_system_info.sh
+# Filename: check_system_info.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:08:42+02:00
 # Version: 1.0.1

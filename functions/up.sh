@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: up.sh
+# Filename: up.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:21+02:00
 # Version: 1.0.1

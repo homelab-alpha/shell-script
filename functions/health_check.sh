@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: health_check.sh
+# Filename: health_check.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:40+02:00
 # Version: 1.0.1

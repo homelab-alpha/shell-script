@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: cronjob_template.sh
+# Filename: cronjob_template.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:08:48+02:00
 # Version: 1.0.1

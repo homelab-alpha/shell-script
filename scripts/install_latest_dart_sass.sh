@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: install_latest_dart_sass.sh
+# Filename: install_latest_dart_sass.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:00+02:00
 # Version: 1.1.1

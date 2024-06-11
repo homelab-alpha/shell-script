@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: audio_converter.sh
+# Filename: audio_converter.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:13:28+02:00
 # Version: 1.0.1

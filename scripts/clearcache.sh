@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: clearcache.sh
+# Filename: clearcache.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:08:45+02:00
 # Version: 1.0.1

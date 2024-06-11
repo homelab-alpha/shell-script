@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: gpg_keygen_script.sh
+# Filename: gpg_keygen_script.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:08:56+02:00
 # Version: 1.0.1

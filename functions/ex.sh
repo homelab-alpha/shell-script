@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: ex.sh
+# Filename: ex.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:43+02:00
 # Version: 1.0.1

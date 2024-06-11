@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Script Name: user_accounts_info.sh
+# Filename: user_accounts_info.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:09:38+02:00
 # Version: 1.0.1

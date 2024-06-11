@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: encrypt_and_decrypt.sh
+# Filename: encrypt_and_decrypt.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:48+02:00
 # Version: 1.0.1

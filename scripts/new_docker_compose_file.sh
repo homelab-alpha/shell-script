@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: new_docker_compose_file.sh
+# Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:20+02:00
 # Version: 1.0.1

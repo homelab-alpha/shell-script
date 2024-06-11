@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: cpg.sh
+# Filename: cpg.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:55+02:00
 # Version: 1.0.1

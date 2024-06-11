@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: ssh_keygen_script.sh
+# Filename: ssh_keygen_script.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:30+02:00
 # Version: 1.0.1

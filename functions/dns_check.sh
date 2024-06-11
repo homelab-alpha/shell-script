@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: dns_check.sh
+# Filename: dns_check.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:51+02:00
 # Version: 1.0.1

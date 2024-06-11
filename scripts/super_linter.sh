@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: super_linter.sh
+# Filename: super_linter.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-20T10:37:53+02:00
 # Version: 1.1.2
