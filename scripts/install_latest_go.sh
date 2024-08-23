@@ -3,7 +3,7 @@
 # Filename: install_latest_go.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:02+02:00
-# Version: 1.1.1
+# Version: 1.0
 
 # Description: This script fetches the latest version of Go from the official Go
 # download page, downloads it, installs it to /usr/local/go, and cleans up the

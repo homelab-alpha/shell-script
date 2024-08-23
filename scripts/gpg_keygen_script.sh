@@ -3,7 +3,7 @@
 # Filename: gpg_keygen_script.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:08:56+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script generates a GPG key pair for secure communication.
 # It checks for required software, generates the key pair, and logs the actions.

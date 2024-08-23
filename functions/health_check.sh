@@ -3,7 +3,7 @@
 # Filename: health_check.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:40+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script checks the availability of a given URL using both
 # HTTP and HTTPS protocols.

@@ -3,7 +3,7 @@
 # Filename: check_system_info.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:08:42+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script checks system information It provides details about
 # system uptime, hardware information, system temperature, systemctl status,

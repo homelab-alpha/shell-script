@@ -3,7 +3,7 @@
 # Filename: install_latest_jetbrains_mono.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-07-05T09:20:06+02:00
-# Version: 1.1.0
+# Version: 1.0
 
 # Description: This script fetches the latest version of JetBrains Mono from the
 # official GitHub repository, downloads it, installs it to the system-wide fonts

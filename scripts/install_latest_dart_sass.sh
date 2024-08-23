@@ -3,7 +3,7 @@
 # Filename: install_latest_dart_sass.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:00+02:00
-# Version: 1.1.1
+# Version: 1.0
 
 # Description: This script fetches the latest version of Dart Sass from the
 # official GitHub repository, downloads it, installs it to /usr/local/dart-sass,

@@ -3,7 +3,7 @@
 # Filename: install_latest_hugo.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:08+02:00
-# Version: 1.1.1
+# Version: 1.0
 
 # Description: This script fetches the latest version of Hugo from the official
 # GitHub repository, downloads it, installs it to /usr/local/hugo-extended, and

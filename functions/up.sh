@@ -3,7 +3,7 @@
 # Filename: up.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:21+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script defines a function 'up()' to navigate up a specified
 # number of directory levels in the file system. To use it, execute the script

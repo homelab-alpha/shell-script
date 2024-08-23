@@ -3,7 +3,7 @@
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:20+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script creates a new Docker-Compose file and configuration
 # files based on user input.

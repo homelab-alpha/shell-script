@@ -3,7 +3,7 @@
 # Filename: new_docker_container.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:24+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script creates a new Docker container directory structure
 # and configuration files based on user input.

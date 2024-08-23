@@ -3,7 +3,7 @@
 # Filename: mkdirg.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:35+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script creates a directory if it doesn't exist and navigates
 # into it.

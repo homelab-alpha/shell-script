@@ -3,7 +3,7 @@
 # Filename: audio_converter.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:13:28+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script converts audio files in various formats
 # (m4a, mp3, wma) to MP3 format with a bitrate of 128k, 44.1kHz sampling rate,

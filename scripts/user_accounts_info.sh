@@ -3,7 +3,7 @@
 # Filename: user_accounts_info.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:09:38+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script retrieves information about system user accounts and
 # organizes them into system and normal user categories.

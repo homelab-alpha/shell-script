@@ -3,7 +3,7 @@
 # Filename: gnome_keybindings_backup_restore.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:08:51+02:00
-# Version: 1.1.1
+# Version: 1.0
 
 # Description: This script allows you to easily create backups of GNOME
 # keybindings and restore them when needed. It creates a backup directory in the

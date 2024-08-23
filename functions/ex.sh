@@ -3,7 +3,7 @@
 # Filename: ex.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:43+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script provides a convenient way to extract various archive
 # formats including tar, zip, gzip, bzip2, rar, etc. It simplifies the

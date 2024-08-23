@@ -3,7 +3,7 @@
 # Filename: mvg.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:32+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script moves a file or directory to a specified destination
 # and then enters the destination directory.

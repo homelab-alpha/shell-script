@@ -3,7 +3,7 @@
 # Filename: clearcache.sh
 # Author: GJS (homelab-aplha)
 # Date: 2024-05-18T12:08:45+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script drop clean caches, as well as reclaimable slab
 # objects like dentries and inodes.

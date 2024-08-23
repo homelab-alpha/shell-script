@@ -3,7 +3,7 @@
 # Filename: maintain_git_repo.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-18T12:09:14+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script automates the maintenance process of a Git repository.
 # It cleans up unnecessary files and resets the commit history to provide a fresh start,

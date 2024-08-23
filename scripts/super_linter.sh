@@ -3,7 +3,7 @@
 # Filename: super_linter.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-20T10:37:53+02:00
-# Version: 1.1.2
+# Version: 1.0
 
 # Description: This script facilitates local linting of code repositories using
 # the Github Super Linter tool. It wraps the Super Linter Docker container,

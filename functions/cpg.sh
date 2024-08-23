@@ -3,7 +3,7 @@
 # Filename: cpg.sh
 # Author: GJS (homelab-alpha)
 # Date: 2024-05-26T11:59:55+02:00
-# Version: 1.0.1
+# Version: 1.0
 
 # Description: This script provides a function 'cpg' to copy files or
 # directories from a source to a destination. It handles both single files and
