@@ -1,0 +1,51 @@
+---
+name: Super-Linter
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions: read-all
+
+jobs:
+  build:
+    name: Super-Linter
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.7
+        with:
+          fetch-depth: false
+          fetch-tags: false
+      - name: Super-linter
+        uses: super-linter/super-linter@v7.1.0
+        env:
+          BASH_SEVERITY: warning
+          VALIDATE_CSS_PRETTIER: false
+          VALIDATE_GRAPHQL_PRETTIER: false
+          VALIDATE_HTML_PRETTIER: false
+          VALIDATE_JAVASCRIPT_PRETTIER: false
+          VALIDATE_JSCPD: false
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_JSONC_PRETTIER: false
+          VALIDATE_JSX_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_POWERSHELL: false
+          VALIDATE_SHELL_SHFMT: false
+          VALIDATE_TYPESCRIPT_PRETTIER: false
+          VALIDATE_VUE_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
