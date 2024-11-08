@@ -226,22 +226,29 @@ class Slack extends NotificationProvider {
     // Format the status and clean the message content
     const status = heartbeat.status === UP ? 'UP' : 'DOWN'
     const cleanedMsg = body.replace(/\[.*?\]\s*\[.*?\]\s*/, '').trim() // Clean message by removing unwanted parts
-    const localTime = this.formatTime(heartbeat.localDateTime) // Format local time for display
+    const localDate = this.formatDate(heartbeat.localDateTime, heartbeat.timezone) // Format the date for display
+    const localTime = this.formatTime(heartbeat.localDateTime, heartbeat.timezone) // Format the time for display
 
-    // Section block with monitor details
-    const details = [
+    // Get the country based on the timezone
+    const country = this.getCountryFromTimezone(heartbeat.timezone)
+
+    // Create the fields with the proper labels and values
+    const fields = [
       { label: 'Monitor', value: monitor.name },
       { label: 'Status', value: status },
-      { label: 'Details', value: cleanedMsg },
-      { label: 'Timezone', value: heartbeat.timezone },
-      { label: 'Local Time', value: localTime }
+      { label: 'Country', value: country },
+      { label: 'Details', value: `\n  ${cleanedMsg}` },
+      { label: 'Date', value: localDate },
+      { label: 'Time', value: localTime }
     ]
 
+    // Push the section block with formatted fields
     blocks.push({
       type: 'section',
-      fields: details.map(({ label, value }) => ({
+      fields: fields.map(({ label, value }) => ({
         type: 'mrkdwn',
-        text: `*${label}*:\n${value}`
+        // Bold the label and keep the value on the same line
+        text: `*${label}*: ${value}`
       }))
     })
 
@@ -255,16 +262,180 @@ class Slack extends NotificationProvider {
   }
 
   /**
+   * Formats a UTC time string into a readable local date string.
+   *
+   * @param {string} utcTime - The UTC time to be formatted.
+   * @param {string} timezone - The timezone to convert to.
+   * @returns {string} - The formatted local date string.
+   */
+  formatDate (utcTime, timezone) {
+    return dayjs
+      .utc(utcTime)
+      .utcOffset(timezone)
+      .format('dddd MMM DD YYYY')
+  }
+
+  /**
    * Formats a UTC time string into a readable local time string.
    *
    * @param {string} utcTime - The UTC time to be formatted.
+   * @param {string} timezone - The timezone to convert to.
    * @returns {string} - The formatted local time string.
    */
-  formatTime (utcTime) {
+  formatTime (utcTime, timezone) {
     return dayjs
       .utc(utcTime)
-      .utcOffset('+00:00')
-      .format('dddd MMM DD, YYYY HH:mm:ss') // Format UTC to local time string
+      .utcOffset(timezone)
+      .format('HH:mm:ss')
+  }
+
+  /**
+   * Converts a timezone string to a country name.
+   *
+   * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
+   * @returns {string} - The country name corresponding to the timezone.
+   */
+  getCountryFromTimezone (timezone) {
+    const timezoneToCountry = {
+      // Europe
+      'Europe/Amsterdam': 'Netherlands',
+      'Europe/Andorra': 'Andorra',
+      'Europe/Belgrade': 'Serbia',
+      'Europe/Berlin': 'Germany',
+      'Europe/Brussels': 'Belgium',
+      'Europe/Bucharest': 'Romania',
+      'Europe/Budapest': 'Hungary',
+      'Europe/Chisinau': 'Moldova',
+      'Europe/Copenhagen': 'Denmark',
+      'Europe/Dublin': 'Ireland',
+      'Europe/Helsinki': 'Finland',
+      'Europe/Istanbul': 'Turkey',
+      'Europe/Kiev': 'Ukraine',
+      'Europe/Lisbon': 'Portugal',
+      'Europe/London': 'United Kingdom',
+      'Europe/Luxembourg': 'Luxembourg',
+      'Europe/Madrid': 'Spain',
+      'Europe/Minsk': 'Belarus',
+      'Europe/Monaco': 'Monaco',
+      'Europe/Moscow': 'Russia',
+      'Europe/Oslo': 'Norway',
+      'Europe/Paris': 'France',
+      'Europe/Prague': 'Czech Republic',
+      'Europe/Riga': 'Latvia',
+      'Europe/Rome': 'Italy',
+      'Europe/Samara': 'Russia',
+      'Europe/Sofia': 'Bulgaria',
+      'Europe/Stockholm': 'Sweden',
+      'Europe/Tallinn': 'Estonia',
+      'Europe/Tirane': 'Albania',
+      'Europe/Vaduz': 'Liechtenstein',
+      'Europe/Vienna': 'Austria',
+      'Europe/Vilnius': 'Lithuania',
+      'Europe/Zurich': 'Switzerland',
+
+      // Americas
+      'America/Argentina/Buenos_Aires': 'Argentina',
+      'America/Asuncion': 'Paraguay',
+      'America/Bahia': 'Brazil',
+      'America/Barbados': 'Barbados',
+      'America/Belize': 'Belize',
+      'America/Chicago': 'United States',
+      'America/Colombia': 'Colombia',
+      'America/Curacao': 'Curacao',
+      'America/Denver': 'United States',
+      'America/Detroit': 'United States',
+      'America/Guatemala': 'Guatemala',
+      'America/Guayaquil': 'Ecuador',
+      'America/Houston': 'United States',
+      'America/Indianapolis': 'United States',
+      'America/Lima': 'Peru',
+      'America/Los_Angeles': 'United States',
+      'America/Mexico_City': 'Mexico',
+      'America/New_York': 'United States',
+      'America/Panama': 'Panama',
+      'America/Port_of_Spain': 'Trinidad and Tobago',
+      'America/Regina': 'Canada',
+      'America/Santiago': 'Chile',
+      'America/Sao_Paulo': 'Brazil',
+      'America/Toronto': 'Canada',
+      'America/Vancouver': 'Canada',
+      'America/Winnipeg': 'Canada',
+
+      // Asia
+      'Asia/Amman': 'Jordan',
+      'Asia/Baghdad': 'Iraq',
+      'Asia/Bahrain': 'Bahrain',
+      'Asia/Bangkok': 'Thailand',
+      'Asia/Beirut': 'Lebanon',
+      'Asia/Dhaka': 'Bangladesh',
+      'Asia/Dubai': 'United Arab Emirates',
+      'Asia/Hong_Kong': 'Hong Kong',
+      'Asia/Irkutsk': 'Russia',
+      'Asia/Jakarta': 'Indonesia',
+      'Asia/Kolkata': 'India',
+      'Asia/Kuala_Lumpur': 'Malaysia',
+      'Asia/Kuwait': 'Kuwait',
+      'Asia/Makassar': 'Indonesia',
+      'Asia/Manila': 'Philippines',
+      'Asia/Muscat': 'Oman',
+      'Asia/Novosibirsk': 'Russia',
+      'Asia/Seoul': 'South Korea',
+      'Asia/Singapore': 'Singapore',
+      'Asia/Taipei': 'Taiwan',
+      'Asia/Tashkent': 'Uzbekistan',
+      'Asia/Tokyo': 'Japan',
+      'Asia/Ulaanbaatar': 'Mongolia',
+      'Asia/Yangon': 'Myanmar',
+
+      // Australia
+      'Australia/Adelaide': 'Australia',
+      'Australia/Brisbane': 'Australia',
+      'Australia/Darwin': 'Australia',
+      'Australia/Hobart': 'Australia',
+      'Australia/Melbourne': 'Australia',
+      'Australia/Sydney': 'Australia',
+
+      // Africa
+      'Africa/Addis_Ababa': 'Ethiopia',
+      'Africa/Cairo': 'Egypt',
+      'Africa/Casablanca': 'Morocco',
+      'Africa/Harare': 'Zimbabwe',
+      'Africa/Johannesburg': 'South Africa',
+      'Africa/Khartoum': 'Sudan',
+      'Africa/Lagos': 'Nigeria',
+      'Africa/Nairobi': 'Kenya',
+      'Africa/Tripoli': 'Libya',
+
+      // Middle East
+      'Asia/Tehran': 'Iran',
+      'Asia/Qatar': 'Qatar',
+      'Asia/Jerusalem': 'Israel',
+      'Asia/Riyadh': 'Saudi Arabia',
+
+      // Pacific
+      'Pacific/Auckland': 'New Zealand',
+      'Pacific/Fiji': 'Fiji',
+      'Pacific/Guam': 'Guam',
+      'Pacific/Honolulu': 'United States',
+      'Pacific/Pago_Pago': 'American Samoa',
+      'Pacific/Port_Moresby': 'Papua New Guinea',
+      'Pacific/Suva': 'Fiji',
+      'Pacific/Tarawa': 'Kiribati',
+      'Pacific/Wellington': 'New Zealand',
+
+      // Other regions
+      'Antarctica/Palmer': 'Antarctica',
+      'Antarctica/Vostok': 'Antarctica',
+      'Indian/Chagos': 'Chagos Archipelago',
+      'Indian/Mauritius': 'Mauritius',
+      'Indian/Reunion': 'Réunion',
+      'Indian/Christmas': 'Christmas Island',
+      'Indian/Kerguelen': 'French Southern and Antarctic Lands',
+      'Indian/Maldives': 'Maldives',
+      'Indian/Seychelles': 'Seychelles'
+    }
+
+    return timezoneToCountry[timezone] || 'Unknown'
   }
 
   /**
