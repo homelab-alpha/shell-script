@@ -418,7 +418,7 @@ class Slack extends NotificationProvider {
       }
     } else {
       // Log when no valid address is found for the monitor
-      completeLogInfo(`No valid address found for monitor`, {
+      completeLogWarn(`No valid address found for monitor`, {
         monitor,
       });
     }
@@ -485,37 +485,48 @@ class Slack extends NotificationProvider {
       country,
     });
 
-    // Sort monitor tags by priority to ensure they are displayed in a meaningful order
+    // Define priority levels for tags with specific names and their respective sort order
     const priorityOrder = {
-      p0: 1, // critical
-      p1: 2, // high
-      p2: 3, // moderate
-      p3: 4, // low
-      p4: 5, // negligible
-      internal: 6,
-      external: 6,
+      "P0": 1, // Highest priority, critical issues
+      "P1": 2, // High priority
+      "P2": 3, // Moderate priority
+      "P3": 4, // Low priority
+      "P4": 5, // Negligible priority
+      internal: 6, // Internal tags have lower priority
+      external: 6, // External tags share the same priority as internal
     };
 
-    // Function to extract the priority from a tag name (e.g., P0, P1, etc.)
-    const getPriority = (tagName) => {
-      const normalizedTagName = tagName.toLowerCase(); // Normalize tag to lowercase
-      return priorityOrder[normalizedTagName] || 7; // Default to 7 if not found
+    // Function to extract numerical priority from a tag (e.g., "P0", "P1", etc.)
+    const extractPriority = (tagName) => {
+      // Check if the tag matches the pattern P0, P1, etc. using regular expression
+      const match = tagName.match(/^P(\d)/i);
+      // Return the numerical priority if a match is found, otherwise return null
+      return match ? parseInt(match[1], 10) : null;
     };
 
-    // Sort the monitor tags based on priority
+    // Sort the tags based on predefined priority or extracted priority from tag name
     const sortedTags = monitor.tags
-      ? monitor.tags.sort((a, b) => getPriority(a.name) - getPriority(b.name))
-      : []; // Sort tags based on priority or use default if no tags
+      ? monitor.tags.sort((a, b) => {
+          // Determine the priority for each tag
+          const priorityA =
+            priorityOrder[a.name] || extractPriority(a.name) || 7; // Default to 7 if no priority is found
+          const priorityB =
+            priorityOrder[b.name] || extractPriority(b.name) || 7; // Default to 7 if no priority is found
 
-    // Format the sorted tags for display
+          // Return the difference to sort in ascending order (lower priority comes first)
+          return priorityA - priorityB;
+        })
+      : []; // If no tags exist, return an empty array
+
+    // Prepare the display text by joining the tag names with commas
     const tagText = sortedTags.length
-      ? sortedTags.map((tag) => tag.name).join(", ")
-      : "No tags"; // Display a fallback message if no tags are present
+      ? sortedTags.map((tag) => tag.name).join(", ") // Join tags into a comma-separated string
+      : "No tags"; // If no tags are present, display a fallback message
 
-    // Log the sorted tags before adding them to the message
-    completeLogDebug(`Sorted tags for display`, {
-      tags: sortedTags,
-      tagText,
+    // Log the sorted tags for debugging or tracking purposes
+    completeLogDebug("INFO", "Sorted tags for display", {
+      tags: sortedTags, // The array of sorted tag objects
+      tagText, // The comma-separated tag names
     });
 
     // Add a section block with monitor details such as name, status, timezone, and tags
