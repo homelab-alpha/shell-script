@@ -461,8 +461,12 @@ class Slack extends NotificationProvider {
     });
 
     // Determine monitor status (UP or DOWN) and clean the message content for display
-    const statusMessage = heartbeat.status === UP ? "UP" : "DOWN";
+    const statusMessage = heartbeat.status === UP ? "Online" : "Offline";
     const cleanedMsg = body.replace(/\[.*?\]\s*\[.*?\]\s*/, "").trim(); // Remove any bracketed segments from the message
+    const timezoneInfo = this.getAllInformationFromTimezone(heartbeat.timezone);
+    const continent = timezoneInfo.continent;
+    const country = timezoneInfo.country;
+    const localTimezone = timezoneInfo.localTimezone;
 
     // Format the local date, time, and day based on the heartbeat data and timezone
     const localDay = this.formatDay(
@@ -477,7 +481,6 @@ class Slack extends NotificationProvider {
       heartbeat.localDateTime,
       heartbeat.timezone
     );
-    const country = this.getCountryFromTimezone(heartbeat.timezone);
 
     // Log monitor status and timezone-related information
     completeLogDebug(`Formatted monitor information`, {
@@ -551,20 +554,24 @@ class Slack extends NotificationProvider {
       type: "section",
       fields: [
         {
-          type: "mrkdwn", // Markdown formatting for Slack fields
-          text: `*Monitor:* ${monitor.name}\n*Status:* ${statusMessage}\n*Country:* ${country}`,
+          type: "mrkdwn",
+          text: `*Monitor Information:*\n  - *Monitor:* ${monitor.name}\n  - *Status:* ${statusMessage}`,
         },
         {
           type: "mrkdwn",
-          text: `*Day:* ${localDay}\n*Date:* ${localDate}\n*Time:* ${localTime}`,
+          text: `*Location Details:*\n  - *Continent:* ${continent}\n  - *Country:* ${country}\n  - *Time Zone:* ${localTimezone}`,
         },
         {
           type: "mrkdwn",
-          text: `*Tags:* ${tagText}`,
+          text: `*Date and Time:*\n  - *Day:* ${localDay}\n  - *Date:* ${localDate}\n  - *Time:* ${localTime}`,
         },
         {
           type: "mrkdwn",
-          text: `*Details:*\n${cleanedMsg}`,
+          text: `*Tags:*\n  - ${tagText || "No tags available"}`,
+        },
+        {
+          type: "mrkdwn",
+          text: `*Details:*\n  - ${cleanedMsg || "No details available"}`,
         },
       ],
     });
@@ -709,177 +716,69 @@ class Slack extends NotificationProvider {
   }
 
   /**
-   * Converts a timezone string to the corresponding country name.
-   * This function uses a pre-defined mapping of timezone strings to country names.
+   * Converts a timezone string into the corresponding continent, country, and local timezone.
+   * This function retrieves the mapping for a given timezone string from predefined sets of continent names,
+   * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values
+   * and logs a warning.
    *
    * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
    *                              The timezone string should follow the IANA timezone format (e.g., "Asia/Tokyo", "America/New_York").
-   * @returns {string} - The corresponding country name (e.g., "Netherlands", "United States").
-   *                     If the timezone is not found in the mapping, "Unknown" is returned.
+   * @returns {Object} - An object containing the corresponding continent, country, and local timezone.
+   *                     If the timezone is not found in the mappings, all values will be "Unknown".
    * @throws {Error} - Throws an error if the provided timezone is invalid or if there is an issue with the mapping process.
    *
    * @description
-   * The function maps the given timezone to its associated country by checking the `timezoneToCountry` object.
-   * If the timezone is present in the mapping, the corresponding country name is returned. If the timezone is
-   * not found in the mapping, the function returns "Unknown" and logs a warning.
+   * This function uses the mappings stored in `timezoneToContinent`, `timezoneToCountry`, and `timezoneToLocalTimezone`
+   * to look up the continent, country, and local timezone associated with the provided timezone string.
+   * If the timezone is found in the mappings, it returns the corresponding continent, country, and local timezone.
+   * If the timezone is not found, it returns "Unknown" for all values and logs a warning message.
+   * The function also logs the successful conversion or missing mapping at different log levels (info or warning).
    */
-  getCountryFromTimezone(timezone) {
+  getAllInformationFromTimezone(timezone) {
+    // Mapping of timezone strings to their respective continent names
+    const timezoneToContinent = {
+      "Europe/Amsterdam": "Europe",
+      // More will be added when the script is done.
+    };
+
     // Mapping of timezone strings to their respective country names
     const timezoneToCountry = {
-      // Europe
       "Europe/Amsterdam": "Netherlands",
-      "Europe/Andorra": "Andorra",
-      "Europe/Belgrade": "Serbia",
-      "Europe/Berlin": "Germany",
-      "Europe/Brussels": "Belgium",
-      "Europe/Bucharest": "Romania",
-      "Europe/Budapest": "Hungary",
-      "Europe/Chisinau": "Moldova",
-      "Europe/Copenhagen": "Denmark",
-      "Europe/Dublin": "Ireland",
-      "Europe/Helsinki": "Finland",
-      "Europe/Istanbul": "Turkey",
-      "Europe/Kiev": "Ukraine",
-      "Europe/Lisbon": "Portugal",
-      "Europe/London": "United Kingdom",
-      "Europe/Luxembourg": "Luxembourg",
-      "Europe/Madrid": "Spain",
-      "Europe/Minsk": "Belarus",
-      "Europe/Monaco": "Monaco",
-      "Europe/Moscow": "Russia",
-      "Europe/Oslo": "Norway",
-      "Europe/Paris": "France",
-      "Europe/Prague": "Czech Republic",
-      "Europe/Riga": "Latvia",
-      "Europe/Rome": "Italy",
-      "Europe/Samara": "Russia",
-      "Europe/Sofia": "Bulgaria",
-      "Europe/Stockholm": "Sweden",
-      "Europe/Tallinn": "Estonia",
-      "Europe/Tirane": "Albania",
-      "Europe/Vaduz": "Liechtenstein",
-      "Europe/Vienna": "Austria",
-      "Europe/Vilnius": "Lithuania",
-      "Europe/Zurich": "Switzerland",
+      // More will be added when the script is done.
+    };
 
-      // Americas
-      "America/Argentina/Buenos_Aires": "Argentina",
-      "America/Asuncion": "Paraguay",
-      "America/Bahia": "Brazil",
-      "America/Barbados": "Barbados",
-      "America/Belize": "Belize",
-      "America/Chicago": "United States",
-      "America/Colombia": "Colombia",
-      "America/Curacao": "Curacao",
-      "America/Denver": "United States",
-      "America/Detroit": "United States",
-      "America/Guatemala": "Guatemala",
-      "America/Guayaquil": "Ecuador",
-      "America/Houston": "United States",
-      "America/Indianapolis": "United States",
-      "America/Lima": "Peru",
-      "America/Los_Angeles": "United States",
-      "America/Mexico_City": "Mexico",
-      "America/New_York": "United States",
-      "America/Panama": "Panama",
-      "America/Port_of_Spain": "Trinidad and Tobago",
-      "America/Regina": "Canada",
-      "America/Santiago": "Chile",
-      "America/Sao_Paulo": "Brazil",
-      "America/Toronto": "Canada",
-      "America/Vancouver": "Canada",
-      "America/Winnipeg": "Canada",
-
-      // Asia
-      "Asia/Amman": "Jordan",
-      "Asia/Baghdad": "Iraq",
-      "Asia/Bahrain": "Bahrain",
-      "Asia/Bangkok": "Thailand",
-      "Asia/Beirut": "Lebanon",
-      "Asia/Dhaka": "Bangladesh",
-      "Asia/Dubai": "United Arab Emirates",
-      "Asia/Hong_Kong": "Hong Kong",
-      "Asia/Irkutsk": "Russia",
-      "Asia/Jakarta": "Indonesia",
-      "Asia/Kolkata": "India",
-      "Asia/Kuala_Lumpur": "Malaysia",
-      "Asia/Kuwait": "Kuwait",
-      "Asia/Makassar": "Indonesia",
-      "Asia/Manila": "Philippines",
-      "Asia/Muscat": "Oman",
-      "Asia/Novosibirsk": "Russia",
-      "Asia/Seoul": "South Korea",
-      "Asia/Singapore": "Singapore",
-      "Asia/Taipei": "Taiwan",
-      "Asia/Tashkent": "Uzbekistan",
-      "Asia/Tokyo": "Japan",
-      "Asia/Ulaanbaatar": "Mongolia",
-      "Asia/Yangon": "Myanmar",
-
-      // Australia
-      "Australia/Adelaide": "Australia",
-      "Australia/Brisbane": "Australia",
-      "Australia/Darwin": "Australia",
-      "Australia/Hobart": "Australia",
-      "Australia/Melbourne": "Australia",
-      "Australia/Sydney": "Australia",
-
-      // Africa
-      "Africa/Addis_Ababa": "Ethiopia",
-      "Africa/Cairo": "Egypt",
-      "Africa/Casablanca": "Morocco",
-      "Africa/Harare": "Zimbabwe",
-      "Africa/Johannesburg": "South Africa",
-      "Africa/Khartoum": "Sudan",
-      "Africa/Lagos": "Nigeria",
-      "Africa/Nairobi": "Kenya",
-      "Africa/Tripoli": "Libya",
-
-      // Middle East
-      "Asia/Tehran": "Iran",
-      "Asia/Qatar": "Qatar",
-      "Asia/Jerusalem": "Israel",
-      "Asia/Riyadh": "Saudi Arabia",
-
-      // Pacific
-      "Pacific/Auckland": "New Zealand",
-      "Pacific/Fiji": "Fiji",
-      "Pacific/Guam": "Guam",
-      "Pacific/Honolulu": "United States",
-      "Pacific/Pago_Pago": "American Samoa",
-      "Pacific/Port_Moresby": "Papua New Guinea",
-      "Pacific/Suva": "Fiji",
-      "Pacific/Tarawa": "Kiribati",
-      "Pacific/Wellington": "New Zealand",
-
-      // Other regions
-      "Antarctica/Palmer": "Antarctica",
-      "Antarctica/Vostok": "Antarctica",
-      "Indian/Chagos": "Chagos Archipelago",
-      "Indian/Mauritius": "Mauritius",
-      "Indian/Reunion": "Réunion",
-      "Indian/Christmas": "Christmas Island",
-      "Indian/Kerguelen": "French Southern and Antarctic Lands",
-      "Indian/Maldives": "Maldives",
-      "Indian/Seychelles": "Seychelles",
+    // Mapping of timezone strings to their respective local timezones
+    const timezoneToLocalTimezone = {
+      "Europe/Amsterdam": "Central European Time (CET)",
+      // More will be added when the script is done.
     };
 
     // Log the timezone conversion process
-    completeLogDebug(`Converting timezone: ${timezone} to country`);
+    completeLogDebug(
+      `Converting timezone: ${timezone} to continent, country, and local timezone`
+    );
 
-    // Check if the timezone is found in the mapping, else return "Unknown"
+    // Get the continent, country, and local timezone from the mappings, or default to "Unknown"
+    const continent = timezoneToContinent[timezone] || "Unknown";
     const country = timezoneToCountry[timezone] || "Unknown";
+    const localTimezone = timezoneToLocalTimezone[timezone] || "Unknown";
 
-    // If the country is unknown, log a warning
-    if (country === "Unknown") {
+    // If any of the values is unknown, log a warning
+    if (
+      continent === "Unknown" &&
+      country === "Unknown" &&
+      localTimezone === "Unknown"
+    ) {
       completeLogWarn(
-        `Timezone: ${timezone} not found in the mapping. Returning "Unknown"`
+        `Timezone: ${timezone} not found in the mappings. Returning "Unknown" for continent, country, and local timezone`
       );
     } else {
-      completeLogInfo(`Timezone: ${timezone} corresponds to: ${country}`);
+      completeLogInfo(
+        `Timezone: ${timezone} corresponds to continent: ${continent}, country: ${country}, local timezone: ${localTimezone}`
+      );
     }
 
-    return country;
+    return { continent, country, localTimezone }; // Corrected variable name
   }
 
   /**
