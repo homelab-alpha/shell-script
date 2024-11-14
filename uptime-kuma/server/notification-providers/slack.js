@@ -11,12 +11,13 @@ const timezone = require("dayjs/plugin/timezone");
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-// Global object to enable or disable specific log levels
+// Global object to enable or disable specific log levels and compact logs
 const logLevelsEnabled = {
   debug: false, // Set to true to enable debug logs. Default is false.
   info: true, // Set to false to disable info logs. Default is true.
   warn: true, // Set to false to disable warning logs. Default is true.
   error: true, // Set to false to disable error logs. Default is true.
+  compactLogs: true, // Set to true to enable compact logs by default
 };
 
 // Function to get the color for the log level
@@ -92,11 +93,12 @@ function logMessage(logLevel, message, additionalInfo = null) {
 
   // Add additional information if provided
   if (additionalInfo) {
-    logMessage += ` | Additional Info: ${JSON.stringify(
-      additionalInfo,
-      null,
-      2
-    )}`;
+    // Use compact or indented format based on the compactLogs setting
+    const additionalInfoString = logLevelsEnabled.compactLogs
+      ? JSON.stringify(additionalInfo) // Compact format (no indentation)
+      : JSON.stringify(additionalInfo, null, 2); // Indented format (pretty print)
+
+    logMessage += ` | Additional Info: ${additionalInfoString}`;
   }
 
   // Log the final message to the console
