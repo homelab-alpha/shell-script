@@ -107,93 +107,6 @@ class Slack extends NotificationProvider {
   name = "slack";
 
   /**
-   * Sends a Slack notification with optional detailed blocks if heartbeat data is provided.
-   * The message can include a channel notification tag if configured in the notification settings.
-   *
-   * @param {object} notification - Slack notification configuration, including webhook URL, channel, and optional settings.
-   * @param {string} message - The content to be sent in the Slack notification.
-   * @param {object|null} monitor - The monitor object containing monitor details (optional).
-   * @param {object|null} heartbeat - Heartbeat data to be included in the notification (optional).
-   *
-   * @returns {Promise<string>} - A success message indicating the notification was sent successfully.
-   */
-  async send(notification = {}, message, monitor = null, heartbeat = null) {
-    const successMessage = "Sent Successfully.";
-
-    // Validate the provided Slack notification configuration
-    try {
-      this.validateNotificationConfig(notification);
-    } catch (error) {
-      // Log error if configuration is invalid and rethrow with a custom error message
-      completeLogError(`Slack notification configuration error`, {
-        error: error.message,
-        notification,
-      });
-      throw new Error("Notification configuration is incorrect.");
-    }
-
-    // Append the Slack channel notification tag if configured
-    if (notification.slackchannelnotify) {
-      message += " <!channel>"; // Adds a Slack channel notification tag to the message
-      completeLogInfo(`Channel notification tag appended to message`, {
-        slackchannelnotify: notification.slackchannelnotify,
-      });
-    }
-
-    try {
-      // Retrieve the base URL from settings for constructing monitor links
-      const baseURL = await setting("primaryBaseURL");
-      completeLogDebug(`Retrieved base URL for notification`, {
-        baseURL,
-      });
-
-      // Construct the payload for the Slack notification, including heartbeat data if available
-      const data = this.createSlackData(
-        notification,
-        message,
-        monitor,
-        heartbeat,
-        baseURL
-      );
-      completeLogDebug(`Constructed Slack notification data`, {
-        data,
-      });
-
-      // Process any deprecated Slack button URL if specified in notification settings
-      if (notification.slackbutton) {
-        await Slack.deprecateURL(notification.slackbutton); // Handle deprecated URL
-        completeLogWarn(`Deprecated Slack button URL processed`, {
-          slackbutton: notification.slackbutton,
-        });
-      }
-
-      // Send the notification to the configured Slack webhook URL using Axios
-      const response = await axios.post(notification.slackwebhookURL, data);
-      completeLogInfo(`Slack notification sent successfully`, {
-        response: response.data,
-      });
-
-      return successMessage; // Return success message after notification is sent
-    } catch (error) {
-      // Log detailed error information if the Slack notification fails
-      completeLogError(`Slack notification failed`, {
-        message: error.message,
-        stack: error.stack,
-        response: error.response?.data || "No response data",
-        notification,
-        data: {
-          message,
-          monitor,
-          heartbeat,
-        },
-      });
-
-      // Handle errors by throwing a generalized Axios error
-      this.throwGeneralAxiosError(error);
-    }
-  }
-
-  /**
    * Validates the configuration object for Slack notifications to ensure all required fields are present.
    * If any required fields are missing, an error is thrown. If no custom icon is provided, a default icon is set.
    *
@@ -263,345 +176,69 @@ class Slack extends NotificationProvider {
   }
 
   /**
-   * Creates the payload for the Slack message, optionally including rich content with heartbeat data.
-   * Constructs a simple text message or a detailed rich message based on the configuration and heartbeat data.
+   * Converts a timezone string into the corresponding continent, country, and local timezone.
+   * This function retrieves the mapping for a given timezone string from predefined sets of continent names,
+   * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values
+   * and logs a warning.
    *
-   * @param {object} notification - The configuration object for Slack notifications.
-   * @param {string} message - The main content of the notification message.
-   * @param {object|null} monitor - The monitor object containing details (optional).
-   * @param {object|null} heartbeat - Heartbeat data for the monitor (optional).
-   * @param {string} baseURL - The base URL of Uptime Kuma used to create monitor-specific links.
+   * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
+   *                              The timezone string should follow the IANA timezone format (e.g., "Asia/Tokyo", "America/New_York").
+   * @returns {Object} - An object containing the corresponding continent, country, and local timezone.
+   *                     If the timezone is not found in the mappings, all values will be "Unknown".
+   * @throws {Error} - Throws an error if the provided timezone is invalid or if there is an issue with the mapping process.
    *
-   * @returns {object} - The payload formatted for Slack notification.
+   * @description
+   * This function uses the mappings stored in `timezoneToContinent`, `timezoneToCountry`, and `timezoneToLocalTimezone`
+   * to look up the continent, country, and local timezone associated with the provided timezone string.
+   * If the timezone is found in the mappings, it returns the corresponding continent, country, and local timezone.
+   * If the timezone is not found, it returns "Unknown" for all values and logs a warning message.
+   * The function also logs the successful conversion or missing mapping at different log levels (info or warning).
    */
-  createSlackData(notification, message, monitor, heartbeat, baseURL) {
-    const title = "Uptime Kuma Alert"; // Default title for the notification
-
-    // Check if the monitor object is present, otherwise log and set fallback values
-    if (!monitor || !monitor.name) {
-      completeLogDebug("Monitor object is null or missing 'name' property", {
-        monitor,
-      });
-      monitor = { name: "Unknown Monitor", id: "fallback-id" }; // Fallback to generic monitor data
-    }
-
-    // Determine the status icon and message based on heartbeat data
-    const statusIcon = heartbeat && heartbeat.status === UP ? "🟢" : "🔴";
-    const statusMessage =
-      heartbeat && heartbeat.status === UP ? "is back online!" : "went down!";
-    const colorBased =
-      heartbeat && heartbeat.status === UP ? "#2eb886" : "#e01e5a"; // Set color based on status
-
-    // Log the start of Slack data construction
-    completeLogDebug(`Starting Slack data construction`, {
-      notification,
-      message,
-      monitor,
-      heartbeat,
-      baseURL,
-    });
-
-    // Basic structure for Slack message payload
-    const data = {
-      text: `${statusIcon} ${monitor.name} ${statusMessage}`, // Preview message Slack APP
-      channel: notification.slackchannel, // The channel where the notification will be sent
-      username: notification.slackusername || "Uptime Kuma (bot)", // The bot's username
-      icon_emoji: notification.slackiconemo || ":robot_face:", // The bot's icon emoji
-      attachments: [], // DO NOT USE!!! --> Optional attachments for richer messages
+  getAllInformationFromTimezone(timezone) {
+    // Mapping of timezone strings to their respective continent names
+    const timezoneToContinent = {
+      "Europe/Amsterdam": "Europe",
+      // More will be added when the script is done.
     };
 
-    completeLogDebug(`Initialized basic Slack message structure`, {
-      data,
-    });
+    // Mapping of timezone strings to their respective country names
+    const timezoneToCountry = {
+      "Europe/Amsterdam": "Netherlands",
+      // More will be added when the script is done.
+    };
 
-    // If heartbeat data is available and rich message format is enabled, construct a detailed message
-    if (heartbeat && notification.slackrichmessage) {
-      data.attachments.push({
-        color: colorBased, // Message color based on monitor status
-        blocks: this.buildBlocks(baseURL, monitor, heartbeat, title, message), // Rich content blocks
-      });
+    // Mapping of timezone strings to their respective local timezones
+    const timezoneToLocalTimezone = {
+      "Europe/Amsterdam": "Central European Time (CET)",
+      // More will be added when the script is done.
+    };
 
-      completeLogDebug(`Rich message format applied to Slack notification`, {
-        color: colorBased,
-        blocks: data.attachments[0].blocks,
-      });
+    // Log the timezone conversion process
+    completeLogDebug(
+      `Converting timezone: ${timezone} to continent, country, and local timezone`
+    );
+
+    // Get the continent, country, and local timezone from the mappings, or default to "Unknown"
+    const continent = timezoneToContinent[timezone] || "Unknown";
+    const country = timezoneToCountry[timezone] || "Unknown";
+    const localTimezone = timezoneToLocalTimezone[timezone] || "Unknown";
+
+    // If any of the values is unknown, log a warning
+    if (
+      continent === "Unknown" &&
+      country === "Unknown" &&
+      localTimezone === "Unknown"
+    ) {
+      completeLogWarn(
+        `Timezone: ${timezone} not found in the mappings. Returning "Unknown" for continent, country, and local timezone`
+      );
     } else {
-      // If no heartbeat or rich message is disabled, fallback to a simple text message
-      data.text = `${title}\n${message}`;
       completeLogInfo(
-        `Simple text message format applied to Slack notification`,
-        {
-          text: data.text,
-        }
+        `Timezone: ${timezone} corresponds to continent: ${continent}, country: ${country}, local timezone: ${localTimezone}`
       );
     }
 
-    // Log the final Slack data payload
-    completeLogDebug(`Final Slack data payload constructed`, {
-      data,
-    });
-
-    return data; // Return the constructed data payload for sending
-  }
-
-  /**
-   * Builds action buttons for the Slack message to allow user interactions with the monitor.
-   * This includes buttons to visit the Uptime Kuma dashboard and the monitor's address (if available and valid).
-   *
-   * @param {string} baseURL - The base URL of the Uptime Kuma instance used to generate monitor-specific links.
-   * @param {object} monitor - The monitor object containing details like ID, name, and address.
-   *
-   * @returns {Array} - An array of button objects to be included in the Slack message payload.
-   */
-  buildActions(baseURL, monitor) {
-    const actions = []; // Initialize an empty array to hold the action buttons
-
-    // Log the start of the action button creation process
-    completeLogDebug(`Starting action button creation`, {
-      baseURL,
-      monitor,
-    });
-
-    // Check if baseURL is provided and create the Uptime Kuma dashboard button
-    if (baseURL) {
-      const uptimeButton = {
-        type: "button", // Slack button type
-        text: { type: "plain_text", text: "Visit Uptime Kuma" }, // Button label
-        value: "Uptime-Kuma", // Button value (for interaction tracking, if necessary)
-        url: `${baseURL}${getMonitorRelativeURL(monitor.id)}`, // Construct the monitor-specific URL
-      };
-
-      actions.push(uptimeButton); // Add the button to the actions array
-
-      // Log the Uptime Kuma button that was added
-      completeLogDebug(`Uptime Kuma button added`, {
-        button: uptimeButton,
-      });
-    }
-
-    // Extract the monitor's address (if available) and check its validity
-    const address = this.extractAddress(monitor);
-    if (address) {
-      try {
-        const validURL = new URL(address); // Try to create a URL object from the address
-
-        // Exclude URLs that end with reserved ports (commonly used for DNS or DoH)
-        if (!validURL.href.endsWith(":53") && !validURL.href.endsWith(":853")) {
-          const monitorButton = {
-            type: "button", // Slack button type
-            text: { type: "plain_text", text: `Visit ${monitor.name}` }, // Button label with monitor name
-            value: "Site", // Button value (for interaction tracking)
-            url: validURL.href, // Valid URL as the destination for the button
-          };
-
-          actions.push(monitorButton); // Add the monitor button to the actions array
-
-          // Log the monitor button that was added
-          completeLogDebug(`Monitor button added`, {
-            button: monitorButton,
-          });
-        } else {
-          // Log the exclusion of the address due to reserved ports (53 and 853)
-          completeLogDebug(`Address excluded due to reserved port`, {
-            address: validURL.href,
-          });
-        }
-      } catch (e) {
-        // Log an error if the address format is invalid
-        completeLogError(
-          `Invalid URL format: Can be ignored for certain monitor types, such as PING or TCP Port`,
-          {
-            address,
-            error: e.message,
-          }
-        );
-      }
-    } else {
-      // Log when no valid address is found for the monitor
-      completeLogDebug(
-        `No valid address found for monitor: Can be ignored for certain monitor types, such as MQTT, POSTGRES, MYSQL, MONGODB and REDIS`,
-        {
-          monitor,
-        }
-      );
-    }
-
-    // Log the final actions array, which will be included in the Slack message
-    completeLogDebug(`Final actions array constructed`, {
-      actions,
-    });
-
-    return actions; // Return the array of action buttons
-  }
-
-  /**
-   * Constructs the Slack message blocks, including the header, monitor details, and actions.
-   * Adds additional information such as monitor status, timezone, and local time to the message.
-   *
-   * @param {string} baseURL - The base URL of Uptime Kuma, used for constructing monitor-specific links.
-   * @param {object} monitor - The monitor object containing details like name, status, and tags.
-   * @param {object} heartbeat - Heartbeat data object that provides status and timestamp information.
-   * @param {string} title - The title of the message (typically the alert title).
-   * @param {string} body - The main content of the message (typically a detailed description or status update).
-   *
-   * @returns {Array<object>} - An array of Slack message blocks, including headers, monitor details, and action buttons.
-   */
-  buildBlocks(baseURL, monitor, heartbeat, title, body) {
-    const blocks = []; // Initialize an array to hold the message blocks
-
-    // Log the creation of the message header
-    completeLogDebug(`Building message header block`, {
-      title,
-    });
-
-    // Create and add the header block with the message title
-    blocks.push({
-      type: "header",
-      text: { type: "plain_text", text: title },
-    });
-
-    // Determine monitor status (UP or DOWN) and clean the message content for display
-    const statusMessage = heartbeat.status === UP ? "Online" : "Offline";
-    const cleanedMsg = body.replace(/\[.*?\]\s*\[.*?\]\s*/, "").trim(); // Remove any bracketed segments from the message
-    const timezoneInfo = this.getAllInformationFromTimezone(heartbeat.timezone);
-    const continent = timezoneInfo.continent;
-    const country = timezoneInfo.country;
-    const localTimezone = timezoneInfo.localTimezone;
-
-    // Format the local date, time, and day based on the heartbeat data and timezone
-    const localDay = this.formatDay(
-      heartbeat.localDateTime,
-      heartbeat.timezone
-    );
-    const localDate = this.formatDate(
-      heartbeat.localDateTime,
-      heartbeat.timezone
-    );
-    const localTime = this.formatTime(
-      heartbeat.localDateTime,
-      heartbeat.timezone
-    );
-
-    // Log monitor status and timezone-related information
-    completeLogDebug(`Formatted monitor information`, {
-      statusMessage,
-      localDay,
-      localDate,
-      localTime,
-      country,
-    });
-
-    // Define the priority order for tag types, ensuring both lowercase and uppercase tags are handled
-    const priorityOrder = {
-      P0: 1,
-      P1: 2,
-      P2: 3,
-      P3: 4,
-      P4: 5,
-      p0: 1,
-      p1: 2,
-      p2: 3,
-      p3: 4,
-      p4: 5,
-      internal: 6,
-      external: 6,
-    };
-
-    // Function to retrieve the priority of a tag based on its name
-    const getTagPriority = (tagName) => {
-      // Match the priority pattern (P0, p0, P1, p1, etc.)
-      const match = tagName.match(/^([pP]\d)/);
-      if (match) {
-        // Return the priority from the defined order or 7 if it's an unrecognized priority tag
-        return priorityOrder[match[1]] || 7;
-      }
-      // Log a warning if the tag doesn't match the expected pattern
-      completeLogDebug(
-        `Tag '${tagName}' doesn't match a known priority pattern. Defaulting to priority 7.`
-      );
-      return 7; // Default priority for unrecognized tags
-    };
-
-    // Sort tags by their name and the predefined priority
-    const sortedTags = monitor.tags
-      ? monitor.tags.sort((a, b) => {
-          const priorityA = getTagPriority(a.name);
-          const priorityB = getTagPriority(b.name);
-
-          // Log the priorities being compared for debugging
-          completeLogDebug(
-            `Comparing priorities: ${a.name} (Priority: ${priorityA}) vs ${b.name} (Priority: ${priorityB})`
-          );
-
-          return priorityA - priorityB;
-        })
-      : [];
-
-    // Create the display text from the sorted tags, handling the case where no tags are present
-    const tagText = sortedTags.length
-      ? sortedTags.map((tag) => tag.name).join(", ")
-      : "No tags";
-
-    // Log the sorted tags and display text for debugging
-    completeLogDebug("Sorted tags for display", {
-      sortedTags: sortedTags.map((tag) => tag.name), // Only display the names in the log for clarity
-      tagText,
-      totalTags: sortedTags.length, // Optionally log the number of tags for extra context
-    });
-
-    // Add a section block with monitor details such as name, status, timezone, and tags
-    blocks.push({
-      type: "section",
-      fields: [
-        {
-          type: "mrkdwn",
-          text: `*Monitor Information:*\n  - *Monitor:* ${monitor.name}\n  - *Status:* ${statusMessage}`,
-        },
-        {
-          type: "mrkdwn",
-          text: `*Location Details:*\n  - *Continent:* ${continent}\n  - *Country:* ${country}\n  - *Time Zone:* ${localTimezone}`,
-        },
-        {
-          type: "mrkdwn",
-          text: `*Date and Time:*\n  - *Day:* ${localDay}\n  - *Date:* ${localDate}\n  - *Time:* ${localTime}`,
-        },
-        {
-          type: "mrkdwn",
-          text: `*Tags:*\n  - ${tagText || "No tags available"}`,
-        },
-        {
-          type: "mrkdwn",
-          text: `*Details:*\n  - ${cleanedMsg || "No details available"}`,
-        },
-      ],
-    });
-
-    // Log before adding action buttons
-    completeLogDebug(`Building action buttons`, {
-      baseURL,
-      monitor,
-    });
-
-    // Add action buttons (e.g., visit Uptime Kuma or monitor URL) if available
-    const actions = this.buildActions(baseURL, monitor);
-    if (actions.length) {
-      blocks.push({ type: "actions", elements: actions }); // Add buttons as an "actions" block
-
-      // Log the added action buttons
-      completeLogDebug(`Action buttons added to message blocks`, {
-        actions,
-      });
-    } else {
-      // Log when no action buttons are added
-      completeLogInfo(`No action buttons to add`);
-    }
-
-    // Log the final structure of the message blocks
-    completeLogDebug(`Final Slack message blocks constructed`, {
-      blocks,
-    });
-
-    return blocks; // Return the constructed blocks for Slack message
+    return { continent, country, localTimezone }; // Corrected variable name
   }
 
   /**
@@ -716,69 +353,346 @@ class Slack extends NotificationProvider {
   }
 
   /**
-   * Converts a timezone string into the corresponding continent, country, and local timezone.
-   * This function retrieves the mapping for a given timezone string from predefined sets of continent names,
-   * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values
-   * and logs a warning.
+   * Constructs the Slack message blocks, including the header, monitor details, and actions.
+   * Adds additional information such as monitor status, timezone, and local time to the message.
    *
-   * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
-   *                              The timezone string should follow the IANA timezone format (e.g., "Asia/Tokyo", "America/New_York").
-   * @returns {Object} - An object containing the corresponding continent, country, and local timezone.
-   *                     If the timezone is not found in the mappings, all values will be "Unknown".
-   * @throws {Error} - Throws an error if the provided timezone is invalid or if there is an issue with the mapping process.
+   * @param {string} baseURL - The base URL of Uptime Kuma, used for constructing monitor-specific links.
+   * @param {object} monitor - The monitor object containing details like name, status, and tags.
+   * @param {object} heartbeat - Heartbeat data object that provides status and timestamp information.
+   * @param {string} title - The title of the message (typically the alert title).
+   * @param {string} body - The main content of the message (typically a detailed description or status update).
    *
-   * @description
-   * This function uses the mappings stored in `timezoneToContinent`, `timezoneToCountry`, and `timezoneToLocalTimezone`
-   * to look up the continent, country, and local timezone associated with the provided timezone string.
-   * If the timezone is found in the mappings, it returns the corresponding continent, country, and local timezone.
-   * If the timezone is not found, it returns "Unknown" for all values and logs a warning message.
-   * The function also logs the successful conversion or missing mapping at different log levels (info or warning).
+   * @returns {Array<object>} - An array of Slack message blocks, including headers, monitor details, and action buttons.
    */
-  getAllInformationFromTimezone(timezone) {
-    // Mapping of timezone strings to their respective continent names
-    const timezoneToContinent = {
-      "Europe/Amsterdam": "Europe",
-      // More will be added when the script is done.
-    };
+  buildBlocks(baseURL, monitor, heartbeat, title, body) {
+    const blocks = []; // Initialize an array to hold the message blocks
 
-    // Mapping of timezone strings to their respective country names
-    const timezoneToCountry = {
-      "Europe/Amsterdam": "Netherlands",
-      // More will be added when the script is done.
-    };
+    // Log the creation of the message header
+    completeLogDebug(`Building message header block`, {
+      title,
+    });
 
-    // Mapping of timezone strings to their respective local timezones
-    const timezoneToLocalTimezone = {
-      "Europe/Amsterdam": "Central European Time (CET)",
-      // More will be added when the script is done.
-    };
+    // Create and add the header block with the message title
+    blocks.push({
+      type: "header",
+      text: { type: "plain_text", text: title },
+    });
 
-    // Log the timezone conversion process
-    completeLogDebug(
-      `Converting timezone: ${timezone} to continent, country, and local timezone`
+    // Determine monitor status (UP or DOWN) and clean the message content for display
+    const statusMessage = heartbeat.status === UP ? "Online" : "Offline";
+    const cleanedMsg = body.replace(/\[.*?\]\s*\[.*?\]\s*/, "").trim(); // Remove any bracketed segments from the message
+
+    // Format the local date, time, and day based on the heartbeat data and timezone
+    const timezoneInfo = this.getAllInformationFromTimezone(heartbeat.timezone);
+    const continent = timezoneInfo.continent;
+    const country = timezoneInfo.country;
+    const localTimezone = timezoneInfo.localTimezone;
+
+    const localDay = this.formatDay(
+      heartbeat.localDateTime,
+      heartbeat.timezone
+    );
+    const localDate = this.formatDate(
+      heartbeat.localDateTime,
+      heartbeat.timezone
+    );
+    const localTime = this.formatTime(
+      heartbeat.localDateTime,
+      heartbeat.timezone
     );
 
-    // Get the continent, country, and local timezone from the mappings, or default to "Unknown"
-    const continent = timezoneToContinent[timezone] || "Unknown";
-    const country = timezoneToCountry[timezone] || "Unknown";
-    const localTimezone = timezoneToLocalTimezone[timezone] || "Unknown";
+    // Log monitor status and timezone-related information
+    completeLogDebug(`Formatted monitor information`, {
+      statusMessage,
+      localDay,
+      localDate,
+      localTime,
+      country,
+    });
 
-    // If any of the values is unknown, log a warning
-    if (
-      continent === "Unknown" &&
-      country === "Unknown" &&
-      localTimezone === "Unknown"
-    ) {
-      completeLogWarn(
-        `Timezone: ${timezone} not found in the mappings. Returning "Unknown" for continent, country, and local timezone`
+    // Define the priority order for tag types, ensuring both lowercase and uppercase tags are handled
+    const priorityOrder = {
+      P0: 1,
+      P1: 2,
+      P2: 3,
+      P3: 4,
+      P4: 5,
+      p0: 1,
+      p1: 2,
+      p2: 3,
+      p3: 4,
+      p4: 5,
+      internal: 6,
+      external: 6,
+    };
+
+    // Function to retrieve the priority of a tag based on its name
+    const getTagPriority = (tagName) => {
+      // Match the priority pattern (P0, p0, P1, p1, etc.)
+      const match = tagName.match(/^([pP]\d)/);
+      if (match) {
+        // Return the priority from the defined order or 7 if it's an unrecognized priority tag
+        return priorityOrder[match[1]] || 7;
+      }
+      // Log a warning if the tag doesn't match the expected pattern
+      completeLogDebug(
+        `Tag '${tagName}' doesn't match a known priority pattern. Defaulting to priority 7.`
       );
+      return 7; // Default priority for unrecognized tags
+    };
+
+    // Sort tags by their name and the predefined priority
+    const sortedTags = monitor.tags
+      ? monitor.tags.sort((a, b) => {
+          const priorityA = getTagPriority(a.name);
+          const priorityB = getTagPriority(b.name);
+
+          // Log the priorities being compared for debugging
+          completeLogDebug(
+            `Comparing priorities: ${a.name} (Priority: ${priorityA}) vs ${b.name} (Priority: ${priorityB})`
+          );
+
+          return priorityA - priorityB;
+        })
+      : [];
+
+    // Create the display text from the sorted tags, handling the case where no tags are present
+    const tagText = sortedTags.length
+      ? sortedTags.map((tag) => tag.name).join(", ")
+      : "No tags";
+
+    // Log the sorted tags and display text for debugging
+    completeLogDebug("Sorted tags for display", {
+      sortedTags: sortedTags.map((tag) => tag.name), // Only display the names in the log for clarity
+      tagText,
+      totalTags: sortedTags.length, // Optionally log the number of tags for extra context
+    });
+
+    // Add a section block with monitor details such as name, status, timezone, and tags
+    blocks.push({
+      type: "section",
+      fields: [
+        {
+          type: "mrkdwn",
+          text: `*Monitor:* ${monitor.name}\n*Status:* ${statusMessage}`,
+        },
+        {
+          type: "mrkdwn",
+          text: `*Continent:* ${continent}\n*Country:* ${country}\n*Time Zone:* ${localTimezone}`,
+        },
+        {
+          type: "mrkdwn",
+          text: `*Day:* ${localDay}\n*Date:* ${localDate}\n*Time:* ${localTime}`,
+        },
+        {
+          type: "mrkdwn",
+          text: `*Tags:*\n  - ${tagText || "No tags available"}`,
+        },
+        {
+          type: "mrkdwn",
+          text: `*Details:*\n  - ${cleanedMsg || "No details available"}`,
+        },
+      ],
+    });
+
+    // Log before adding action buttons
+    completeLogDebug(`Building action buttons`, {
+      baseURL,
+      monitor,
+    });
+
+    // Add action buttons (e.g., visit Uptime Kuma or monitor URL) if available
+    const actions = this.buildActions(baseURL, monitor);
+    if (actions.length) {
+      blocks.push({ type: "actions", elements: actions }); // Add buttons as an "actions" block
+
+      // Log the added action buttons
+      completeLogDebug(`Action buttons added to message blocks`, {
+        actions,
+      });
     } else {
-      completeLogInfo(
-        `Timezone: ${timezone} corresponds to continent: ${continent}, country: ${country}, local timezone: ${localTimezone}`
+      // Log when no action buttons are added
+      completeLogInfo(`No action buttons to add`);
+    }
+
+    // Log the final structure of the message blocks
+    completeLogDebug(`Final Slack message blocks constructed`, {
+      blocks,
+    });
+
+    return blocks; // Return the constructed blocks for Slack message
+  }
+
+  /**
+   * Builds action buttons for the Slack message to allow user interactions with the monitor.
+   * This includes buttons to visit the Uptime Kuma dashboard and the monitor's address (if available and valid).
+   *
+   * @param {string} baseURL - The base URL of the Uptime Kuma instance used to generate monitor-specific links.
+   * @param {object} monitor - The monitor object containing details like ID, name, and address.
+   *
+   * @returns {Array} - An array of button objects to be included in the Slack message payload.
+   */
+  buildActions(baseURL, monitor) {
+    const actions = []; // Initialize an empty array to hold the action buttons
+
+    // Log the start of the action button creation process
+    completeLogDebug(`Starting action button creation`, {
+      baseURL,
+      monitor,
+    });
+
+    // Check if baseURL is provided and create the Uptime Kuma dashboard button
+    if (baseURL) {
+      const uptimeButton = {
+        type: "button", // Slack button type
+        text: { type: "plain_text", text: "Visit Uptime Kuma" }, // Button label
+        value: "Uptime-Kuma", // Button value (for interaction tracking, if necessary)
+        url: `${baseURL}${getMonitorRelativeURL(monitor.id)}`, // Construct the monitor-specific URL
+      };
+
+      actions.push(uptimeButton); // Add the button to the actions array
+
+      // Log the Uptime Kuma button that was added
+      completeLogDebug(`Uptime Kuma button added`, {
+        button: uptimeButton,
+      });
+    }
+
+    // Extract the monitor's address (if available) and check its validity
+    const address = this.extractAddress(monitor);
+    if (address) {
+      try {
+        const validURL = new URL(address); // Try to create a URL object from the address
+
+        // Exclude URLs that end with reserved ports (commonly used for DNS or DoH)
+        if (!validURL.href.endsWith(":53") && !validURL.href.endsWith(":853")) {
+          const monitorButton = {
+            type: "button", // Slack button type
+            text: { type: "plain_text", text: `Visit ${monitor.name}` }, // Button label with monitor name
+            value: "Site", // Button value (for interaction tracking)
+            url: validURL.href, // Valid URL as the destination for the button
+          };
+
+          actions.push(monitorButton); // Add the monitor button to the actions array
+
+          // Log the monitor button that was added
+          completeLogDebug(`Monitor button added`, {
+            button: monitorButton,
+          });
+        } else {
+          // Log the exclusion of the address due to reserved ports (53 and 853)
+          completeLogDebug(`Address excluded due to reserved port`, {
+            address: validURL.href,
+          });
+        }
+      } catch (e) {
+        // Log an error if the address format is invalid
+        completeLogError(
+          `Invalid URL format: Can be ignored for certain monitor types, such as PING or TCP Port`,
+          {
+            address,
+            error: e.message,
+          }
+        );
+      }
+    } else {
+      // Log when no valid address is found for the monitor
+      completeLogDebug(
+        `No valid address found for monitor: Can be ignored for certain monitor types, such as MQTT, POSTGRES, MYSQL, MONGODB and REDIS`,
+        {
+          monitor,
+        }
       );
     }
 
-    return { continent, country, localTimezone }; // Corrected variable name
+    // Log the final actions array, which will be included in the Slack message
+    completeLogDebug(`Final actions array constructed`, {
+      actions,
+    });
+
+    return actions; // Return the array of action buttons
+  }
+
+  /**
+   * Creates the payload for the Slack message, optionally including rich content with heartbeat data.
+   * Constructs a simple text message or a detailed rich message based on the configuration and heartbeat data.
+   *
+   * @param {object} notification - The configuration object for Slack notifications.
+   * @param {string} message - The main content of the notification message.
+   * @param {object|null} monitor - The monitor object containing details (optional).
+   * @param {object|null} heartbeat - Heartbeat data for the monitor (optional).
+   * @param {string} baseURL - The base URL of Uptime Kuma used to create monitor-specific links.
+   *
+   * @returns {object} - The payload formatted for Slack notification.
+   */
+  createSlackData(notification, message, monitor, heartbeat, baseURL) {
+    const title = "Uptime Kuma Alert"; // Default title for the notification
+
+    // Check if the monitor object is present, otherwise log and set fallback values
+    if (!monitor || !monitor.name) {
+      completeLogDebug("Monitor object is null or missing 'name' property", {
+        monitor,
+      });
+      monitor = { name: "Unknown Monitor", id: "fallback-id" }; // Fallback to generic monitor data
+    }
+
+    // Determine the status icon and message based on heartbeat data
+    const statusIcon = heartbeat && heartbeat.status === UP ? "🟢" : "🔴";
+    const statusMessage =
+      heartbeat && heartbeat.status === UP ? "is back online!" : "went down!";
+    const colorBased =
+      heartbeat && heartbeat.status === UP ? "#2eb886" : "#e01e5a"; // Set color based on status
+
+    // Log the start of Slack data construction
+    completeLogDebug(`Starting Slack data construction`, {
+      notification,
+      message,
+      monitor,
+      heartbeat,
+      baseURL,
+    });
+
+    // Basic structure for Slack message payload
+    const data = {
+      text: `${statusIcon} ${monitor.name} ${statusMessage}`, // Preview message Slack APP
+      channel: notification.slackchannel, // The channel where the notification will be sent
+      username: notification.slackusername || "Uptime Kuma (bot)", // The bot's username
+      icon_emoji: notification.slackiconemo || ":robot_face:", // The bot's icon emoji
+      attachments: [], // DO NOT USE!!! --> Optional attachments for richer messages
+    };
+
+    completeLogDebug(`Initialized basic Slack message structure`, {
+      data,
+    });
+
+    // If heartbeat data is available and rich message format is enabled, construct a detailed message
+    if (heartbeat && notification.slackrichmessage) {
+      data.attachments.push({
+        color: colorBased, // Message color based on monitor status
+        blocks: this.buildBlocks(baseURL, monitor, heartbeat, title, message), // Rich content blocks
+      });
+
+      completeLogDebug(`Rich message format applied to Slack notification`, {
+        color: colorBased,
+        blocks: data.attachments[0].blocks,
+      });
+    } else {
+      // If no heartbeat or rich message is disabled, fallback to a simple text message
+      data.text = `${title}\n${message}`;
+      completeLogInfo(
+        `Simple text message format applied to Slack notification`,
+        {
+          text: data.text,
+        }
+      );
+    }
+
+    // Log the final Slack data payload
+    completeLogDebug(`Final Slack data payload constructed`, {
+      data,
+    });
+
+    return data; // Return the constructed data payload for sending
   }
 
   /**
@@ -832,6 +746,93 @@ class Slack extends NotificationProvider {
       completeLogInfo(
         "Primary base URL is already set, no migration required."
       );
+    }
+  }
+
+  /**
+   * Sends a Slack notification with optional detailed blocks if heartbeat data is provided.
+   * The message can include a channel notification tag if configured in the notification settings.
+   *
+   * @param {object} notification - Slack notification configuration, including webhook URL, channel, and optional settings.
+   * @param {string} message - The content to be sent in the Slack notification.
+   * @param {object|null} monitor - The monitor object containing monitor details (optional).
+   * @param {object|null} heartbeat - Heartbeat data to be included in the notification (optional).
+   *
+   * @returns {Promise<string>} - A success message indicating the notification was sent successfully.
+   */
+  async send(notification = {}, message, monitor = null, heartbeat = null) {
+    const successMessage = "Sent Successfully.";
+
+    // Validate the provided Slack notification configuration
+    try {
+      this.validateNotificationConfig(notification);
+    } catch (error) {
+      // Log error if configuration is invalid and rethrow with a custom error message
+      completeLogError(`Slack notification configuration error`, {
+        error: error.message,
+        notification,
+      });
+      throw new Error("Notification configuration is incorrect.");
+    }
+
+    // Append the Slack channel notification tag if configured
+    if (notification.slackchannelnotify) {
+      message += " <!channel>"; // Adds a Slack channel notification tag to the message
+      completeLogInfo(`Channel notification tag appended to message`, {
+        slackchannelnotify: notification.slackchannelnotify,
+      });
+    }
+
+    try {
+      // Retrieve the base URL from settings for constructing monitor links
+      const baseURL = await setting("primaryBaseURL");
+      completeLogDebug(`Retrieved base URL for notification`, {
+        baseURL,
+      });
+
+      // Construct the payload for the Slack notification, including heartbeat data if available
+      const data = this.createSlackData(
+        notification,
+        message,
+        monitor,
+        heartbeat,
+        baseURL
+      );
+      completeLogDebug(`Constructed Slack notification data`, {
+        data,
+      });
+
+      // Process any deprecated Slack button URL if specified in notification settings
+      if (notification.slackbutton) {
+        await Slack.deprecateURL(notification.slackbutton); // Handle deprecated URL
+        completeLogWarn(`Deprecated Slack button URL processed`, {
+          slackbutton: notification.slackbutton,
+        });
+      }
+
+      // Send the notification to the configured Slack webhook URL using Axios
+      const response = await axios.post(notification.slackwebhookURL, data);
+      completeLogInfo(`Slack notification sent successfully`, {
+        response: response.data,
+      });
+
+      return successMessage; // Return success message after notification is sent
+    } catch (error) {
+      // Log detailed error information if the Slack notification fails
+      completeLogError(`Slack notification failed`, {
+        message: error.message,
+        stack: error.stack,
+        response: error.response?.data || "No response data",
+        notification,
+        data: {
+          message,
+          monitor,
+          heartbeat,
+        },
+      });
+
+      // Handle errors by throwing a generalized Axios error
+      this.throwGeneralAxiosError(error);
     }
   }
 }
