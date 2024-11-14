@@ -65,13 +65,14 @@ function completeLogError(message, additionalInfo = null) {
   }
 }
 
-// Generic function to generate a log message
+// Function to generate a complete log message
 // Logs a message with timestamp, script name, and log level
 function logMessage(logLevel, message, additionalInfo = null) {
+  // Automatically get the system's time zone
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   // Get the current time in a readable format with timezone offset
-  const timestamp = dayjs()
-    .tz("Europe/Amsterdam") // Adjust for Amsterdam timezone
-    .format("YYYY-MM-DDTHH:mm:ssZ"); // Format: YYYY-MM-DDTHH:mm:ss+/-offset
+  const timestamp = dayjs().tz(timezone).format("YYYY-MM-DDTHH:mm:ssZ");
 
   // Get the script name (hardcoded)
   const scriptName = "slack.js";
@@ -178,41 +179,34 @@ class Slack extends NotificationProvider {
   }
 
   /**
-   * Converts a timezone string into the corresponding continent, country, and local timezone.
+   * Converts a timezone string to the corresponding continent, country, and local timezone.
    * This function retrieves the mapping for a given timezone string from predefined sets of continent names,
    * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values
    * and logs a warning.
    *
-   * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
-   *                              The timezone string should follow the IANA timezone format (e.g., "Asia/Tokyo", "America/New_York").
+   * @param {string} timezone - The timezone string (e.g. "Europe/Amsterdam").
+   *                            The timezone string must follow the IANA timezone format (e.g. "Asia/Tokyo", "America/New_York").
    * @returns {Object} - An object containing the corresponding continent, country, and local timezone.
-   *                     If the timezone is not found in the mappings, all values will be "Unknown".
-   * @throws {Error} - Throws an error if the provided timezone is invalid or if there is an issue with the mapping process.
-   *
-   * @description
-   * This function uses the mappings stored in `timezoneToContinent`, `timezoneToCountry`, and `timezoneToLocalTimezone`
-   * to look up the continent, country, and local timezone associated with the provided timezone string.
-   * If the timezone is found in the mappings, it returns the corresponding continent, country, and local timezone.
-   * If the timezone is not found, it returns "Unknown" for all values and logs a warning message.
-   * The function also logs the successful conversion or missing mapping at different log levels (info or warning).
+   *                     If the timezone is not found, all values will be set to "Unknown".
+   * @throws {Error} - Throws an error if the provided timezone is invalid or if there is an issue with fetching the mapping.
    */
   getAllInformationFromTimezone(timezone) {
-    // Mapping of timezone strings to their respective continent names
+    // Mapping of timezone strings to corresponding continent names
     const timezoneToContinent = {
       "Europe/Amsterdam": "Europe",
       // More will be added when the script is done.
     };
 
-    // Mapping of timezone strings to their respective country names
+    // Mapping of timezone strings to corresponding country names
     const timezoneToCountry = {
       "Europe/Amsterdam": "Netherlands",
       // More will be added when the script is done.
     };
 
-    // Mapping of timezone strings to their respective local timezones
+    // Mapping of timezone strings to corresponding local timezones
     const timezoneToLocalTimezone = {
-      "Europe/Amsterdam": "Central European Time (CET)",
-      // More will be added when the script is done.
+      "Europe/Amsterdam": "Central European Time",
+      //More will be added when the script is done.
     };
 
     // Log the timezone conversion process
@@ -220,7 +214,7 @@ class Slack extends NotificationProvider {
       `Converting timezone: ${timezone} to continent, country, and local timezone`
     );
 
-    // Get the continent, country, and local timezone from the mappings, or default to "Unknown"
+    // Retrieve the continent, country, and local timezone from the mappings or use "Unknown" if not found
     const continent = timezoneToContinent[timezone] || "Unknown";
     const country = timezoneToCountry[timezone] || "Unknown";
     const localTimezone = timezoneToLocalTimezone[timezone] || "Unknown";
@@ -240,27 +234,24 @@ class Slack extends NotificationProvider {
       );
     }
 
-    return { continent, country, localTimezone }; // Corrected variable name
+    return { continent, country, localTimezone }; // Return the data
   }
 
   /**
    * Formats a UTC time string into a readable local day string.
-   * Converts the UTC time to the specified timezone and formats it as the full day name (e.g., "Monday").
+   * Converts the UTC time to the specified timezone and formats it as the full weekday name (e.g. "Monday").
    *
    * @param {string} utcTime - The UTC time to be formatted (ISO 8601 string format).
-   * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
-   * @returns {string} - The formatted local day string (e.g., "Monday").
-   * @throws {Error} - Throws an error if the time formatting fails.
+   * @param {string} timezone - The timezone to which the UTC time should be converted (e.g. "Europe/Amsterdam").
+   * @returns {string} - The formatted local day string (e.g. "Monday").
+   * @throws {Error} - Throws an error if formatting the day fails.
    */
   formatDay(utcTime, timezone) {
     try {
-      // Convert UTC time to the specified timezone and format the day as a full weekday name
-      const formattedDay = dayjs
-        .utc(utcTime)
-        .utcOffset(timezone) // Apply the desired timezone offset
-        .format("dddd"); // "dddd" represents the full weekday name (e.g., "Monday")
+      // Convert UTC time to the specified timezone and format the day as the full weekday name
+      const formattedDay = dayjs().tz(timezone).format("dddd"); // "dddd" gives the full weekday name (e.g. "Monday")
 
-      // Log the successful formatting of the day
+      // Log the successful day formatting
       completeLogDebug(`Formatted local day string`, {
         utcTime,
         timezone,
@@ -282,22 +273,22 @@ class Slack extends NotificationProvider {
 
   /**
    * Formats a UTC time string into a readable local date string.
-   * Converts the UTC time to the specified timezone and formats it as a human-readable date (e.g., "Dec 31, 2024").
+   * Converts the UTC time to the specified timezone and formats it as a readable date (e.g. "Dec 31, 2024").
    *
    * @param {string} utcTime - The UTC time to be formatted (ISO 8601 string format).
-   * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
-   * @returns {string} - The formatted local date string (e.g., "Dec 31, 2024").
-   * @throws {Error} - Throws an error if the time formatting fails.
+   * @param {string} timezone - The timezone to which the UTC time should be converted (e.g. "Europe/Amsterdam").
+   * @returns {string} - The formatted local date string (e.g. "Dec 31, 2024").
+   * @throws {Error} - Throws an error if formatting the date fails.
    */
   formatDate(utcTime, timezone) {
     try {
       // Convert UTC time to the specified timezone and format the date
       const formattedDate = dayjs
         .utc(utcTime)
-        .utcOffset(timezone) // Apply the desired timezone offset
-        .format("MMM DD, YYYY"); // "MMM DD, YYYY" formats date as "Dec 31, 2024"
+        .tz(timezone)
+        .format("MMM DD, YYYY"); // "MMM DD, YYYY" formats the date as "Dec 31, 2024"
 
-      // Log the successful formatting of the date
+      // Log the successful date formatting
       completeLogDebug(`Formatted local date string`, {
         utcTime,
         timezone,
@@ -319,22 +310,19 @@ class Slack extends NotificationProvider {
 
   /**
    * Formats a UTC time string into a readable local time string.
-   * Converts the UTC time to the specified timezone and formats it as a 24-hour time string (e.g., "15:30:00").
+   * Converts the UTC time to the specified timezone and formats it as a 24-hour time string (e.g. "15:30:00").
    *
    * @param {string} utcTime - The UTC time to be formatted (ISO 8601 string format).
-   * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
-   * @returns {string} - The formatted local time string (e.g., "15:30:00").
-   * @throws {Error} - Throws an error if the time formatting fails.
+   * @param {string} timezone - The timezone to which the UTC time should be converted (e.g. "Europe/Amsterdam").
+   * @returns {string} - The formatted local time string (e.g. "15:30:00").
+   * @throws {Error} - Throws an error if formatting the time fails.
    */
   formatTime(utcTime, timezone) {
     try {
       // Convert UTC time to the specified timezone and format the time in 24-hour format
-      const formattedTime = dayjs
-        .utc(utcTime)
-        .utcOffset(timezone) // Apply the desired timezone offset
-        .format("HH:mm:ss"); // "HH:mm:ss" formats time as "15:30:00"
+      const formattedTime = dayjs().tz(timezone).format("HH:mm:ss"); // "HH:mm:ss" formats the time as "15:30:00"
 
-      // Log the successful formatting of the time
+      // Log the successful time formatting
       completeLogDebug(`Formatted local time string`, {
         utcTime,
         timezone,
@@ -460,7 +448,7 @@ class Slack extends NotificationProvider {
 
     // Create the display text from the sorted tags, handling the case where no tags are present
     const tagText = sortedTags.length
-      ? sortedTags.map((tag) => tag.name).join(", ")
+      ? sortedTags.map((tag) => tag.name).join(",  ")
       : "No tags";
 
     // Log the sorted tags and display text for debugging
@@ -480,7 +468,7 @@ class Slack extends NotificationProvider {
         },
         {
           type: "mrkdwn",
-          text: `*Continent:* ${continent}\n*Country:* ${country}\n*Time Zone:* ${localTimezone}`,
+          text: `*Continent:* ${continent}\n*Country:* ${country}\n*Time-zone:* ${localTimezone}`,
         },
         {
           type: "mrkdwn",
@@ -705,7 +693,7 @@ class Slack extends NotificationProvider {
    * the settings by setting the `primaryBaseURL` to the provided deprecated URL.
    *
    * @param {string} url - The deprecated URL that is being checked and potentially migrated.
-   *                        This URL could be in an older format or pointing to an outdated resource.
+   *                       This URL could be in an older format or pointing to an outdated resource.
    *
    * @throws {Error} - Throws an error if there is an issue with setting the new primary base URL.
    *
