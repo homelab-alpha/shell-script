@@ -641,8 +641,12 @@ class Slack extends NotificationProvider {
       try {
         const validURL = new URL(address);
 
-        // Exclude URLs ending with reserved ports (e.g., 53, 853 for DNS/DoH)
-        if (!validURL.href.endsWith(":53") && !validURL.href.endsWith(":853")) {
+        // Exclude URLs ending with reserved ports (e.g., 22 for SSH, 53/853 for DNS/DoH)
+        if (
+          !validURL.href.endsWith(":22") &&
+          !validURL.href.endsWith(":53") &&
+          !validURL.href.endsWith(":853")
+        ) {
           const monitorButton = {
             type: "button",
             text: { type: "plain_text", text: `Visit ${monitor.name}` },
