@@ -494,62 +494,78 @@ class Slack extends NotificationProvider {
         timezoneInfo,
       });
 
-      // Define the priority order for tag types, ensuring both lowercase and uppercase tags are handled
+      // Define the priority order for tag types, ensuring both lowercase and uppercase tags are handled.
       const priorityOrder = {
         P0: 1,
         P1: 2,
         P2: 3,
         P3: 4,
-        P4: 5,
+        P4: 5, // Uppercase priority tags
         p0: 1,
         p1: 2,
         p2: 3,
         p3: 4,
-        p4: 5,
+        p4: 5, // Lowercase priority tags
         internal: 6,
-        external: 6,
+        external: 6, // 'internal' and 'external' have the same priority
       };
 
-      // Function to retrieve the priority of a tag based on its name
+      /**
+       * Get the priority of a tag based on its name.
+       *
+       * @param {string} tagName - The name of the tag.
+       * @returns {number}       - The priority value (lower is higher priority).
+       */
       const getTagPriority = (tagName) => {
-        // Match the priority pattern (P0, p0, P1, p1, etc.)
+        // Check if the tag name exists explicitly in the priority order map
+        if (priorityOrder.hasOwnProperty(tagName)) {
+          return priorityOrder[tagName];
+        }
+
+        // Check if the tag matches the expected priority pattern (e.g., P0, p1)
         const match = tagName.match(/^([pP]\d)/);
         if (match) {
-          // Return the priority from the defined order or 7 if it's an unrecognized priority tag
-          return priorityOrder[match[1]] || 7;
+          return priorityOrder[match[1]] || 7; // Default to 7 if the pattern is recognized but not in the map
         }
-        // Log a warning if the tag doesn't match the expected pattern
-        completeLogDebug(
+
+        // Log a warning if the tag does not match any known pattern
+        completeLogInfo(
           `Tag '${tagName}' doesn't match a known priority pattern. Defaulting to priority 7.`
         );
         return 7; // Default priority for unrecognized tags
       };
 
-      // Sort tags by their name and the predefined priority
+      /**
+       * Sort tags by their predefined priority and generate display text.
+       *
+       * The function handles cases where:
+       * - Tags are empty (returns a default "No tags available" message).
+       * - Tags have custom or unrecognized names (assigns them a default priority).
+       */
       const sortedTags = monitor.tags
         ? monitor.tags.sort((a, b) => {
-            const priorityA = getTagPriority(a.name);
-            const priorityB = getTagPriority(b.name);
+            const priorityA = getTagPriority(a.name); // Get priority for the first tag
+            const priorityB = getTagPriority(b.name); // Get priority for the second tag
 
-            // Log the priorities being compared for debugging
+            // Log the comparison of priorities for debugging
             completeLogDebug(
               `Comparing priorities: ${a.name} (Priority: ${priorityA}) vs ${b.name} (Priority: ${priorityB})`
             );
 
-            return priorityA - priorityB;
+            return priorityA - priorityB; // Sort by ascending priority
           })
         : [];
 
-      // Create the display text from the sorted tags, handling the case where no tags are present
+      // Generate the display text from the sorted tags, handling cases with no tags.
       const tagText = sortedTags.length
-        ? sortedTags.map((tag) => tag.name).join(",  ")
-        : "No tags available";
+        ? sortedTags.map((tag) => tag.name).join(", ") // Concatenate tag names with commas
+        : "No tags available"; // Default message when there are no tags
 
-      // Log the sorted tags and display text for debugging
-      completeLogDebug("Sorted tags for display", {
-        sortedTags: sortedTags.map((tag) => tag.name), // Only display the names in the log for clarity
-        tagText,
-        totalTags: sortedTags.length, // Optionally log the number of tags for extra context
+      // Log the results of the sorting and the generated display text for debugging
+      completeLogInfo("Tags sorted successfully.", {
+        sortedTags: sortedTags.map((tag) => tag.name), // Only log tag names for clarity
+        tagText, // Display text for the tags
+        totalTags: sortedTags.length, // Total number of tags in the result
       });
 
       // Add a section block with monitor details
