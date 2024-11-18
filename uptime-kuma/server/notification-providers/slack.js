@@ -455,7 +455,7 @@ class Slack extends NotificationProvider {
     const blocks = []; // Initialize an array to hold the message blocks
 
     try {
-      // Log the creation of the message header
+      // Log the creation of the message header with the title
       completeLogDebug(`Building message header block`, { title });
 
       // Create and add the header block with the message title
@@ -464,11 +464,19 @@ class Slack extends NotificationProvider {
         text: { type: "plain_text", text: title },
       });
 
-      // Determine monitor status and clean the message content
-      const statusMessage = heartbeat.status === UP ? "Online" : "Offline";
-      const cleanedMsg = body.replace(/\[.*?\]\s*\[.*?\]\s*/, "").trim();
+      // Retrieve the monitor's description, or use a fallback message if not available
+      const description = monitor?.description || "No description available."; // Fallback to "No description available" if monitor description is absent
 
-      // Format the local date, time, and day based on the heartbeat data
+      // Determine the monitor's status: if heartbeat status is UP, set status as "Online", otherwise "Offline"
+      const statusMessage = heartbeat.status === UP ? "Online" : "Offline"; // Monitor's status based on heartbeat status (UP means Online)
+
+      // Clean the body message by removing unnecessary tags (those in square brackets)
+      // The regular expression matches any text enclosed in square brackets and removes it, along with any spaces between the tags
+      const cleanedMsg =
+        body.replace(/\[.*?\]\s*\[.*?\]\s*/, "").trim() ||
+        "No details available."; // If cleaning results in an empty string, set default message
+
+      // Format the local day, date, and time based on the heartbeat data and timezone
       const timezoneInfo = this.getAllInformationFromTimezone(
         heartbeat.timezone
       );
@@ -485,7 +493,7 @@ class Slack extends NotificationProvider {
         heartbeat.timezone
       );
 
-      // Log monitor status and timezone-related information
+      // Log monitor status and timezone-related information for debugging
       completeLogDebug(`Formatted monitor information`, {
         statusMessage,
         localDay,
@@ -494,7 +502,7 @@ class Slack extends NotificationProvider {
         timezoneInfo,
       });
 
-      // Define the priority order for tag types, ensuring both lowercase and uppercase tags are handled.
+      // Define priority order for tags with both lowercase and uppercase handling
       const priorityOrder = {
         P0: 1,
         P1: 2,
@@ -507,7 +515,7 @@ class Slack extends NotificationProvider {
         p3: 4,
         p4: 5, // Lowercase priority tags
         internal: 6,
-        external: 6, // 'internal' and 'external' have the same priority
+        external: 6, // 'internal' and 'external' share the same priority
       };
 
       /**
@@ -517,18 +525,18 @@ class Slack extends NotificationProvider {
        * @returns {number}       - The priority value (lower is higher priority).
        */
       const getTagPriority = (tagName) => {
-        // Check if the tag name exists explicitly in the priority order map
+        // Check if the tag name exists in the priority map
         if (priorityOrder.hasOwnProperty(tagName)) {
           return priorityOrder[tagName];
         }
 
-        // Check if the tag matches the expected priority pattern (e.g., P0, p1)
+        // If the tag name matches a known pattern (e.g., P0, p1), assign the corresponding priority
         const match = tagName.match(/^([pP]\d)/);
         if (match) {
-          return priorityOrder[match[1]] || 7; // Default to 7 if the pattern is recognized but not in the map
+          return priorityOrder[match[1]] || 7; // Default to 7 for unrecognized priority patterns
         }
 
-        // Log a warning if the tag does not match any known pattern
+        // Log the unrecognized tag for debugging purposes
         completeLogDebug(
           `Tag '${tagName}' doesn't match a known priority pattern. Defaulting to priority 7.`
         );
@@ -538,8 +546,8 @@ class Slack extends NotificationProvider {
       /**
        * Sort tags by their predefined priority and generate display text.
        *
-       * The function handles cases where:
-       * - Tags are empty (returns a default "No tags available" message).
+       * Handles cases where:
+       * - Tags are empty (returns a default message).
        * - Tags have custom or unrecognized names (assigns them a default priority).
        */
       const sortedTags = monitor.tags
@@ -552,47 +560,62 @@ class Slack extends NotificationProvider {
               `Comparing priorities: ${a.name} (Priority: ${priorityA}) vs ${b.name} (Priority: ${priorityB})`
             );
 
-            return priorityA - priorityB; // Sort by ascending priority
+            return priorityA - priorityB; // Sort tags by ascending priority
           })
         : [];
 
-      // Generate the display text from the sorted tags, handling cases with no tags.
+      // Generate the display text from sorted tags, handle empty tags
       const tagText = sortedTags.length
-        ? sortedTags.map((tag) => tag.name).join(", ") // Concatenate tag names with commas
-        : "No tags available"; // Default message when there are no tags
+        ? sortedTags.map((tag) => tag.name).join("\n - ") // Concatenate tag names with line breaks
+        : "No tags available."; // Default message if no tags are present
 
-      // Log the results of the sorting and the generated display text for debugging
-      completeLogInfo("Tags sorted successfully.", {
-        sortedTags: sortedTags.map((tag) => tag.name), // Only log tag names for clarity
+      // Log the results of sorting and the generated display text
+      completeLogDebug("Tags sorted successfully.", {
+        sortedTags: sortedTags.map((tag) => tag.name), // Log only the tag names for clarity
         tagText, // Display text for the tags
-        totalTags: sortedTags.length, // Total number of tags in the result
+        totalTags: sortedTags.length, // Total number of tags
       });
 
-      // Add a section block with monitor details
+      // Function to format each section of the message
+      function formatSection(title, value, groupSettings) {
+        completeLogDebug("Value passed to formatSection:", value);
+        switch (groupSettings) {
+          case "setting-00":
+            return `*${title}:* ${value}`;
+          case "setting-01":
+            return `*${title}:* ${value}\n`;
+          case "setting-02":
+            return `*${title}:*\n${value}\n`;
+          case "setting-03":
+            return `*${title}:*\n - ${value}\n`;
+        }
+      }
+
+      // Group all monitor information into sections, formatted based on the settings
+      const groupMonitor = [
+        formatSection("Monitor", monitor.name, "setting-00"),
+        formatSection("Status", statusMessage, "setting-01"),
+        formatSection("Description", description, "setting-02"),
+        formatSection("Tags", tagText, "setting-03"),
+        formatSection("Continent", timezoneInfo.continent, "setting-00"),
+        formatSection("Country", timezoneInfo.country, "setting-00"),
+        formatSection("Time-zone", timezoneInfo.localTimezone, "setting-01"),
+        formatSection("Day", localDay, "setting-00"),
+        formatSection("Date", localDate, "setting-00"),
+        formatSection("Time", localTime, "setting-01"),
+        formatSection("Details", cleanedMsg, "setting-02"),
+      ];
+
+      // Combine all sections into one text block
+      const blockText = groupMonitor.join("\n");
+
+      // Push the formatted block to the blocks array
       blocks.push({
         type: "section",
-        fields: [
-          {
-            type: "mrkdwn",
-            text: `*Monitor:* ${monitor.name}\n*Status:* ${statusMessage}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Continent:* ${timezoneInfo.continent}\n*Country:* ${timezoneInfo.country}\n*Time-zone:* ${timezoneInfo.localTimezone}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Day:* ${localDay}\n*Date:* ${localDate}\n*Time:* ${localTime}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Tags:*\n  - ${tagText}`,
-          },
-          {
-            type: "mrkdwn",
-            text: `*Details:*\n  - ${cleanedMsg || "No details available"}`,
-          },
-        ],
+        text: {
+          type: "mrkdwn",
+          text: blockText,
+        },
       });
 
       // Add action buttons if available
@@ -604,10 +627,12 @@ class Slack extends NotificationProvider {
         completeLogInfo(`No action buttons available to add`);
       }
 
+      // Log the final Slack message blocks construction
       completeLogDebug(`Final Slack message blocks constructed`, { blocks });
 
       return blocks; // Return the constructed blocks
     } catch (error) {
+      // Log error if the block construction fails
       completeLogError(`Failed to build Slack message blocks`, {
         error: error.message,
       });
