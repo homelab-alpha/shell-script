@@ -529,7 +529,7 @@ class Slack extends NotificationProvider {
         }
 
         // Log a warning if the tag does not match any known pattern
-        completeLogInfo(
+        completeLogDebug(
           `Tag '${tagName}' doesn't match a known priority pattern. Defaulting to priority 7.`
         );
         return 7; // Default priority for unrecognized tags
