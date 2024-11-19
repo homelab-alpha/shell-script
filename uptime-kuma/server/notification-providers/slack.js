@@ -761,32 +761,64 @@ class Slack extends NotificationProvider {
   }
 
   /**
-   * Creates the payload for the Slack message, optionally including rich content with heartbeat data.
-   * Constructs a simple text message or a detailed rich message based on the configuration and heartbeat data.
+   * Creates the payload for a Slack message, which may include rich content based on heartbeat data.
+   * Depending on the notification configuration and the heartbeat status, it constructs either
+   * a simple text message or a detailed rich message for Slack.
    *
-   * @param {object} notification   - The configuration object for Slack notifications.
+   * @param {object} notification   - Configuration object containing Slack notification settings (e.g., channel, username).
    * @param {string} message        - The main content of the notification message.
-   * @param {object|null} monitor   - The monitor object containing details (optional).
-   * @param {object|null} heartbeat - Heartbeat data for the monitor (optional).
-   * @param {string} baseURL        - The base URL of Uptime Kuma used to create monitor-specific links.
-   * @returns {object}              - The payload formatted for Slack notification.
+   * @param {object|null} monitor   - The monitor object containing details (optional). If absent, a default fallback will be used.
+   * @param {object|null} heartbeat - Heartbeat data for the monitor (optional). Determines the status for the message.
+   * @param {string} baseURL        - The base URL of Uptime Kuma, used to construct monitor-specific links.
+   * @returns {object}              - The formatted payload ready for sending as a Slack message.
    */
   createSlackData(notification, message, monitor, heartbeat, baseURL) {
-    const title = "Uptime Kuma Alert"; // Default title for the notification
+    const title = "Status Report"; // Default title for the notification
 
-    // Fallback for missing monitor object
+    // Fallback to default monitor values if the monitor object is null or missing a 'name' property
     if (!monitor || !monitor.name) {
       completeLogDebug(`Monitor object is null or missing 'name'`, { monitor });
       monitor = { name: "Unknown Monitor", id: "fallback-id" }; // Default monitor values
     }
 
-    // Determine the status icon, message, and color
-    const statusIcon = heartbeat?.status === UP ? "🟢" : "🔴";
-    const statusMessage =
-      heartbeat?.status === UP ? "is back online!" : "went down!";
-    const colorBased = heartbeat?.status === UP ? "#2eb886" : "#e01e5a";
+    // Determine the appropriate status icon, status message, and color based on heartbeat status
+    let statusIcon, statusMessage, colorBased;
 
-    // Log the start of Slack data construction
+    // Switch statement to handle different heartbeat statuses
+    switch (heartbeat.status) {
+      case 0:
+        // DOWN: The system is down; use a red icon and message
+        statusIcon = "🔴"; // Red circle icon for 'DOWN'
+        statusMessage = "went down!";
+        colorBased = "#e01e5a"; // Red color for 'DOWN' status
+        break;
+      case 1:
+        // UP: The system is back online; use a green icon and message
+        statusIcon = "🟢"; // Green circle icon for 'UP'
+        statusMessage = "is back online!";
+        colorBased = "#2eb886"; // Green color for 'UP' status
+        break;
+      case 2:
+        // PENDING: The system is in a pending state; use a yellow icon and message
+        statusIcon = "🟡"; // Yellow circle icon for 'PENDING'
+        statusMessage = "is pending...";
+        colorBased = "#f0a500"; // Yellow color for 'PENDING' status
+        break;
+      case 3:
+        // MAINTENANCE: The system is under maintenance; use a blue icon and message
+        statusIcon = "⚙️"; // Gear icon for 'MAINTENANCE'
+        statusMessage = "is under maintenance!";
+        colorBased = "#2196F3"; // Blue color for 'MAINTENANCE' status
+        break;
+      default:
+        // If the heartbeat status is unrecognized, set icon and message to 'UNKNOWN'
+        statusIcon = "❓"; // Question mark icon for 'UNKNOWN'
+        statusMessage = "status unknown";
+        colorBased = "#808080"; // Grey color for 'UNKNOWN' status
+        break;
+    }
+
+    // Log the start of Slack message construction, including key parameters
     completeLogDebug(`Starting Slack data construction`, {
       notification,
       message,
@@ -795,20 +827,21 @@ class Slack extends NotificationProvider {
       baseURL,
     });
 
-    // Initialize the basic Slack payload structure
+    // Initialize the basic Slack message structure (text, channel, username, icon)
     const data = {
-      text: `${statusIcon} ${monitor.name} ${statusMessage}`,
-      channel: notification.slackchannel,
-      username: notification.slackusername || "Uptime Kuma (bot)",
-      icon_emoji: notification.slackiconemo || ":robot_face:",
-      attachments: [],
+      text: `${statusIcon} ${monitor.name} ${statusMessage}`, // Main message text
+      channel: notification.slackchannel, // Slack channel from configuration
+      username: notification.slackusername || "Uptime Kuma (bot)", // Default username if not specified
+      icon_emoji: notification.slackiconemo || ":robot_face:", // Default emoji if not specified
+      attachments: [], //DO NOT USE! Slack attachments (optional, used for rich message content)
     };
 
     completeLogDebug(`Initialized basic Slack message structure`, { data });
 
-    // Add rich message format if enabled and heartbeat data is available
+    // If rich message format is enabled and heartbeat data is available, create detailed blocks
     if (heartbeat && notification.slackrichmessage) {
       try {
+        // Construct the rich message blocks with additional monitor and heartbeat information
         const blocks = this.buildBlocks(
           baseURL,
           monitor,
@@ -817,8 +850,8 @@ class Slack extends NotificationProvider {
           message
         );
         data.attachments.push({
-          color: colorBased,
-          blocks,
+          color: colorBased, // Color based on monitor status
+          blocks, // Attach rich message blocks
         });
 
         completeLogDebug(`Rich message format applied`, {
@@ -826,19 +859,19 @@ class Slack extends NotificationProvider {
           blocks,
         });
       } catch (error) {
-        // Log any errors encountered during rich message block construction
+        // If there was an error building the rich message, fall back to a simple text message
         completeLogError(`Failed to build rich message blocks`, {
           error: error.message,
         });
         data.text = `${title}\n${message}`; // Fallback to simple text format
       }
     } else {
-      // Fallback to simple text format if rich messages are disabled or no heartbeat data
+      // If rich message format is disabled or no heartbeat data, use a simple text message
       data.text = `${title}\n${message}`;
       completeLogInfo(`Simple text format applied`, { text: data.text });
     }
 
-    // Log the final Slack data payload
+    // Log the final constructed Slack data payload before returning
     completeLogDebug(`Final Slack data payload constructed`, { data });
 
     return data;
