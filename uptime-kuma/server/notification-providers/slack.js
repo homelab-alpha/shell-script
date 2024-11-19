@@ -448,10 +448,9 @@ class Slack extends NotificationProvider {
    * @param {object} monitor   - The monitor object containing details like name, status, and tags.
    * @param {object} heartbeat - Heartbeat data object that provides status and timestamp information.
    * @param {string} title     - The title of the message (typically the alert title).
-   * @param {string} body      - The main content of the message (typically a detailed description or status update).
    * @returns {Array<object>}  - An array of Slack message blocks, including headers, monitor details, and action buttons.
    */
-  buildBlocks(baseURL, monitor, heartbeat, title, body) {
+  buildBlocks(baseURL, monitor, heartbeat, title) {
     const blocks = []; // Initialize an array to hold the message blocks
 
     try {
@@ -464,17 +463,38 @@ class Slack extends NotificationProvider {
         text: { type: "plain_text", text: title },
       });
 
+      // Determine the appropriate status message based on the heartbeat status
+      let statusMessage;
+
+      // Switch statement to handle different heartbeat statuses
+      switch (heartbeat.status) {
+        case 0:
+          // DOWN: The heartbeat status indicates the system is down
+          statusMessage = "went down!";
+          break;
+        case 1:
+          // UP: The heartbeat status indicates the system is back online
+          statusMessage = "is back online!";
+          break;
+        case 2:
+          // PENDING: The heartbeat status indicates the system is in a pending state
+          statusMessage = "is pending...";
+          break;
+        case 3:
+          // MAINTENANCE: The heartbeat status indicates the system is under maintenance
+          statusMessage = "is under maintenance!";
+          break;
+        default:
+          // If the heartbeat status is unrecognized, set status to 'UNKNOWN'
+          statusMessage = "status unknown";
+          break;
+      }
+
       // Retrieve the monitor's description, or use a fallback message if not available
-      const description = monitor?.description || "No description available."; // Fallback to "No description available" if monitor description is absent
+      const description = monitor.description || "No description available."; // Fallback to "No description available" if monitor description is absent
 
-      // Determine the monitor's status: if heartbeat status is UP, set status as "Online", otherwise "Offline"
-      const statusMessage = heartbeat.status === UP ? "Online" : "Offline"; // Monitor's status based on heartbeat status (UP means Online)
-
-      // Clean the body message by removing unnecessary tags (those in square brackets)
-      // The regular expression matches any text enclosed in square brackets and removes it, along with any spaces between the tags
-      const cleanedMsg =
-        body.replace(/\[.*?\]\s*\[.*?\]\s*/, "").trim() ||
-        "No details available."; // If cleaning results in an empty string, set default message
+      // Retrieve the monitor's detail message, or use a fallback message if not available
+      const details = heartbeat.msg || "No details available."; // Fallback to "No details available." if monitor
 
       // Format the local day, date, and time based on the heartbeat data and timezone
       const timezoneInfo = this.getAllInformationFromTimezone(
@@ -502,6 +522,12 @@ class Slack extends NotificationProvider {
         timezoneInfo,
       });
 
+      /**
+       * Get the priority of a tag based on its name.
+       *
+       * @param {string} tagName - The name of the tag.
+       * @returns {number}       - The priority value (lower is higher priority).
+       */
       // Define priority order for tags with both lowercase and uppercase handling
       const priorityOrder = {
         P0: 1,
@@ -518,12 +544,6 @@ class Slack extends NotificationProvider {
         external: 6, // 'internal' and 'external' share the same priority
       };
 
-      /**
-       * Get the priority of a tag based on its name.
-       *
-       * @param {string} tagName - The name of the tag.
-       * @returns {number}       - The priority value (lower is higher priority).
-       */
       const getTagPriority = (tagName) => {
         // Check if the tag name exists in the priority map
         if (priorityOrder.hasOwnProperty(tagName)) {
@@ -543,13 +563,7 @@ class Slack extends NotificationProvider {
         return 7; // Default priority for unrecognized tags
       };
 
-      /**
-       * Sort tags by their predefined priority and generate display text.
-       *
-       * Handles cases where:
-       * - Tags are empty (returns a default message).
-       * - Tags have custom or unrecognized names (assigns them a default priority).
-       */
+      // Sort tags by their predefined priority and generate display text.
       const sortedTags = monitor.tags
         ? monitor.tags.sort((a, b) => {
             const priorityA = getTagPriority(a.name); // Get priority for the first tag
@@ -576,40 +590,63 @@ class Slack extends NotificationProvider {
         totalTags: sortedTags.length, // Total number of tags
       });
 
-      // Function to format each section of the message
+      /**
+       * Formats a section of the message based on the provided title, value, and group settings.
+       * The formatting is controlled by the `groupSettings` parameter, which determines how the section will be structured.
+       *
+       * @param {string} title          - The title to be displayed for the section.
+       * @param {string} value          - The content or value associated with the section.
+       * @param {string} groupSettings  - A setting that dictates the formatting style for the section.
+       * @returns {string}              - The formatted section text according to the group setting.
+       */
       function formatSection(title, value, groupSettings) {
+        // Log the value passed to the function for debugging purposes
         completeLogDebug("Value passed to formatSection:", value);
+
+        // Switch-case to handle different group settings for formatting
         switch (groupSettings) {
           case "setting-00":
+            // Simple title-value format
             return `*${title}:* ${value}`;
           case "setting-01":
+            // Title-value format with a newline after the value
             return `*${title}:* ${value}\n`;
           case "setting-02":
+            // Title-value format with newlines before and after the value
             return `*${title}:*\n${value}\n`;
           case "setting-03":
+            // Title-value format with a bullet point before the value
             return `*${title}:*\n - ${value}\n`;
+          default:
+            // In case of an unknown setting, return a default formatted string (optional safeguard)
+            return `*${title}:* ${value}`;
         }
       }
 
-      // Group all monitor information into sections, formatted based on the settings
+      /**
+       * Groups all monitor information into formatted sections based on specific settings.
+       * Each section is processed by the `formatSection` function with different formatting rules.
+       * The result is an array of formatted sections that will be used to generate a text block.
+       */
       const groupMonitor = [
-        formatSection("Monitor", monitor.name, "setting-00"),
-        formatSection("Status", statusMessage, "setting-01"),
-        formatSection("Description", description, "setting-02"),
-        formatSection("Tags", tagText, "setting-03"),
+        // Format sections using different settings for various monitor attributes
+        formatSection("Monitor", monitor.name, "setting-00"), // Basic title-value format
+        formatSection("Status", statusMessage, "setting-01"), // Title-value with newline
+        formatSection("Description", description, "setting-02"), // Title with newlines around value
+        formatSection("Tags", tagText, "setting-03"), // Title with bullet point
         formatSection("Continent", timezoneInfo.continent, "setting-00"),
         formatSection("Country", timezoneInfo.country, "setting-00"),
         formatSection("Time-zone", timezoneInfo.localTimezone, "setting-01"),
         formatSection("Day", localDay, "setting-00"),
         formatSection("Date", localDate, "setting-00"),
         formatSection("Time", localTime, "setting-01"),
-        formatSection("Details", cleanedMsg, "setting-02"),
+        formatSection("Details", details, "setting-02"),
       ];
 
-      // Combine all sections into one text block
+      // Join the formatted sections with newlines to create a complete text block
       const blockText = groupMonitor.join("\n");
 
-      // Push the formatted block to the blocks array
+      // Push the formatted block of text to the blocks array for further use (e.g., in a Slack message)
       blocks.push({
         type: "section",
         text: {
