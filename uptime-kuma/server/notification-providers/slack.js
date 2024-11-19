@@ -490,11 +490,13 @@ class Slack extends NotificationProvider {
           break;
       }
 
-      // Retrieve the monitor's description, or use a fallback message if not available
-      const description = monitor.description || "No description available."; // Fallback to "No description available" if monitor description is absent
+      // Retrieve the monitor's description, only include it if available
+      const description = monitor.description
+        ? monitor.description.trim()
+        : null;
 
-      // Retrieve the monitor's detail message, or use a fallback message if not available
-      const details = heartbeat.msg || "No details available."; // Fallback to "No details available." if monitor
+      // Retrieve the monitor's detail message, only include it if available
+      const details = heartbeat.msg ? heartbeat.msg.trim() : null;
 
       // Format the local day, date, and time based on the heartbeat data and timezone
       const timezoneInfo = this.getAllInformationFromTimezone(
@@ -524,11 +526,11 @@ class Slack extends NotificationProvider {
 
       /**
        * Get the priority of a tag based on its name.
+       * The priority order handles both lowercase and uppercase tag names.
        *
        * @param {string} tagName - The name of the tag.
        * @returns {number}       - The priority value (lower is higher priority).
        */
-      // Define priority order for tags with both lowercase and uppercase handling
       const priorityOrder = {
         P0: 1,
         P1: 2,
@@ -544,6 +546,13 @@ class Slack extends NotificationProvider {
         external: 6, // 'internal' and 'external' share the same priority
       };
 
+      /**
+       * Get the priority of a given tag.
+       * This function handles known patterns and assigns a default priority for unrecognized tags.
+       *
+       * @param {string} tagName - The name of the tag to check.
+       * @returns {number}       - The tag's priority (default to 7 if unknown).
+       */
       const getTagPriority = (tagName) => {
         // Check if the tag name exists in the priority map
         if (priorityOrder.hasOwnProperty(tagName)) {
@@ -580,8 +589,8 @@ class Slack extends NotificationProvider {
 
       // Generate the display text from sorted tags, handle empty tags
       const tagText = sortedTags.length
-        ? sortedTags.map((tag) => tag.name).join("\n - ") // Concatenate tag names with line breaks
-        : "No tags available."; // Default message if no tags are present
+        ? sortedTags.map((tag) => tag.name).join("\n - ")
+        : null; // Title-value with newline
 
       // Log the results of sorting and the generated display text
       completeLogDebug("Tags sorted successfully.", {
@@ -632,16 +641,18 @@ class Slack extends NotificationProvider {
         // Format sections using different settings for various monitor attributes
         formatSection("Monitor", monitor.name, "setting-00"), // Basic title-value format
         formatSection("Status", statusMessage, "setting-01"), // Title-value with newline
-        formatSection("Description", description, "setting-02"), // Title with newlines around value
-        formatSection("Tags", tagText, "setting-03"), // Title with bullet point
+        description
+          ? formatSection("Description", description, "setting-02")
+          : null, // Title with newlines around value
+        tagText ? formatSection("Tags", tagText, "setting-03") : null, // Title with bullet point
         formatSection("Continent", timezoneInfo.continent, "setting-00"),
         formatSection("Country", timezoneInfo.country, "setting-00"),
         formatSection("Time-zone", timezoneInfo.localTimezone, "setting-01"),
         formatSection("Day", localDay, "setting-00"),
         formatSection("Date", localDate, "setting-00"),
         formatSection("Time", localTime, "setting-01"),
-        formatSection("Details", details, "setting-02"),
-      ];
+        details ? formatSection("Details", details, "setting-02") : null,
+      ].filter(Boolean); // Remove null values to avoid adding unnecessary sections
 
       // Join the formatted sections with newlines to create a complete text block
       const blockText = groupMonitor.join("\n");
