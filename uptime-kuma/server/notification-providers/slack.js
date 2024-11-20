@@ -490,13 +490,78 @@ class Slack extends NotificationProvider {
           break;
       }
 
-      // Retrieve the monitor's description, only include it if available
-      const description = monitor.description
+      // Retrieve the monitor's information and only process if available.
+      // Log the initial monitor object for debugging purposes.
+      completeLogDebug("Monitor object received:", monitor);
+
+      // Get the monitor type, trimming any extra spaces or returning null if not available.
+      const monitorType = monitor.type ? monitor.type.trim() : null;
+      completeLogDebug("Monitor Type:", monitorType);
+
+      // Get the monitor port, ensuring it's a valid number and converting to string if valid, or return null if not available.
+      const monitorPort =
+        monitor.port && typeof monitor.port === "number"
+          ? String(monitor.port)
+          : null;
+      completeLogDebug("Monitor Port:", monitorPort);
+
+      // Get the monitor interval (in seconds), trimming any extra spaces, or returning null if not available.
+      // Add " Seconds" to the value if available.
+      const monitorInterval = monitor.interval
+        ? String(monitor.interval).trim() + " Seconds"
+        : null;
+      completeLogDebug("Monitor Interval:", monitorInterval);
+
+      // Get the maximum retries for the monitor, trimming any extra spaces, or returning null if not available.
+      const monitorMaxretries = monitor.maxretries
+        ? String(monitor.maxretries).trim()
+        : null;
+      completeLogDebug("Monitor Max Retries:", monitorMaxretries);
+
+      // Get the monitor's resend interval (in failures), trimming extra spaces or returning null if not available.
+      // Add " Failures" to the value if available.
+      const monitorResendInterval = monitor.resendInterval
+        ? String(monitor.resendInterval).trim() + " Failures"
+        : null;
+      completeLogDebug("Monitor Resend Interval:", monitorResendInterval);
+
+      // Get the description of the monitor, trimming extra spaces, or returning null if not available.
+      const monitorDescription = monitor.description
         ? monitor.description.trim()
         : null;
+      completeLogDebug("Monitor Description:", monitorDescription);
 
-      // Retrieve the monitor's detail message, only include it if available
-      const details = heartbeat.msg ? heartbeat.msg.trim() : null;
+      // Get the monitor's keyword, trimming extra spaces, or returning null if not available.
+      const monitorKeyword = monitor.keyword ? monitor.keyword.trim() : null;
+      completeLogDebug("Monitor Keyword:", monitorKeyword);
+
+      // Get the monitor's invert keyword, trimming extra spaces or returning null if not available.
+      const monitorInvertKeyword =
+        typeof monitor.invertKeyword === "string"
+          ? monitor.invertKeyword.trim()
+          : null;
+      completeLogDebug("Monitor Invert Keyword:", monitorInvertKeyword);
+
+      // Get the monitor's upside-down flag, trimming extra spaces or returning null if not available.
+      // Note: There was a mistake in calling `trim`. The function should be `.trim()`, not `trim`.
+      const monitorUpsideDown = monitor.upsideDown
+        ? String(monitor.upsideDown).trim()
+        : null;
+      completeLogDebug("Monitor Upside Down:", monitorUpsideDown);
+
+      // Get the monitor's TLS ignore flag, trimming any extra spaces or returning null if not available.
+      const monitorIgnoreTLS = monitor.ignoreTls
+        ? String(monitor.ignoreTls).trim()
+        : null;
+      completeLogDebug("Monitor Ignore TLS:", monitorIgnoreTLS);
+
+      // Check if the heartbeat message is available and not "N/A", trim any extra spaces, or return null if not available.
+      const monitorDetails = heartbeat.msg
+        ? heartbeat.msg.trim() === "N/A"
+          ? null
+          : heartbeat.msg.trim()
+        : null;
+      completeLogDebug("Monitor Details:", monitorDetails);
 
       // Format the local day, date, and time based on the heartbeat data and timezone
       const timezoneInfo = this.getAllInformationFromTimezone(
@@ -601,33 +666,80 @@ class Slack extends NotificationProvider {
 
       /**
        * Formats a section of the message based on the provided title, value, and group settings.
-       * The formatting is controlled by the `groupSettings` parameter, which determines how the section will be structured.
+       * The formatting style is determined by the `groupSettings` parameter, which controls how
+       * the title and value are displayed in the resulting string.
        *
        * @param {string} title          - The title to be displayed for the section.
        * @param {string} value          - The content or value associated with the section.
        * @param {string} groupSettings  - A setting that dictates the formatting style for the section.
-       * @returns {string}              - The formatted section text according to the group setting.
+       * @returns {string}              - The formatted section text according to the specified group setting.
        */
       function formatSection(title, value, groupSettings) {
-        // Log the value passed to the function for debugging purposes
-        completeLogDebug("Value passed to formatSection:", value);
+        // Log the title, value, and groupSettings passed to the function for debugging purposes
+        completeLogDebug(
+          "Formatting section with title:",
+          title,
+          "value:",
+          value,
+          "groupSettings:",
+          groupSettings
+        );
 
         // Switch-case to handle different group settings for formatting
         switch (groupSettings) {
           case "setting-00":
-            // Simple title-value format
+            // Format: Title-value with no newline
+            completeLogDebug(
+              "Applied 'setting-00': Title-value with no newline"
+            );
             return `*${title}:* ${value}`;
+
           case "setting-01":
-            // Title-value format with a newline after the value
+            // Format: Title-value with a newline after the value
+            completeLogDebug(
+              "Applied 'setting-01': Title-value with a newline after the value"
+            );
             return `*${title}:* ${value}\n`;
+
           case "setting-02":
-            // Title-value format with newlines before and after the value
-            return `*${title}:*\n${value}\n`;
+            // Format: Title-value with newlines before the title and value
+            completeLogDebug(
+              "Applied 'setting-02': Title-value with newlines before the title and value"
+            );
+            return `\n*${title}:*\n${value}`;
+
           case "setting-03":
-            // Title-value format with a bullet point before the value
-            return `*${title}:*\n - ${value}\n`;
+            // Format: Title-value with a bullet point before the value
+            completeLogDebug(
+              "Applied 'setting-03': Title-value with a bullet point before the value"
+            );
+            return `\n*${title}:*\n - ${value}`;
+
+          case "setting-04":
+            // Special case: If value length is greater than 9, use a new format; otherwise, use a simple format
+            completeLogInfo(
+              "Applied 'setting-04': Value length is",
+              value.length,
+              "- Check if this is the intended behavior for short values"
+            );
+            return value.length > 9
+              ? `\n*${title}:*\n${value}` // Newline format for long values
+              : `\n*${title}:* ${value}`; // Simple format for short values
+
+          case "setting-05":
+            // Format: Title-value with newline before the title
+            completeLogDebug(
+              "Applied 'setting-05': Title-value with newline before the title"
+            );
+            return `\n*${title}:* ${value}`;
+
           default:
-            // In case of an unknown setting, return a default formatted string (optional safeguard)
+            // Log and handle unknown settings gracefully by returning a default format
+            completeLogDebug(
+              "Unknown setting detected. Returning default format for groupSettings:",
+              groupSettings,
+              "- Returning default format"
+            );
             return `*${title}:* ${value}`;
         }
       }
@@ -639,19 +751,53 @@ class Slack extends NotificationProvider {
        */
       const groupMonitor = [
         // Format sections using different settings for various monitor attributes
-        formatSection("Monitor", monitor.name, "setting-00"), // Basic title-value format
-        formatSection("Status", statusMessage, "setting-01"), // Title-value with newline
-        description
-          ? formatSection("Description", description, "setting-02")
-          : null, // Title with newlines around value
-        tagText ? formatSection("Tags", tagText, "setting-03") : null, // Title with bullet point
-        formatSection("Continent", timezoneInfo.continent, "setting-00"),
+        formatSection("Monitor", monitor.name, "setting-00"),
+        formatSection("Status", statusMessage, "setting-00"),
+        monitorType ? formatSection("Type", monitorType, "setting-00") : null,
+        monitorPort ? formatSection("Port", monitorPort, "setting-00") : null,
+        monitorInterval
+          ? formatSection("Interval", monitorInterval, "setting-00")
+          : null,
+        monitorMaxretries
+          ? formatSection("Retries", monitorMaxretries, "setting-00")
+          : null,
+        monitorResendInterval
+          ? formatSection(
+              "Resend Notification After",
+              monitorResendInterval,
+              "setting-01"
+            )
+          : null,
+
+        formatSection("Continent", timezoneInfo.continent, "setting-05"),
         formatSection("Country", timezoneInfo.country, "setting-00"),
-        formatSection("Time-zone", timezoneInfo.localTimezone, "setting-01"),
+        formatSection("Time-zone", timezoneInfo.localTimezone, "setting-00"),
         formatSection("Day", localDay, "setting-00"),
         formatSection("Date", localDate, "setting-00"),
-        formatSection("Time", localTime, "setting-01"),
-        details ? formatSection("Details", details, "setting-02") : null,
+        formatSection("Time", localTime, "setting-00"),
+
+        tagText ? formatSection("Tags", tagText, "setting-03") : null,
+
+        monitorDescription
+          ? formatSection("Description", monitorDescription, "setting-02")
+          : null,
+
+        monitorKeyword
+          ? formatSection("Keyword", monitorKeyword, "setting-05")
+          : null,
+        monitorInvertKeyword
+          ? formatSection("Invert Keyword", monitorInvertKeyword, "setting-05")
+          : null,
+        monitorUpsideDown
+          ? formatSection("Upside Down", monitorUpsideDown, "setting-05")
+          : null,
+        monitorIgnoreTLS
+          ? formatSection("Ignore TLS", monitorIgnoreTLS, "setting-05")
+          : null,
+
+        monitorDetails
+          ? formatSection("Details", monitorDetails, "setting-04")
+          : null,
       ].filter(Boolean); // Remove null values to avoid adding unnecessary sections
 
       // Join the formatted sections with newlines to create a complete text block
