@@ -2,7 +2,7 @@
 const NotificationProvider = require("./notification-provider");
 const axios = require("axios");
 const { setSettings, setting } = require("../util-server");
-const { getMonitorRelativeURL, UP } = require("../../src/util");
+const { getMonitorRelativeURL } = require("../../src/util");
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
@@ -251,193 +251,101 @@ class Slack extends NotificationProvider {
   /**
    * Converts a timezone string to the corresponding continent, country, and local timezone.
    * Retrieves the mapping for a given timezone string from predefined sets of continent names,
-   * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values
-   * and logs a warning.
+   * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values.
    *
    * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
-   *                            Must follow the IANA timezone format (e.g., "Asia/Tokyo", "America/New_York").
    * @returns {Object}        - An object containing the corresponding continent, country, and local timezone.
-   *                            If the timezone is not found, all values are set to "Unknown".
-   * @throws {Error}          - Throws an error if the provided timezone is invalid or if fetching the mapping fails.
    */
   getAllInformationFromTimezone(timezone) {
-    // Mappings for timezone strings to respective continent, country, and local timezone names
-    const timezoneToContinent = {
-      "Europe/Amsterdam": "Europe",
-      // More will be added when the script is done.
+    const timezoneToInfo = {
+      "Europe/Amsterdam": ["Europe", "Netherlands", "Central European Time"],
+      "Europe/Andorra": ["Europe", "Andorra", "Central European Time"],
+      "Europe/Belgrade": ["Europe", "Serbia", "Central European Time"],
+      // Add more timezones as needed
     };
 
-    const timezoneToCountry = {
-      "Europe/Amsterdam": "Netherlands",
-      // More will be added when the script is done.
-    };
+    // Retrieve the corresponding information for the given timezone, default to "Unknown" if not found
+    const [
+      continent = "Unknown",
+      country = "Unknown",
+      localTimezone = "Unknown",
+    ] = timezoneToInfo[timezone] ?? [];
 
-    const timezoneToLocalTimezone = {
-      "Europe/Amsterdam": "Central European Time",
-      // More will be added when the script is done.
-    };
-
-    // Log the start of the timezone conversion process
-    completeLogDebug(
-      `Converting timezone: ${timezone} to continent, country, and local timezone.`,
-      { timezone }
-    );
-
-    // Retrieve mappings or default to "Unknown" if not found
-    const continent = timezoneToContinent[timezone] || "Unknown";
-    const country = timezoneToCountry[timezone] || "Unknown";
-    const localTimezone = timezoneToLocalTimezone[timezone] || "Unknown";
-
-    // Log a warning if all values are unknown
-    if (
-      continent === "Unknown" &&
-      country === "Unknown" &&
-      localTimezone === "Unknown"
-    ) {
-      completeLogWarn(`Timezone: ${timezone} not found in mappings.`, {
-        continent,
-        country,
-        localTimezone,
-      });
-    } else {
-      // Log the successfully mapped values
-      completeLogDebug(`Mapped timezone: ${timezone}`, {
-        continent,
-        country,
-        localTimezone,
-      });
+    // Log the result with detailed information
+    if (logLevelsEnabled.debug) {
+      const logMessage = `Timezone: ${timezone}, Continent: ${continent}, Country: ${country}, Local Timezone: ${localTimezone}`;
+      completeLogDebug(logMessage);
     }
 
-    // Return the results as an object
+    // Log warning if the timezone is not found
+    if (continent === "Unknown" && logLevelsEnabled.warn) {
+      completeLogWarn(`Timezone not found in mappings: ${timezone}`);
+    }
+
     return { continent, country, localTimezone };
   }
 
   /**
    * Formats a UTC time string into a readable local day string.
-   * Converts the UTC time to the specified timezone and formats it as the full weekday name (e.g., "Monday").
+   * Converts the UTC time to the specified timezone and formats it as the full weekday name.
    *
    * @param {string} utcTime  - The UTC time to be formatted (ISO 8601 string format).
    * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
    * @returns {string}        - The formatted local day string (e.g., "Monday").
-   * @throws {Error}          - Throws an error if formatting the day fails.
    */
   formatDay(utcTime, timezone) {
-    try {
-      // Validate inputs
-      if (!utcTime || !timezone) {
-        const errorMsg = "Invalid input: utcTime and timezone are required.";
-        completeLogError(errorMsg, { utcTime, timezone });
-        throw new Error(errorMsg);
+    if (!utcTime || !timezone) {
+      if (logLevelsEnabled.error) {
+        completeLogError(
+          "Invalid input: Both utcTime and timezone are required."
+        );
       }
-
-      // Convert UTC time to the specified timezone and format the day as the full weekday name
-      const formattedDay = dayjs(utcTime).tz(timezone).format("dddd"); // "dddd" gives the full weekday name (e.g., "Monday")
-
-      // Log the successful day formatting
-      completeLogDebug(`Formatted local day string successfully`, {
-        utcTime,
-        timezone,
-        formattedDay,
-      });
-
-      return formattedDay;
-    } catch (error) {
-      // Log the error if formatting fails
-      completeLogError(`Failed to format local day`, {
-        utcTime,
-        timezone,
-        error: error.message,
-      });
-
-      throw new Error("Day formatting failed.");
+      return "Invalid input: Both utcTime and timezone are required.";
     }
+
+    return dayjs(utcTime).tz(timezone).format("dddd");
   }
 
   /**
    * Formats a UTC time string into a readable local date string.
-   * Converts the UTC time to the specified timezone and formats it as a readable date (e.g., "Dec 31, 2024").
+   * Converts the UTC time to the specified timezone and formats it as a readable date.
    *
    * @param {string} utcTime  - The UTC time to be formatted (ISO 8601 string format).
    * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
    * @returns {string}        - The formatted local date string (e.g., "Dec 31, 2024").
-   * @throws {Error}          - Throws an error if formatting the date fails.
    */
   formatDate(utcTime, timezone) {
-    try {
-      // Validate inputs
-      if (!utcTime || !timezone) {
-        const errorMsg =
-          "Invalid input: Both utcTime and timezone are required.";
-        completeLogError(errorMsg, { utcTime, timezone });
-        throw new Error(errorMsg);
+    if (!utcTime || !timezone) {
+      if (logLevelsEnabled.error) {
+        completeLogError(
+          "Invalid input: Both utcTime and timezone are required."
+        );
       }
-
-      // Convert UTC time to the specified timezone and format the date
-      const formattedDate = dayjs
-        .utc(utcTime)
-        .tz(timezone)
-        .format("MMM DD, YYYY"); // "MMM DD, YYYY" formats the date as "Dec 31, 2024"
-
-      // Log the successful date formatting
-      completeLogDebug(`Formatted local date string successfully`, {
-        utcTime,
-        timezone,
-        formattedDate,
-      });
-
-      return formattedDate;
-    } catch (error) {
-      // Log the error if formatting fails
-      completeLogError(`Failed to format local date`, {
-        utcTime,
-        timezone,
-        error: error.message,
-      });
-
-      throw new Error(`Date formatting failed.`);
+      return "Invalid input: Both utcTime and timezone are required.";
     }
+
+    return dayjs.utc(utcTime).tz(timezone).format("MMM DD, YYYY");
   }
 
   /**
    * Formats a UTC time string into a readable local time string.
-   * Converts the UTC time to the specified timezone and formats it as a 24-hour time string (e.g., "15:30:00").
+   * Converts the UTC time to the specified timezone and formats it as a 24-hour time string.
    *
    * @param {string} utcTime  - The UTC time to be formatted (ISO 8601 string format).
    * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
    * @returns {string}        - The formatted local time string (e.g., "15:30:00").
-   * @throws {Error}          - Throws an error if formatting the time fails.
    */
   formatTime(utcTime, timezone) {
-    try {
-      // Validate inputs
-      if (!utcTime || !timezone) {
-        const errorMsg =
-          "Invalid input: Both utcTime and timezone are required.";
-        completeLogError(errorMsg, { utcTime, timezone });
-        throw new Error(errorMsg);
+    if (!utcTime || !timezone) {
+      if (logLevelsEnabled.error) {
+        completeLogError(
+          "Invalid input: Both utcTime and timezone are required."
+        );
       }
-
-      // Convert UTC time to the specified timezone and format the time in 24-hour format
-      const formattedTime = dayjs(utcTime).tz(timezone).format("HH:mm:ss"); // "HH:mm:ss" formats the time as "15:30:00"
-
-      // Log the successful time formatting
-      completeLogDebug(`Formatted local time string successfully`, {
-        utcTime,
-        timezone,
-        formattedTime,
-      });
-
-      return formattedTime;
-    } catch (error) {
-      // Log the error if formatting fails
-      completeLogError(`Failed to format local time`, {
-        utcTime,
-        timezone,
-        error: error.message,
-      });
-
-      throw new Error(`Time formatting failed.`);
+      return "Invalid input: Both utcTime and timezone are required.";
     }
+
+    return dayjs(utcTime).tz(timezone).format("HH:mm:ss");
   }
 
   /**
@@ -717,7 +625,7 @@ class Slack extends NotificationProvider {
 
           case "setting-04":
             // Special case: If value length is greater than 9, use a new format; otherwise, use a simple format
-            completeLogInfo(
+            completeLogDebug(
               "Applied 'setting-04': Value length is",
               value.length,
               "- Check if this is the intended behavior for short values"
@@ -765,7 +673,7 @@ class Slack extends NotificationProvider {
           ? formatSection(
               "Resend Notification After",
               monitorResendInterval,
-              "setting-01"
+              "setting-00"
             )
           : null,
 
