@@ -264,12 +264,9 @@ class Slack extends NotificationProvider {
       // Add more timezones as needed
     };
 
-    // Retrieve the corresponding information for the given timezone, default to "Unknown" if not found
-    const [
-      continent = "Unknown",
-      country = "Unknown",
-      localTimezone = "Unknown",
-    ] = timezoneToInfo[timezone] ?? [];
+    // Retrieve the corresponding information for the given timezone, default to null if not found
+    const [continent = null, country = null, localTimezone = null] =
+      timezoneToInfo[timezone] ?? [];
 
     // Log the result with detailed information
     if (logLevelsEnabled.debug) {
