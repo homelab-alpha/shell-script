@@ -296,11 +296,11 @@ class Slack extends NotificationProvider {
   formatDay(utcTime, timezone) {
     if (!utcTime || !timezone) {
       if (logLevelsEnabled.error) {
-        completeLogError(
+        completeLogDebug(
           "Invalid input: Both utcTime and timezone are required."
         );
       }
-      return "Invalid input: Both utcTime and timezone are required.";
+      return null;
     }
 
     return dayjs(utcTime).tz(timezone).format("dddd");
@@ -317,11 +317,11 @@ class Slack extends NotificationProvider {
   formatDate(utcTime, timezone) {
     if (!utcTime || !timezone) {
       if (logLevelsEnabled.error) {
-        completeLogError(
+        completeLogDebug(
           "Invalid input: Both utcTime and timezone are required."
         );
       }
-      return "Invalid input: Both utcTime and timezone are required.";
+      return null;
     }
 
     return dayjs.utc(utcTime).tz(timezone).format("MMM DD, YYYY");
@@ -338,11 +338,11 @@ class Slack extends NotificationProvider {
   formatTime(utcTime, timezone) {
     if (!utcTime || !timezone) {
       if (logLevelsEnabled.error) {
-        completeLogError(
+        completeLogDebug(
           "Invalid input: Both utcTime and timezone are required."
         );
       }
-      return "Invalid input: Both utcTime and timezone are required.";
+      return null;
     }
 
     return dayjs(utcTime).tz(timezone).format("HH:mm:ss");
@@ -659,8 +659,12 @@ class Slack extends NotificationProvider {
        */
       const groupMonitor = [
         // Format sections using different settings for various monitor attributes
-        formatSection("Monitor", monitor.name, "setting-00"),
-        formatSection("Status", statusMessage, "setting-00"),
+        monitor.name
+          ? formatSection("Monitor", monitor.name, "setting-00")
+          : null,
+        statusMessage
+          ? formatSection("Status", statusMessage, "setting-00")
+          : null,
         monitorType ? formatSection("Type", monitorType, "setting-00") : null,
         monitorPort ? formatSection("Port", monitorPort, "setting-00") : null,
         monitorInterval
@@ -677,12 +681,18 @@ class Slack extends NotificationProvider {
             )
           : null,
 
-        formatSection("Continent", timezoneInfo.continent, "setting-05"),
-        formatSection("Country", timezoneInfo.country, "setting-00"),
-        formatSection("Time-zone", timezoneInfo.localTimezone, "setting-00"),
-        formatSection("Day", localDay, "setting-00"),
-        formatSection("Date", localDate, "setting-00"),
-        formatSection("Time", localTime, "setting-00"),
+        timezoneInfo.continent
+          ? formatSection("Continent", timezoneInfo.continent, "setting-05")
+          : null,
+        timezoneInfo.country
+          ? formatSection("Country", timezoneInfo.country, "setting-00")
+          : null,
+        timezoneInfo.localTimezone
+          ? formatSection("Time-zone", timezoneInfo.localTimezone, "setting-00")
+          : null,
+        localDay ? formatSection("Day", localDay, "setting-00") : null,
+        localDate ? formatSection("Date", localDate, "setting-00") : null,
+        localTime ? formatSection("Time", localTime, "setting-00") : null,
 
         tagText ? formatSection("Tags", tagText, "setting-03") : null,
 
@@ -898,7 +908,7 @@ class Slack extends NotificationProvider {
       channel: notification.slackchannel, // Slack channel from configuration
       username: notification.slackusername || "Uptime Kuma (bot)", // Default username if not specified
       icon_emoji: notification.slackiconemo || ":robot_face:", // Default emoji if not specified
-      attachments: [], //DO NOT USE! Slack attachments (optional, used for rich message content)
+      attachments: [], // Slack attachments (optional, used for rich message content)
     };
 
     completeLogDebug(`Initialized basic Slack message structure`, { data });
