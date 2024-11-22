@@ -374,24 +374,29 @@ class Slack extends NotificationProvider {
       // Switch statement to handle different heartbeat statuses
       switch (heartbeat.status) {
         case 0:
-          // DOWN: The heartbeat status indicates the system is down
-          statusMessage = "went down!";
+          // DOWN: The system is down; set the appropriate status message
+          statusMessage = "went down!"; // Indicates the system is offline
           break;
         case 1:
-          // UP: The heartbeat status indicates the system is back online
-          statusMessage = "is back online!";
+          // UP: The system is back online; set the appropriate status message
+          statusMessage = "is back online!"; // System has recovered and is online
           break;
         case 2:
-          // PENDING: The heartbeat status indicates the system is in a pending state
-          statusMessage = "is pending...";
+          // PENDING: The system is in a pending state; set the appropriate status message
+          statusMessage = "is pending..."; // System is in a waiting or initializing state
           break;
         case 3:
-          // MAINTENANCE: The heartbeat status indicates the system is under maintenance
-          statusMessage = "is under maintenance!";
+          // MAINTENANCE: The system is under maintenance; set the appropriate status message
+          statusMessage = "is under maintenance!"; // System is temporarily down for updates or repairs
+          break;
+        case 4:
+          // REPORT: Informational update status; use a dynamic message if available
+          const message = monitor ? monitor.message : null; // Get the message from the monitor if it exists
+          statusMessage = message || "No additional information"; // Default to a placeholder if no message exists
           break;
         default:
-          // If the heartbeat status is unrecognized, set status to 'UNKNOWN'
-          statusMessage = "status unknown";
+          // UNKNOWN: If the heartbeat status is unrecognized, set statusMessage to null
+          statusMessage = null; // No message for unrecognized status
           break;
       }
 
@@ -834,12 +839,11 @@ class Slack extends NotificationProvider {
 
   /**
    * Creates the payload for a Slack message, which may include rich content based on heartbeat data.
-   * Depending on the notification configuration and the heartbeat status, it constructs either
-   * a simple text message or a detailed rich message for Slack.
+   * Constructs either a simple text message or a detailed rich message for Slack, depending on the notification configuration and heartbeat status.
    *
    * @param {object} notification   - Configuration object containing Slack notification settings (e.g., channel, username).
    * @param {string} message        - The main content of the notification message.
-   * @param {object|null} monitor   - The monitor object containing details (optional). If absent, a default fallback will be used.
+   * @param {object|null} monitor   - The monitor object containing details (optional). If absent, a fallback monitor with default values will be used.
    * @param {object|null} heartbeat - Heartbeat data for the monitor (optional). Determines the status for the message.
    * @param {string} baseURL        - The base URL of Uptime Kuma, used to construct monitor-specific links.
    * @returns {object}              - The formatted payload ready for sending as a Slack message.
@@ -850,43 +854,62 @@ class Slack extends NotificationProvider {
     // Fallback to default monitor values if the monitor object is null or missing a 'name' property
     if (!monitor || !monitor.name) {
       completeLogDebug(`Monitor object is null or missing 'name'`, { monitor });
-      monitor = { name: "Unknown Monitor", id: "fallback-id" }; // Default monitor values
+
+      // Use the 'message' as the fallback monitor name if the 'name' property is missing
+      const fallbackMessage =
+        monitor && statusMessage ? statusMessage : message || "Unknown Message";
+
+      // Construct a fallback monitor object with dynamic 'name' and 'message'
+      monitor = {
+        id: monitor ? monitor.id : "00",
+        name: "", // Leave this value empty to avoid breaking the function
+        message: monitor ? monitor.message : `${fallbackMessage}`,
+      };
+
+      // Use a default heartbeat status if heartbeat data is missing
+      heartbeat = { status: 4 }; // Default status is 'REPORT'
     }
 
-    // Determine the appropriate status icon, status message, and color based on heartbeat status
+    // Initialize variables for status icon, message, and color based on heartbeat status
     let statusIcon, statusMessage, colorBased;
 
-    // Switch statement to handle different heartbeat statuses
+    // Switch statement to determine the appropriate status icon, message, and color based on heartbeat status
     switch (heartbeat.status) {
       case 0:
-        // DOWN: The system is down; use a red icon and message
-        statusIcon = "🔴"; // Red circle icon for 'DOWN'
-        statusMessage = "went down!";
-        colorBased = "#e01e5a"; // Red color for 'DOWN' status
+        // DOWN: The system is down; use a red icon and a corresponding message
+        statusIcon = "🔴"; // Red circle icon represents 'DOWN' status
+        statusMessage = "went down!"; // Informing the system went down
+        colorBased = "#e01e5a"; // Red color signifies a 'DOWN' status
         break;
       case 1:
-        // UP: The system is back online; use a green icon and message
-        statusIcon = "🟢"; // Green circle icon for 'UP'
-        statusMessage = "is back online!";
-        colorBased = "#2eb886"; // Green color for 'UP' status
+        // UP: The system is back online; use a green icon and a success message
+        statusIcon = "🟢"; // Green circle icon represents 'UP' status
+        statusMessage = "is back online!"; // Success message when the system is up
+        colorBased = "#2eb886"; // Green color indicates the system is up and healthy
         break;
       case 2:
         // PENDING: The system is in a pending state; use a yellow icon and message
-        statusIcon = "🟡"; // Yellow circle icon for 'PENDING'
-        statusMessage = "is pending...";
+        statusIcon = "🟡"; // Yellow circle icon for 'PENDING' status
+        statusMessage = "is pending..."; // Indicates the system is in a waiting state
         colorBased = "#f0a500"; // Yellow color for 'PENDING' status
         break;
       case 3:
-        // MAINTENANCE: The system is under maintenance; use a blue icon and message
-        statusIcon = "⚙️"; // Gear icon for 'MAINTENANCE'
-        statusMessage = "is under maintenance!";
-        colorBased = "#2196F3"; // Blue color for 'MAINTENANCE' status
+        // MAINTENANCE: The system is under maintenance; use a gear icon and maintenance message
+        statusIcon = "⚙️"; // Gear icon represents 'MAINTENANCE' status
+        statusMessage = "is under maintenance!"; // Message indicating system maintenance
+        colorBased = "#2196F3"; // Blue color represents 'MAINTENANCE' status
+        break;
+      case 4:
+        // REPORT: Informational update status; use a blue circle icon and message
+        statusIcon = "🔵"; // Blue circle icon for 'REPORT' status
+        statusMessage = "Uptime Kuma: Information-update"; // Message providing an informational update
+        colorBased = "#00BFFF"; // Light blue color represents 'REPORT' status
         break;
       default:
-        // If the heartbeat status is unrecognized, set icon and message to 'UNKNOWN'
-        statusIcon = "❓"; // Question mark icon for 'UNKNOWN'
-        statusMessage = "status unknown";
-        colorBased = "#808080"; // Grey color for 'UNKNOWN' status
+        // UNKNOWN: If the heartbeat status is unrecognized, set to 'UNKNOWN' with default icon and message
+        statusIcon = "❓"; // Question mark icon represents an unknown status
+        statusMessage = "status unknown"; // Default message for unrecognized status
+        colorBased = "#808080"; // Grey color to indicate an unknown or undefined status
         break;
     }
 
@@ -905,7 +928,7 @@ class Slack extends NotificationProvider {
       channel: notification.slackchannel, // Slack channel from configuration
       username: notification.slackusername || "Uptime Kuma (bot)", // Default username if not specified
       icon_emoji: notification.slackiconemo || ":robot_face:", // Default emoji if not specified
-      attachments: [], // Slack attachments (optional, used for rich message content)
+      attachments: [], // Slack attachments: Leave this value empty to avoid breaking the function
     };
 
     completeLogDebug(`Initialized basic Slack message structure`, { data });
