@@ -944,7 +944,7 @@ class Slack extends NotificationProvider {
       case 6:
         // REPORT: Fallback Message, issue detected
         statusIcon = "🚩";
-        statusMessage = "- Fallback Message";
+        statusMessage = "- Fallback Message, issue detected";
         colorBased = "#e01e5a";
         break;
       default:
