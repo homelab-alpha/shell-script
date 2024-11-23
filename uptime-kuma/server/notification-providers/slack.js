@@ -390,7 +390,7 @@ class Slack extends NotificationProvider {
           statusMessage = "is under maintenance!";
           break;
         case 4:
-          // REPORT: Informational update, no issue detected
+          // TlS STATUS: TlS certificate is about to expire
           const caseMessage4 = monitor ? monitor.message : null;
           statusMessage = caseMessage4 || "No additional information";
           break;
@@ -400,13 +400,14 @@ class Slack extends NotificationProvider {
             "This notification has been manually triggered to test the Slack notification system.";
           break;
         case 6:
-          // TlS STATUS: TlS certificate is about to expire
+          // REPORT: Fallback Message, issue detected
           const caseMessage6 = monitor ? monitor.message : null;
           statusMessage = caseMessage6 || "No additional information";
           break;
         default:
           // UNKNOWN: The system status is unrecognized or undefined
-          statusMessage = null;
+          const defaultMessage = monitor ? monitor.message : null;
+          statusMessage = defaultMessage || "No additional information";
           break;
       }
 
@@ -849,17 +850,19 @@ class Slack extends NotificationProvider {
 
   /**
    * Creates the payload for a Slack message, which may include rich content based on heartbeat data.
-   * Constructs either a simple text message or a detailed rich message for Slack, depending on the notification configuration and heartbeat status.
+   * Constructs either a simple text message or a detailed rich message for Slack,
+   * depending on the notification configuration and heartbeat status.
    *
    * @param {object} notification   - Configuration object containing Slack notification settings (e.g., channel, username).
    * @param {string} message        - The main content of the notification message.
-   * @param {object|null} monitor   - The monitor object containing details (optional). If absent, a fallback monitor with default values will be used.
+   * @param {object|null} monitor   - The monitor object containing details (optional).
+   *                                  If absent, a fallback monitor with default values will be used.
    * @param {object|null} heartbeat - Heartbeat data for the monitor (optional). Determines the status for the message.
    * @param {string} baseURL        - The base URL of Uptime Kuma, used to construct monitor-specific links.
    * @returns {object}              - The formatted payload ready for sending as a Slack message.
    */
   createSlackData(notification, message, monitor, heartbeat, baseURL) {
-    const title = "Uptime Kuma Report"; // Default title for the notification
+    const title = "Uptime Kuma"; // Default title for the notification
 
     // Fallback to default monitor values if the monitor object is null or missing a 'name' property
     if (!monitor || !monitor.name) {
@@ -869,28 +872,31 @@ class Slack extends NotificationProvider {
       const fallbackMessage =
         monitor && statusMessage ? statusMessage : message || "Unknown Message";
 
-      // Default status is 'REPORT' (assuming 4 represents 'REPORT')
+      // Default status is 'REPORT' (assuming 6 represents 'REPORT')
       let fallbackMonitor = "Unknown Monitor";
-      let heartbeatStatus = 4;
+      let fallbackStatus = 6;
 
       // Adjust fallback monitor name and status based on specific message conditions
-      if (/Slack Notification Alerts/.test(fallbackMessage)) {
+      if (/will be expired in/.test(fallbackMessage)) {
         fallbackMonitor = "Uptime Kuma";
-        heartbeatStatus = 5;
-      } else if (/will be expired in/.test(fallbackMessage)) {
-        fallbackMonitor = "Uptime Kuma";
-        heartbeatStatus = 6;
+        fallbackStatus = 4;
+      } else {
+        // Create a regex to match the target words
+        const regex = /\b(my|slack|alert|notification|alerts|testing)\b/gi;
+
+        // Find all matches
+        const matches = fallbackMessage.match(regex);
+
+        // If there are at least 3 matches
+        if (matches && matches.length >= 3) {
+          fallbackMonitor = "Uptime Kuma";
+          fallbackStatus = 5;
+        }
       }
 
-      // Construct a fallback monitor object with dynamic 'name' and 'message'
-      monitor = {
-        name: monitor ? monitor.name : `${fallbackMonitor}`,
-        message: monitor ? monitor.message : `${fallbackMessage}`,
-        status: heartbeat ? heartbeat.status : `${heartbeatStatus}`,
-      };
-
-      // Set the heartbeat status
-      heartbeat = { status: heartbeatStatus };
+      // Construct a fallback monitor object with dynamic 'name', 'message' and heartbeat status
+      monitor = { name: fallbackMonitor, message: fallbackMessage };
+      heartbeat = { status: fallbackStatus };
     }
 
     // Initialize variables for status icon, message, and color based on heartbeat status
@@ -923,28 +929,28 @@ class Slack extends NotificationProvider {
         colorBased = "#2196F3";
         break;
       case 4:
-        // REPORT: Informational update, no issue detected
-        statusIcon = "🔵";
-        statusMessage = "Uptime Kuma: Information-update";
-        colorBased = "#00BFFF";
-        break;
-      case 5:
-        // SLACK NOTIFICATION TEST: Triggered manually to test the Slack integration
-        statusIcon = "🔔";
-        statusMessage =
-          "- This notification has been manually triggered to test the Slack notification system.";
-        colorBased = "#2eb886";
-        break;
-      case 6:
         // TlS STATUS: TlS certificate is about to expire
         statusIcon = "🔒";
         statusMessage = "- This certificate is about to expire.";
-        colorBased = "#FF9800";
+        colorBased = "#f0a500";
+        break;
+      case 5:
+        // SLACK NOTIFICATION TEST: Triggered manually to test the Slack integration
+        statusIcon = "🔵";
+        statusMessage =
+          "- This notification has been manually triggered to test the Slack notification system.";
+        colorBased = "#2196F3";
+        break;
+      case 6:
+        // REPORT: Fallback Message, issue detected
+        statusIcon = "🚩";
+        statusMessage = "- Fallback Message";
+        colorBased = "#e01e5a";
         break;
       default:
         // UNKNOWN: The system status is unrecognized or undefined
         statusIcon = "❓";
-        statusMessage = "status unknown";
+        statusMessage = "- Status Unknown";
         colorBased = "#808080";
         break;
     }
