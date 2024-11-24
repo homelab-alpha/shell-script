@@ -1018,9 +1018,9 @@ class Slack extends NotificationProvider {
    * Handles migration of a deprecated Slack button URL to the primary base URL if needed.
    * Updates the `primaryBaseURL` setting with the provided deprecated URL if it is not already configured.
    *
-   * @param {string} url - The deprecated URL to be checked and potentially migrated.
-   *                       This URL could be in an older format or pointing to an outdated resource.
-   * @throws {Error}     - Throws an error if there is an issue updating the `primaryBaseURL`.
+   * @param {string} url      - The deprecated URL to be checked and potentially migrated.
+   *                            This URL could be in an older format or pointing to an outdated resource.
+   * @throws {Error}          - Throws an error if there is an issue updating the `primaryBaseURL`.
    * @returns {Promise<void>} - Resolves when the migration process is complete.
    */
   static async deprecateURL(url) {
