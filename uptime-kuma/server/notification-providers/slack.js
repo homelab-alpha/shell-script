@@ -258,10 +258,248 @@ class Slack extends NotificationProvider {
    */
   getAllInformationFromTimezone(timezone) {
     const timezoneToInfo = {
+      // Europe
       "Europe/Amsterdam": ["Europe", "Netherlands", "Central European Time"],
       "Europe/Andorra": ["Europe", "Andorra", "Central European Time"],
       "Europe/Belgrade": ["Europe", "Serbia", "Central European Time"],
-      // Add more timezones as needed
+      "Europe/Berlin": ["Europe", "Germany", "Central European Time"],
+      "Europe/Brussels": ["Europe", "Belgium", "Central European Time"],
+      "Europe/Bucharest": ["Europe", "Romania", "Eastern European Time"],
+      "Europe/Budapest": ["Europe", "Hungary", "Central European Time"],
+      "Europe/Chisinau": ["Europe", "Moldova", "Eastern European Time"],
+      "Europe/Copenhagen": ["Europe", "Denmark", "Central European Time"],
+      "Europe/Dublin": ["Europe", "Ireland", "Greenwich Mean Time"],
+      "Europe/Helsinki": ["Europe", "Finland", "Eastern European Time"],
+      "Europe/Istanbul": ["Europe", "Turkey", "Turkey Time"],
+      "Europe/Kiev": ["Europe", "Ukraine", "Eastern European Time"],
+      "Europe/Lisbon": ["Europe", "Portugal", "Western European Time"],
+      "Europe/London": ["Europe", "United Kingdom", "Greenwich Mean Time"],
+      "Europe/Luxembourg": ["Europe", "Luxembourg", "Central European Time"],
+      "Europe/Madrid": ["Europe", "Spain", "Central European Time"],
+      "Europe/Minsk": ["Europe", "Belarus", "Minsk Time"],
+      "Europe/Monaco": ["Europe", "Monaco", "Central European Time"],
+      "Europe/Moscow": ["Europe", "Russia", "Moscow Time"],
+      "Europe/Oslo": ["Europe", "Norway", "Central European Time"],
+      "Europe/Paris": ["Europe", "France", "Central European Time"],
+      "Europe/Prague": ["Europe", "Czech Republic", "Central European Time"],
+      "Europe/Riga": ["Europe", "Latvia", "Eastern European Time"],
+      "Europe/Rome": ["Europe", "Italy", "Central European Time"],
+      "Europe/Samara": ["Europe", "Russia", "Samara Time"],
+      "Europe/Sofia": ["Europe", "Bulgaria", "Eastern European Time"],
+      "Europe/Stockholm": ["Europe", "Sweden", "Central European Time"],
+      "Europe/Tallinn": ["Europe", "Estonia", "Eastern European Time"],
+      "Europe/Tirane": ["Europe", "Albania", "Central European Time"],
+      "Europe/Vaduz": ["Europe", "Liechtenstein", "Central European Time"],
+      "Europe/Vienna": ["Europe", "Austria", "Central European Time"],
+      "Europe/Vilnius": ["Europe", "Lithuania", "Eastern European Time"],
+      "Europe/Zurich": ["Europe", "Switzerland", "Central European Time"],
+
+      // North America
+      "America/Chicago": [
+        "North America",
+        "United States",
+        "Central Standard Time",
+      ],
+      "America/Denver": [
+        "North America",
+        "United States",
+        "Mountain Standard Time",
+      ],
+      "America/Detroit": [
+        "North America",
+        "United States",
+        "Eastern Standard Time",
+      ],
+      "America/Houston": [
+        "North America",
+        "United States",
+        "Central Standard Time",
+      ],
+      "America/Indianapolis": [
+        "North America",
+        "United States",
+        "Eastern Standard Time",
+      ],
+      "America/Los_Angeles": [
+        "North America",
+        "United States",
+        "Pacific Standard Time",
+      ],
+      "America/Mexico_City": [
+        "North America",
+        "Mexico",
+        "Central Standard Time",
+      ],
+      "America/New_York": [
+        "North America",
+        "United States",
+        "Eastern Standard Time",
+      ],
+      "America/Regina": ["North America", "Canada", "Central Standard Time"],
+      "America/Toronto": ["North America", "Canada", "Eastern Standard Time"],
+      "America/Vancouver": ["North America", "Canada", "Pacific Standard Time"],
+      "America/Winnipeg": ["North America", "Canada", "Central Standard Time"],
+
+      // South America
+      "America/Argentina/Buenos_Aires": [
+        "South America",
+        "Argentina",
+        "Argentina Time",
+      ],
+      "America/Asuncion": ["South America", "Paraguay", "Paraguay Time"],
+      "America/Bahia": ["South America", "Brazil", "Brasilia Time"],
+      "America/Barbados": [
+        "South America",
+        "Barbados",
+        "Atlantic Standard Time",
+      ],
+      "America/Belize": ["South America", "Belize", "Central Standard Time"],
+      "America/Colombia": ["South America", "Colombia", "Colombia Time"],
+      "America/Curacao": ["South America", "Curacao", "Atlantic Standard Time"],
+      "America/Guatemala": [
+        "South America",
+        "Guatemala",
+        "Central Standard Time",
+      ],
+      "America/Guayaquil": ["South America", "Ecuador", "Ecuador Time"],
+      "America/Lima": ["South America", "Peru", "Peru Time"],
+      "America/Panama": ["South America", "Panama", "Eastern Standard Time"],
+      "America/Port_of_Spain": [
+        "South America",
+        "Trinidad and Tobago",
+        "Atlantic Standard Time",
+      ],
+      "America/Santiago": ["South America", "Chile", "Chile Standard Time"],
+      "America/Sao_Paulo": ["South America", "Brazil", "Brasilia Time"],
+
+      // Asia
+      "Asia/Amman": ["Asia", "Jordan", "Jordan Time"],
+      "Asia/Baghdad": ["Asia", "Iraq", "Arabian Standard Time"],
+      "Asia/Bahrain": ["Asia", "Bahrain", "Arabian Standard Time"],
+      "Asia/Bangkok": ["Asia", "Thailand", "Indochina Time"],
+      "Asia/Beirut": ["Asia", "Lebanon", "Eastern European Time"],
+      "Asia/Dhaka": ["Asia", "Bangladesh", "Bangladesh Standard Time"],
+      "Asia/Dubai": ["Asia", "UAE", "Gulf Standard Time"],
+      "Asia/Hong_Kong": ["Asia", "Hong Kong", "Hong Kong Time"],
+      "Asia/Irkutsk": ["Asia", "Russia", "Irkutsk Time"],
+      "Asia/Jakarta": ["Asia", "Indonesia", "Western Indonesia Time"],
+      "Asia/Kolkata": ["Asia", "India", "Indian Standard Time"],
+      "Asia/Kuala_Lumpur": ["Asia", "Malaysia", "Malaysia Time"],
+      "Asia/Kuwait": ["Asia", "Kuwait", "Arabian Standard Time"],
+      "Asia/Makassar": ["Asia", "Indonesia", "Central Indonesia Time"],
+      "Asia/Manila": ["Asia", "Philippines", "Philippine Time"],
+      "Asia/Muscat": ["Asia", "Oman", "Gulf Standard Time"],
+      "Asia/Novosibirsk": ["Asia", "Russia", "Novosibirsk Time"],
+      "Asia/Seoul": ["Asia", "South Korea", "Korea Standard Time"],
+      "Asia/Singapore": ["Asia", "Singapore", "Singapore Time"],
+      "Asia/Taipei": ["Asia", "Taiwan", "Taipei Standard Time"],
+      "Asia/Tashkent": ["Asia", "Uzbekistan", "Uzbekistan Time"],
+      "Asia/Tokyo": ["Asia", "Japan", "Japan Standard Time"],
+      "Asia/Ulaanbaatar": ["Asia", "Mongolia", "Ulaanbaatar Time"],
+      "Asia/Yangon": ["Asia", "Myanmar", "Myanmar Time"],
+
+      // Australia
+      "Australia/Adelaide": [
+        "Australia",
+        "Australia",
+        "Australian Central Standard Time",
+      ],
+      "Australia/Brisbane": [
+        "Australia",
+        "Australia",
+        "Australian Eastern Standard Time",
+      ],
+      "Australia/Darwin": [
+        "Australia",
+        "Australia",
+        "Australian Central Standard Time",
+      ],
+      "Australia/Hobart": [
+        "Australia",
+        "Australia",
+        "Australian Eastern Daylight Time",
+      ],
+      "Australia/Melbourne": [
+        "Australia",
+        "Australia",
+        "Australian Eastern Daylight Time",
+      ],
+      "Australia/Sydney": [
+        "Australia",
+        "Australia",
+        "Australian Eastern Daylight Time",
+      ],
+
+      // Africa
+      "Africa/Addis_Ababa": ["Africa", "Ethiopia", "East Africa Time"],
+      "Africa/Cairo": ["Africa", "Egypt", "Eastern European Time"],
+      "Africa/Casablanca": ["Africa", "Morocco", "Western European Time"],
+      "Africa/Harare": ["Africa", "Zimbabwe", "Central Africa Time"],
+      "Africa/Johannesburg": [
+        "Africa",
+        "South Africa",
+        "South Africa Standard Time",
+      ],
+      "Africa/Khartoum": ["Africa", "Sudan", "Central Africa Time"],
+      "Africa/Lagos": ["Africa", "Nigeria", "West Africa Time"],
+      "Africa/Nairobi": ["Africa", "Kenya", "East Africa Time"],
+      "Africa/Tripoli": ["Africa", "Libya", "Eastern European Time"],
+
+      // Middle East
+      "Asia/Tehran": ["Asia", "Iran", "Iran Standard Time"],
+      "Asia/Qatar": ["Asia", "Qatar", "Arabian Standard Time"],
+      "Asia/Jerusalem": ["Asia", "Israel", "Israel Standard Time"],
+      "Asia/Riyadh": ["Asia", "Saudi Arabia", "Arabian Standard Time"],
+
+      // Pacific
+      "Pacific/Auckland": [
+        "Pacific",
+        "New Zealand",
+        "New Zealand Standard Time",
+      ],
+      "Pacific/Fiji": ["Pacific", "Fiji", "Fiji Time"],
+      "Pacific/Guam": ["Pacific", "Guam", "Chamorro Standard Time"],
+      "Pacific/Honolulu": [
+        "Pacific",
+        "Hawaii",
+        "Hawaii-Aleutian Standard Time",
+      ],
+      "Pacific/Pago_Pago": ["Pacific", "American Samoa", "Samoa Standard Time"],
+      "Pacific/Port_Moresby": [
+        "Pacific",
+        "Papua New Guinea",
+        "Papua New Guinea Time",
+      ],
+      "Pacific/Suva": ["Pacific", "Fiji", "Fiji Time"],
+      "Pacific/Tarawa": ["Pacific", "Kiribati", "Gilbert Island Time"],
+      "Pacific/Wellington": [
+        "Pacific",
+        "New Zealand",
+        "New Zealand Standard Time",
+      ],
+
+      // Other regions
+      "Antarctica/Palmer": ["Other", "Antarctica", "Chile Summer Time"],
+      "Antarctica/Vostok": ["Other", "Antarctica", "Vostok Time"],
+      "Indian/Chagos": [
+        "Other",
+        "British Indian Ocean Territory",
+        "Indian Ocean Territory Time",
+      ],
+      "Indian/Mauritius": ["Other", "Mauritius", "Mauritius Time"],
+      "Indian/Reunion": ["Other", "Réunion", "Réunion Time"],
+      "Indian/Christmas": [
+        "Other",
+        "Australia",
+        "Australia Western Standard Time",
+      ],
+      "Indian/Kerguelen": [
+        "Other",
+        "France",
+        "French Southern and Antarctic Time",
+      ],
+      "Indian/Maldives": ["Other", "Maldives", "Maldives Time"],
+      "Indian/Seychelles": ["Other", "Seychelles", "Seychelles Time"],
     };
 
     // Retrieve the corresponding information for the given timezone, default to null if not found
