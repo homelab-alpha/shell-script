@@ -1014,23 +1014,26 @@ class Slack extends NotificationProvider {
   buildActions(baseURL, monitor) {
     const actions = []; // Initialize an empty array to hold the action buttons
 
-    // Log the start of the action button creation process
+    // Log the start of the action button creation process for debugging purposes
     completeLogDebug(`Starting action button creation`, { baseURL, monitor });
 
     // Add Uptime Kuma dashboard button if a valid baseURL is provided
     if (baseURL) {
       try {
+        // Construct a button object to direct users to the Uptime Kuma dashboard for this monitor
         const uptimeButton = {
           type: "button",
           text: { type: "plain_text", text: "Visit Uptime Kuma" },
           value: "Uptime-Kuma",
+          // Generate the full URL for the monitor's specific page on Uptime Kuma
           url: `${baseURL}${getMonitorRelativeURL(monitor.id)}`,
         };
 
+        // Add the constructed button to the actions array
         actions.push(uptimeButton);
         completeLogDebug(`Uptime Kuma button added`, { button: uptimeButton });
       } catch (e) {
-        // Log an error if constructing the URL fails
+        // Log an error if constructing the URL fails (e.g., baseURL is incorrect or monitor ID is invalid)
         completeLogError(`Failed to construct Uptime Kuma button URL`, {
           baseURL,
           monitorId: monitor.id,
@@ -1039,18 +1042,35 @@ class Slack extends NotificationProvider {
       }
     }
 
-    // Extract and validate the monitor's address
+    // Extract and validate the monitor's address (e.g., the URL to the monitored service)
     const address = this.extractAddress(monitor);
     if (address) {
       try {
+        // Create a URL object to validate the address format and parse components
         const validURL = new URL(address);
 
-        // Exclude URLs ending with reserved ports (e.g., 22 for SSH, 53/853 for DNS/DoH)
-        if (
-          !validURL.href.endsWith(":22") &&
-          !validURL.href.endsWith(":53") &&
-          !validURL.href.endsWith(":853")
-        ) {
+        // Define a set of ports that are considered reserved and should not be included
+        // Well-known ports (0 - 1023) plus a few commonly used ports
+        const excludedPorts = new Set([
+          0, 1, 5, 7, 9, 11, 13, 17, 19, 20, 21, 22, 23, 25, 53, 67, 68, 69, 70,
+          79, 80, 88, 110, 119, 123, 137, 138, 139, 143, 161, 162, 194, 443,
+          445, 465, 514, 540, 543, 544, 546, 547, 563, 587, 593, 631, 636, 853,
+          993, 995, 1080, 1433, 1434, 1521, 1522, 1723, 3306, 3389, 5432, 5900,
+          11211,
+        ]);
+
+        // Extract the port number from the URL (if available)
+        const urlPort = validURL.port ? parseInt(validURL.port) : null;
+
+        // Check if the port is in the excluded list (e.g., commonly reserved ports)
+        if (urlPort && excludedPorts.has(urlPort)) {
+          // If the port is excluded, do not add a button and log the exclusion
+          completeLogDebug(`Address excluded due to reserved port`, {
+            address: validURL.href,
+            excludedPort: urlPort,
+          });
+        } else {
+          // If the port is valid (not in excluded ports), construct a button to visit the monitor's URL
           const monitorButton = {
             type: "button",
             text: { type: "plain_text", text: `Visit ${monitor.name}` },
@@ -1058,14 +1078,12 @@ class Slack extends NotificationProvider {
             url: validURL.href,
           };
 
+          // Add the constructed button to the actions array
           actions.push(monitorButton);
           completeLogDebug(`Monitor button added`, { button: monitorButton });
-        } else {
-          completeLogDebug(`Address excluded due to reserved port`, {
-            address: validURL.href,
-          });
         }
       } catch (e) {
+        // Log an error if the address format is invalid (e.g., non-URL format or malformed address)
         completeLogError(`Invalid URL format`, {
           address,
           monitorName: monitor.name,
@@ -1073,17 +1091,19 @@ class Slack extends NotificationProvider {
         });
       }
     } else {
-      // Log when no valid address is found for the monitor
+      // Log a message when no valid address is found for the monitor
+      // This may apply to non-URL-based monitors (e.g., MQTT, PING), which do not have a web address
       completeLogDebug(
         `No valid address found for monitor. This may apply to non-URL-based monitors (e.g., MQTT, PING).`,
         { monitor }
       );
     }
 
-    // Log the final actions array
+    // Log the final list of action buttons created
     completeLogDebug(`Final actions array constructed`, { actions });
 
-    return actions; // Return the array of action buttons
+    // Return the array of action buttons to be included in the Slack message payload
+    return actions;
   }
 
   /**
