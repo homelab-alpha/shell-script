@@ -204,7 +204,7 @@ class Slack extends NotificationProvider {
 
     // Log the start of the validation process
     completeLogDebug(
-      `Starting validation of Slack notification configuration`,
+      "Starting validation of Slack notification configuration",
       {
         notification,
       }
@@ -214,7 +214,7 @@ class Slack extends NotificationProvider {
     requiredFields.forEach(({ field, message }) => {
       if (!notification[field]) {
         completeLogError(
-          `Missing required field in Slack notification configuration`,
+          "Missing required field in Slack notification configuration",
           {
             field, // Name of the missing field
             message, // Error message to provide context
@@ -227,7 +227,7 @@ class Slack extends NotificationProvider {
 
     // Log success when all required fields are validated
     completeLogDebug(
-      `All required fields are present in Slack notification configuration`,
+      "All required fields are present in Slack notification configuration",
       {
         requiredFields: requiredFields.map((field) => field.field),
       }
@@ -237,12 +237,12 @@ class Slack extends NotificationProvider {
     if (!notification.slackiconemo) {
       // No custom icon provided, setting default icon
       notification.slackiconemo = ":robot_face:";
-      completeLogDebug(`Default Slack icon emoji set`, {
+      completeLogDebug("Default Slack icon emoji set", {
         icon: notification.slackiconemo,
       });
     } else {
       // Custom icon is provided, logging confirmation
-      completeLogDebug(`Custom Slack icon emoji provided`, {
+      completeLogDebug("Custom Slack icon emoji provided", {
         icon: notification.slackiconemo,
       });
     }
@@ -598,7 +598,7 @@ class Slack extends NotificationProvider {
 
     try {
       // Log the creation of the message header with the title
-      completeLogDebug(`Building message header block`, { title });
+      completeLogDebug("Building message header block", { title });
 
       // Create and add the header block with the message title
       blocks.push({
@@ -702,7 +702,6 @@ class Slack extends NotificationProvider {
       completeLogDebug("Monitor Invert Keyword:", monitorInvertKeyword);
 
       // Get the monitor's upside-down flag, trimming extra spaces or returning null if not available.
-      // Note: There was a mistake in calling `trim`. The function should be `.trim()`, not `trim`.
       const monitorUpsideDown = monitor.upsideDown
         ? String(monitor.upsideDown).trim()
         : null;
@@ -740,7 +739,7 @@ class Slack extends NotificationProvider {
       );
 
       // Log monitor status and timezone-related information for debugging
-      completeLogDebug(`Formatted monitor information`, {
+      completeLogDebug("Formatted monitor information", {
         statusMessage,
         localDay,
         localDate,
@@ -985,18 +984,18 @@ class Slack extends NotificationProvider {
       const actions = this.buildActions(baseURL, monitor);
       if (actions.length) {
         blocks.push({ type: "actions", elements: actions });
-        completeLogDebug(`Action buttons added`, { actions });
+        completeLogDebug("Action buttons added", { actions });
       } else {
-        completeLogInfo(`No action buttons available to add`);
+        completeLogInfo("No action buttons available to add");
       }
 
       // Log the final Slack message blocks construction
-      completeLogDebug(`Final Slack message blocks constructed`, { blocks });
+      completeLogDebug("Final Slack message blocks constructed", { blocks });
 
       return blocks; // Return the constructed blocks
     } catch (error) {
       // Log error if the block construction fails
-      completeLogError(`Failed to build Slack message blocks`, {
+      completeLogError("Failed to build Slack message blocks", {
         error: error.message,
       });
       throw new Error("Slack message block construction failed.");
@@ -1015,7 +1014,7 @@ class Slack extends NotificationProvider {
     const actions = []; // Initialize an empty array to hold the action buttons
 
     // Log the start of the action button creation process for debugging purposes
-    completeLogDebug(`Starting action button creation`, { baseURL, monitor });
+    completeLogDebug("Starting action button creation", { baseURL, monitor });
 
     // Add Uptime Kuma dashboard button if a valid baseURL is provided
     if (baseURL) {
@@ -1031,10 +1030,10 @@ class Slack extends NotificationProvider {
 
         // Add the constructed button to the actions array
         actions.push(uptimeButton);
-        completeLogDebug(`Uptime Kuma button added`, { button: uptimeButton });
+        completeLogDebug("Uptime Kuma button added", { button: uptimeButton });
       } catch (e) {
         // Log an error if constructing the URL fails (e.g., baseURL is incorrect or monitor ID is invalid)
-        completeLogError(`Failed to construct Uptime Kuma button URL`, {
+        completeLogError("Failed to construct Uptime Kuma button URL", {
           baseURL,
           monitorId: monitor.id,
           error: e.message,
@@ -1065,7 +1064,7 @@ class Slack extends NotificationProvider {
         // Check if the port is in the excluded list (e.g., commonly reserved ports)
         if (urlPort && excludedPorts.has(urlPort)) {
           // If the port is excluded, do not add a button and log the exclusion
-          completeLogDebug(`Address excluded due to reserved port`, {
+          completeLogDebug("Address excluded due to reserved port", {
             address: validURL.href,
             excludedPort: urlPort,
           });
@@ -1080,11 +1079,11 @@ class Slack extends NotificationProvider {
 
           // Add the constructed button to the actions array
           actions.push(monitorButton);
-          completeLogDebug(`Monitor button added`, { button: monitorButton });
+          completeLogDebug("Monitor button added", { button: monitorButton });
         }
       } catch (e) {
         // Log an error if the address format is invalid (e.g., non-URL format or malformed address)
-        completeLogError(`Invalid URL format`, {
+        completeLogError("Invalid URL format", {
           address,
           monitorName: monitor.name,
           error: e.message,
@@ -1094,13 +1093,13 @@ class Slack extends NotificationProvider {
       // Log a message when no valid address is found for the monitor
       // This may apply to non-URL-based monitors (e.g., MQTT, PING), which do not have a web address
       completeLogDebug(
-        `No valid address found for monitor. This may apply to non-URL-based monitors (e.g., MQTT, PING).`,
+        "No valid address found for monitor. This may apply to non-URL-based monitors (e.g., MQTT, PING).",
         { monitor }
       );
     }
 
     // Log the final list of action buttons created
-    completeLogDebug(`Final actions array constructed`, { actions });
+    completeLogDebug("Final actions array constructed", { actions });
 
     // Return the array of action buttons to be included in the Slack message payload
     return actions;
@@ -1124,7 +1123,7 @@ class Slack extends NotificationProvider {
 
     // Fallback to default monitor values if the monitor object is null or missing a 'name' property
     if (!monitor || !monitor.name) {
-      completeLogDebug(`Monitor object is null or missing 'name'`, { monitor });
+      completeLogDebug("Monitor object is null or missing 'name'", { monitor });
 
       // Use the 'message' as the fallback monitor name if the 'name' property is missing
       const fallbackMessage =
@@ -1214,7 +1213,7 @@ class Slack extends NotificationProvider {
     }
 
     // Log the start of Slack message construction, including key parameters
-    completeLogDebug(`Starting Slack data construction`, {
+    completeLogDebug("Starting Slack data construction", {
       notification,
       message,
       monitor,
@@ -1231,7 +1230,7 @@ class Slack extends NotificationProvider {
       attachments: [], // Slack attachments: Leave this value empty to avoid breaking the function
     };
 
-    completeLogDebug(`Initialized basic Slack message structure`, { data });
+    completeLogDebug("Initialized basic Slack message structure", { data });
 
     // If rich message format is enabled and heartbeat data is available, create detailed blocks
     if (heartbeat && notification.slackrichmessage) {
@@ -1249,13 +1248,13 @@ class Slack extends NotificationProvider {
           blocks, // Attach rich message blocks
         });
 
-        completeLogDebug(`Rich message format applied`, {
+        completeLogDebug("Rich message format applied", {
           color: colorBased,
           blocks,
         });
       } catch (error) {
         // If there was an error building the rich message, fall back to a simple text message
-        completeLogError(`Failed to build rich message blocks`, {
+        completeLogError("Failed to build rich message blocks", {
           error: error.message,
         });
         data.text = `${title}\n${message}`; // Fallback to simple text format
@@ -1263,11 +1262,11 @@ class Slack extends NotificationProvider {
     } else {
       // If rich message format is disabled or no heartbeat data, use a simple text message
       data.text = `${title}\n${message}`;
-      completeLogInfo(`Simple text format applied`, { text: data.text });
+      completeLogInfo("Simple text format applied", { text: data.text });
     }
 
     // Log the final constructed Slack data payload before returning
-    completeLogDebug(`Final Slack data payload constructed`, { data });
+    completeLogDebug("Final Slack data payload constructed", { data });
 
     return data;
   }
@@ -1287,7 +1286,7 @@ class Slack extends NotificationProvider {
       const currentPrimaryBaseURL = await setting("primaryBaseURL");
 
       // Log the start of the migration check
-      completeLogDebug(`Checking if URL needs migration`, {
+      completeLogDebug("Checking if URL needs migration", {
         url,
         currentPrimaryBaseURL,
       });
@@ -1304,7 +1303,7 @@ class Slack extends NotificationProvider {
 
         // Log successful migration
         completeLogInfo(
-          `Successfully migrated deprecated URL to primary base URL`,
+          "Successfully migrated deprecated URL to primary base URL",
           {
             newPrimaryBaseURL: url,
           }
@@ -1320,7 +1319,7 @@ class Slack extends NotificationProvider {
       }
     } catch (error) {
       // Log and rethrow any errors encountered during the process
-      completeLogError(`Failed to migrate deprecated URL`, {
+      completeLogError("Failed to migrate deprecated URL", {
         url,
         error: error.message,
       });
@@ -1345,11 +1344,11 @@ class Slack extends NotificationProvider {
     try {
       // Validate the provided Slack notification configuration
       this.validateNotificationConfig(notification);
-      completeLogDebug(`Slack notification configuration validated`, {
+      completeLogDebug("Slack notification configuration validated", {
         notification,
       });
     } catch (error) {
-      completeLogError(`Slack notification configuration error`, {
+      completeLogError("Slack notification configuration error", {
         error: error.message,
         notification,
       });
@@ -1359,7 +1358,7 @@ class Slack extends NotificationProvider {
     // Append the Slack channel notification tag if configured
     if (notification.slackchannelnotify) {
       message += " <!channel>";
-      completeLogInfo(`Channel notification tag appended`, {
+      completeLogInfo("Channel notification tag appended", {
         message,
       });
     }
@@ -1367,7 +1366,7 @@ class Slack extends NotificationProvider {
     try {
       // Retrieve the base URL for constructing monitor links
       const baseURL = await setting("primaryBaseURL");
-      completeLogDebug(`Retrieved base URL`, { baseURL });
+      completeLogDebug("Retrieved base URL", { baseURL });
 
       // Construct the payload for the Slack notification
       const data = this.createSlackData(
@@ -1377,26 +1376,26 @@ class Slack extends NotificationProvider {
         heartbeat,
         baseURL
       );
-      completeLogDebug(`Slack notification data constructed`, { data });
+      completeLogDebug("Slack notification data constructed", { data });
 
       // Process deprecated Slack button URL if specified
       if (notification.slackbutton) {
         await Slack.deprecateURL(notification.slackbutton);
-        completeLogWarn(`Processed deprecated Slack button URL`, {
+        completeLogWarn("Processed deprecated Slack button URL", {
           slackbutton: notification.slackbutton,
         });
       }
 
       // Send the Slack notification using Axios
       const response = await axios.post(notification.slackwebhookURL, data);
-      completeLogInfo(`Slack notification sent successfully`, {
+      completeLogInfo("Slack notification sent successfully", {
         responseData: response.data,
       });
 
       return successMessage;
     } catch (error) {
       // Log detailed error information if sending the notification fails
-      completeLogError(`Slack notification failed`, {
+      completeLogError("Slack notification failed", {
         errorMessage: error.message,
         errorStack: error.stack,
         response: error.response?.data || "No response data",
