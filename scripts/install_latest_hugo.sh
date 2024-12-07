@@ -2,8 +2,8 @@
 
 # Filename: install_latest_hugo.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-05-18T12:09:08+02:00
-# Version: 1.0
+# Date: 2024-12-07T12:05:28+01:00
+# Version: 1.1.0
 
 # Description: This script fetches the latest version of Hugo from the official
 # GitHub repository, downloads it, installs it to /usr/local/hugo-extended, and
@@ -11,71 +11,84 @@
 
 # Usage: ./install_latest_hugo.sh
 
-# Fetch the latest version of Hugo from the GitHub API
+LOG_DIR="$HOME/.bash-script"
+LOG_FILE="$LOG_DIR/install_latest_hugo.log"
+
+log() {
+  local TIMESTAMP
+  TIMESTAMP=$(date +"%b %d, %Y %H:%M:%S")
+  echo "$TIMESTAMP [INFO] - $1" | tee -a "$LOG_FILE"
+}
+
+log_error() {
+  local TIMESTAMP
+  TIMESTAMP=$(date +"%b %d, %Y %H:%M:%S")
+  echo "$TIMESTAMP [ERROR] - $1" | tee -a "$LOG_FILE"
+}
+
+log "Script execution started."
+
+log "Checking current installed version of Hugo (if available)..."
+if command -v sass &>/dev/null; then
+  log "Hugo version: $(hugo version)"
+else
+  log "Hugo is not currently installed."
+fi
+
+log "Fetching the latest version of Hugo from the GitHub API..."
 LATEST_VERSION=$(curl -s https://api.github.com/repos/gohugoio/hugo/releases/latest | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/')
 
-# Check if we successfully fetched the latest version
 if [ -z "$LATEST_VERSION" ]; then
-  echo "Failed to fetch the latest version of Hugo."
+  log_error "Failed to fetch the latest version of Hugo. Exiting."
   exit 1
 fi
+log "Latest version of Hugo: $LATEST_VERSION"
 
-# Construct the download URL using the latest version
 DOWNLOAD_URL="https://github.com/gohugoio/hugo/releases/download/v${LATEST_VERSION}/hugo_extended_${LATEST_VERSION}_linux-amd64.tar.gz"
+log "Constructed download URL: $DOWNLOAD_URL"
 
-# Define the download directory
 DOWNLOAD_DIR="$HOME/Downloads"
+log "Download directory: $DOWNLOAD_DIR"
 
-# Use wget to download the latest version of Hugo to the specified directory
-wget "$DOWNLOAD_URL" -O "$DOWNLOAD_DIR"/hugo_extended_"${LATEST_VERSION}"_linux-amd64.tar.gz
-
-# Check if wget successfully downloaded the file
-if ! wget -q --spider "$DOWNLOAD_URL"; then
-  echo "Failed to download Hugo version ${LATEST_VERSION}."
+log "Downloading Hugo version ${LATEST_VERSION}..."
+if ! wget "$DOWNLOAD_URL" -O "$DOWNLOAD_DIR/hugo_extended_${LATEST_VERSION}_linux-amd64.tar.gz"; then
+  log_error "Failed to download Hugo version ${LATEST_VERSION}. Exiting."
   exit 1
 fi
+log "Successfully downloaded Hugo version ${LATEST_VERSION} to $DOWNLOAD_DIR."
 
-echo "Successfully downloaded Hugo version ${LATEST_VERSION} to $DOWNLOAD_DIR."
+log "Extracting Hugo files..."
+tar -xzf "$DOWNLOAD_DIR/hugo_extended_${LATEST_VERSION}_linux-amd64.tar.gz" -C "$DOWNLOAD_DIR"
 
-# Extract the downloaded tar.gz file in the download directory
-tar -xzf "$DOWNLOAD_DIR"/hugo_extended_"${LATEST_VERSION}"_linux-amd64.tar.gz -C "$DOWNLOAD_DIR"
-
-# Create the target directory if it doesn't exist
+log "Ensuring target directory exists: /usr/local/hugo-extended"
 sudo mkdir -p /usr/local/hugo-extended
 
-# Remove any previous Hugo installation if it exists
+log "Removing any existing Hugo installation in /usr/local/hugo-extended..."
 sudo rm -rf /usr/local/hugo-extended/*
 
-# Move the Hugo binary and additional files to /usr/local/hugo-extended
-sudo mv "$DOWNLOAD_DIR"/hugo /usr/local/hugo-extended/
-sudo mv "$DOWNLOAD_DIR"/LICENSE /usr/local/hugo-extended/
-sudo mv "$DOWNLOAD_DIR"/README.md /usr/local/hugo-extended/
+log "Installing Hugo to /usr/local/hugo-extended..."
+sudo mv "$DOWNLOAD_DIR/hugo" /usr/local/hugo-extended/
+sudo mv "$DOWNLOAD_DIR/LICENSE" /usr/local/hugo-extended/
+sudo mv "$DOWNLOAD_DIR/README.md" /usr/local/hugo-extended/
 
-# Check if the Hugo binary was successfully moved
 if [ ! -f "/usr/local/hugo-extended/hugo" ]; then
-  echo "Failed to move Hugo binary to /usr/local/hugo-extended."
+  log_error "Failed to move Hugo binary to /usr/local/hugo-extended. Exiting."
   exit 1
 fi
+log "Hugo version ${LATEST_VERSION} installed successfully to /usr/local/hugo-extended."
 
-echo "Successfully installed Hugo version ${LATEST_VERSION} to /usr/local/hugo-extended."
+log "Cleaning up temporary files..."
+rm "$DOWNLOAD_DIR/hugo_extended_${LATEST_VERSION}_linux-amd64.tar.gz"
+log "Cleanup complete."
 
-# Clean up by removing the downloaded tar.gz file
-rm "$DOWNLOAD_DIR"/hugo_extended_"${LATEST_VERSION}"_linux-amd64.tar.gz
-
-echo "Cleanup complete."
-echo ""
-
-# Check if Hugo is available and provide instructions if not
 if ! command -v hugo &>/dev/null; then
-  echo "Hugo command not found. You may need to add Go to your PATH."
-  echo "To do this, add the following line to your ~/.bashrc or ~/.bash_profile:"
-  echo ""
-  echo "export PATH=\$PATH:/usr/local/hugo-extended"
-  echo ""
-  echo "Then, run: source ~/.bashrc"
-  echo "Or"
-  echo "Then, run: source ~/.bash_profile"
+  log_error "Hugo command not found. You may need to add Hugo to your PATH."
+  log_error "To do this, add the following line to your ~/.bashrc or ~/.bash_profile:"
+  log_error "export PATH=\$PATH:/usr/local/hugo-extended"
   exit 1
 else
-  echo "Hugo version: $(hugo version)"
+  log "Verification: Hugo is installed and available."
+  log "Hugo version: $(hugo version)"
 fi
+
+log "Script execution completed."
