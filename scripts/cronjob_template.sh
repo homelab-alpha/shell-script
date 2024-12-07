@@ -2,8 +2,8 @@
 
 # Filename: cronjob_template.sh
 # Author: GJS (homelab-aplha)
-# Date: 2024-05-18T12:08:48+02:00
-# Version: 1.0
+# Date: 2024-12-07T12:10:17+01:00
+# Version: 1.0.1
 
 # Description: This script is a cronjob template and sends a ping to a
 # monitoring server for system health check.
@@ -30,7 +30,7 @@
 # Example with specified range and interval:
 # This cron job will run every 3 hours from 07:00 to 23:00
 #
-# 10 07-23/3 * * * /bin/bash /pad/to/.bash_script/cronjob_template.sh
+# 10 07-23/3 * * * /bin/bash /pad/to/.bash-script/cronjob_template.sh
 
 # Function to log messages to a file
 log_message() {
@@ -115,7 +115,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Path to log directory and file
-log_dir="$HOME/.bash_script"
+log_dir="$HOME/.bash-script"
 log_file="$log_dir/cronjob_template_cron.log"
 
 # Uptime Kuma Monitoring server URL and parameters
