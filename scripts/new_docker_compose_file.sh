@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-08T08:11:31+01:00
-# Version: 1.1.0
+# Date: 2024-12-10T13:28:35+01:00
+# Version: 1.2.0
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -170,12 +170,12 @@ services:
     labels:
       com.${container_name}.db.description: "is a MySQL database."
     healthcheck:
-      disable: true
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 1m30s
-      timeout: 10s
+      disable: false
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 10s
       start_interval: 5s
 
   ${container_name}_app:
@@ -214,7 +214,7 @@ services:
         condition: service_healthy
         restart: true
       ${container_name}_redis:
-        condition: service_started
+        condition: service_healthy
     links:
       - ${container_name}_db
     volumes:
@@ -395,12 +395,12 @@ services:
     labels:
       com.${container_name}.test.db.description: "is a MySQL database."
     healthcheck:
-      disable: true
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 1m30s
-      timeout: 10s
+      disable: false
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 10s
       start_interval: 5s
 
   ${container_name}_testing_app:
@@ -439,7 +439,7 @@ services:
         condition: service_healthy
         restart: true
       ${container_name}_testing_redis:
-        condition: service_started
+        condition: service_healthy
     links:
       - ${container_name}_testing_db
     volumes:
@@ -612,7 +612,7 @@ relay-log-recovery = 1
 
 # Specify the number of slave connections required before purging logs in replication scenarios.
 # This value is usually used for managing replication and cleanup.
-slave_connections_needed_for_purge = 1
+slave_connections_needed_for_purge = 0
 
 # Set the default transaction isolation level. REPEATABLE-READ ensures that
 # transactions can see consistent data throughout their duration without being impacted by others.
