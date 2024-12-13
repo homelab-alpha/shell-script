@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-10T13:28:35+01:00
-# Version: 1.2.0
+# Date: 2024-12-13T16:43:03+01:00
+# Version: 1.2.1
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -300,7 +300,7 @@ volumes:
     external: true
 EOL
 
-# Add content to docker-compose.yml
+# Add content to testing_docker-compose.yml
 cat <<EOL >"$dir_path/testing_docker-compose.yml"
 ---
 networks:
@@ -539,7 +539,7 @@ MYSQL_USER_DB=${container_name}
 MYSQL_PASSWORD_DB="change_me"
 EOL
 
-# Add content to .env
+# Add content to stack.env
 cat <<EOL >"$dir_path/stack.env"
 # Database configuration: ROOT
 MYSQL_RANDOM_ROOT_PASSWORD="false"
@@ -553,7 +553,7 @@ MYSQL_USER_DB=${container_name}
 MYSQL_PASSWORD_DB="change_me"
 EOL
 
-# Add content to docker-compose.yml
+# Add content to my.cnf
 cat <<EOL >"$dir_path/my.cnf"
 #
 # The MariaDB/MySQL tools read configuration files in the following order:
@@ -630,10 +630,10 @@ binlog-format = ROW
 log-bin-compress = 1
 
 # Optionally, you can encrypt binary logs for added security. The encryption option is currently
-# commented out here. It can be enabled for environments requiring higher security.
+# disable. It can be enabled for environments requiring higher security.
 encrypt-binlog = 0
 
-# Enable native AIO (asynchronous I/O) support for InnoDB. This improves performance
+# Disable native AIO (asynchronous I/O) support for InnoDB. This improves performance
 # by allowing multiple disk I/O operations to be performed concurrently.
 innodb_use_native_aio = 0
 
