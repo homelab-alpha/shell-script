@@ -1,0 +1,54 @@
+name: "Automated Management of Stale and Unreproducible Issues"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "00 03 * * *"
+
+permissions:
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          stale-issue-message: |-
+            We are cleaning up outdated `help wanted` issues. Your issue has been open for 70 days without any activity.
+            If no comments are added and the `stale` label is not removed, it will be closed in 14 days.
+            Please comment if the issue is still relevant or if there are new developments. We want to make sure it gets the attention it needs.
+          days-before-stale: 70
+          days-before-close: 14
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          exempt-issue-labels: |
+            bug
+            discussion
+            documentation
+            feature request
+            P0: critical
+            P1: high
+            P2: moderate
+          exempt-issue-assignees: |
+            homelab-alpha
+          operations-per-run: 250
+          stale-issue-label: "stale"
+
+      - uses: actions/stale@v9
+        with:
+          stale-issue-message: |-
+            This issue has been marked as `cannot reproduce` by a maintainer.
+            If you have any suggestions on how we might be able to reproduce it, we’d appreciate your input.
+
+            We currently don't have an effective way to address issues that cannot be reproduced, so we plan to close this one in 14 days.
+            If you believe there are differences in our environment or how we attempted reproduction, please let us know.
+          close-issue-message: |-
+            This issue will be closed as we were unable to reproduce it.
+            If you or anyone else can reliably reproduce the issue, feel free to reopen it by commenting with the steps to reproduce.
+          days-before-stale: 70
+          days-before-close: 14
+          days-before-pr-stale: -1
+          days-before-pr-close: -1
+          any-of-issue-labels: "cannot reproduce"
+          operations-per-run: 250
