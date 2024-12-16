@@ -58,4 +58,4 @@ deployment security and minimize the risk of breaches or unauthorized access.
 [Homelab-Alpha's website]: https://homelab-alpha.nl
 [Homelab-Alpha's GitHub repositories]: https://github.com/homelab-alpha
 [creating a new security report]:
-  https://github.com/homelab-alpha/shell-script/issues/new?&template=security_report.md
+  https://github.com/homelab-alpha/shell-script/issues/new?assignees=homelab-alpha&labels=security&projects=&template=security_report.yml&title=GitHub+Security+Advisory
