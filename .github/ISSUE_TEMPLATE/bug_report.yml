@@ -1,0 +1,114 @@
+---
+name: "🐛 Bug Report"
+description: "Report a bug or issue in this repository."
+# title: "[Bug]: <Brief description of the bug> "
+labels: [bug]
+assignees: [homelab-alpha]
+body:
+  - type: textarea
+    id: duplicate-check-related-issues
+    validations:
+      required: true
+    attributes:
+      label: "🔍 Have you found any related issues or pull requests?"
+      description: "Check if this bug has already been reported. Use [this link](https://github.com/homelab-alpha/shell-script/issues?q=) to search for related issues, and explain the differences, or indicate if you couldn't find any related issues."
+      placeholder: "For example, 'Related to #1, which also affects the ... system. These issues should not be merged because ...'"
+  - type: checkboxes
+    id: security-policy-agreement
+    attributes:
+      label: "🛡️ Security Policy Agreement"
+      description: "Please confirm that you have read the [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) before reporting security-related bugs."
+      options:
+        - label: "I have read and agree to the Security Policy."
+          required: true
+  - type: textarea
+    id: bug-description
+    validations:
+      required: true
+    attributes:
+      label: "🐛 Bug Description"
+      description: "Provide a detailed explanation of the bug. Include steps to reproduce, expected behavior, and actual behavior."
+      placeholder: "Describe the bug in detail."
+  - type: textarea
+    id: steps-to-reproduce
+    validations:
+      required: true
+    attributes:
+      label: "🧩 Steps to Reproduce"
+      description: "Provide a step-by-step guide to reproduce the bug. Include specific details to help us replicate the issue."
+      placeholder: "1. Step one\n2. Step two\n3. ..."
+  - type: textarea
+    id: expected-behavior
+    validations:
+      required: true
+    attributes:
+      label: "✔️ Expected Behavior"
+      description: "Describe what you expected to happen."
+      placeholder: "What should have happened instead?"
+  - type: textarea
+    id: actual-behavior
+    validations:
+      required: true
+    attributes:
+      label: "❌ Actual Behavior"
+      description: "Describe what actually happened."
+      placeholder: "What happened instead?"
+  - type: textarea
+    id: logs-or-errors
+    validations:
+      required: false
+    attributes:
+      label: "📜 Logs or Error Messages"
+      description: "Provide any relevant logs or error messages. Use backticks (```) for formatting."
+      placeholder: "Paste logs or error messages here."
+  - type: textarea
+    id: relevant-config-files
+    validations:
+      required: false
+    attributes:
+      label: "⚙️ Relevant Configuration Files"
+      description: "Attach any relevant configuration files or code snippets that might help diagnose the issue. Use backticks (```) for formatting if pasting directly."
+      placeholder: "Paste or upload your configuration files/code snippets here."
+  - type: textarea
+    id: dependencies-info
+    validations:
+      required: true
+    attributes:
+      label: "📂 Dependencies and Versions"
+      description: "List all dependencies and their versions used in your setup. This information helps identify compatibility issues."
+      placeholder: "e.g., Library X v1.2.3, Library Y v4.5.6"
+  - type: input
+    id: software-version
+    validations:
+      required: true
+    attributes:
+      label: "📦 Software Version"
+      description: "Specify the version of the software you are using. Avoid using vague terms like 'latest' or 'current'."
+      placeholder: "e.g., 1.10.0"
+  - type: input
+    id: operating-system
+    validations:
+      required: true
+    attributes:
+      label: "💻 Operating System"
+      description: "Provide the details of the operating system and architecture you are using."
+      placeholder: "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
+  - type: textarea
+    id: environment-details
+    validations:
+      required: true
+    attributes:
+      label: "🖥️ Environment Details"
+      description: |
+        Provide detailed information about your setup to help us understand your environment better:
+          - **Hosting Environment**: Are you running this on a local machine, cloud provider (AWS, Azure, etc.), or other platforms?
+          - **Runtime Details**: Specify the runtime environment, such as Docker, Kubernetes, Node.js, etc.
+          - **Database Configuration**: Mention the type of database (e.g., SQLite, MariaDB, PostgreSQL) and any relevant configurations.
+          - **Storage Details**: Describe the file system or storage setup used (e.g., ext4, NTFS, ZFS, NFS).
+          - **Additional Context**: Other context that might affect the issue.
+      value: |
+        - Hosting Environment:
+        - Runtime Details:
+        - Database Configuration:
+        - Storage Details:
+        - Additional Context:
