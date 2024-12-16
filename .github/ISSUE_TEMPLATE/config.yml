@@ -1,0 +1,6 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: Get help from the community (GitHub)
+    url: https://github.com/homelab-alpha/shell-script/discussions
+    about: Ask questions and discuss with other community members
