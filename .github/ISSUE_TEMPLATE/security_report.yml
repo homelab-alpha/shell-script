@@ -1,0 +1,30 @@
+---
+name: "🛡️ Security Issue"
+description: |
+  Notify the @homelab-alpha team about a security concern. Do NOT include
+  sensitive details.
+title: "GitHub Security Advisory"
+labels: [security]
+assignees: [homelab-alpha]
+body:
+  - type: "markdown"
+    attributes:
+      value: |
+        ## ⚠️ Security Issue Reporting
+
+        **DO NOT PROVIDE ANY DETAILS HERE:** To report a vulnerability privately, please use [GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+
+        This issue template is intended to notify the maintainers, as GitHub Security Advisory system does not automatically notify the @homelab-alpha team.
+
+  - type: "textarea"
+    id: github-advisory-url
+    validations:
+      required: true
+    attributes:
+      label: "GitHub Advisory URL"
+      placeholder: "After creating your advisory report, include the GitHub Advisory URL here."
+
+  - type: "markdown"
+    attributes:
+      value: |
+        Thank you for helping to keep this project secure!
