@@ -8,7 +8,10 @@ body:
     id: duplicate-check
     attributes:
       label: "⚠️ Please verify that this question has NOT been raised before"
-      description: "Ensure this question has not already been raised. Use [this link](https://github.com/homelab-alpha/shell-script/issues?q=) to search."
+      description:
+        "Ensure this question has not already been raised. Use [this
+        link](https://github.com/homelab-alpha/shell-script/issues?q=) to
+        search."
       options:
         - label: "I confirm that no similar issue exists."
           required: true
@@ -16,7 +19,10 @@ body:
     id: security-policy-agreement
     attributes:
       label: "🛡️ Security Policy Agreement"
-      description: "Please confirm that you have read the [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) before reporting security-related issues."
+      description:
+        "Please confirm that you have read the [Security
+        Policy](https://github.com/homelab-alpha/shell-script/security/policy)
+        before reporting security-related issues."
       options:
         - label: "I have read and agree to the Security Policy."
           required: true
@@ -26,7 +32,9 @@ body:
       required: true
     attributes:
       label: "📝 Describe your problem"
-      description: "Provide a detailed explanation of your issue or question. Include steps to reproduce, screenshots, or any relevant details."
+      description:
+        "Provide a detailed explanation of your issue or question. Include steps
+        to reproduce, screenshots, or any relevant details."
       placeholder: "Describe your question or problem in detail."
   - type: textarea
     id: attempted-solutions
@@ -34,7 +42,9 @@ body:
       required: true
     attributes:
       label: "🔍 Attempted Solutions"
-      description: "List the steps you've taken to troubleshoot the issue or answer your question. Include both successful and unsuccessful attempts."
+      description:
+        "List the steps you've taken to troubleshoot the issue or answer your
+        question. Include both successful and unsuccessful attempts."
       placeholder: "List all the actions you've tried to address the issue."
   - type: textarea
     id: logs-or-errors
@@ -42,22 +52,29 @@ body:
       required: false
     attributes:
       label: "📜 Logs or Error Messages"
-      description: "Share any logs or error messages related to your issue, if available."
+      description:
+        "Share any logs or error messages related to your issue, if available."
   - type: textarea
     id: relevant-config-files
     validations:
       required: false
     attributes:
       label: "⚙️ Relevant Configuration Files"
-      description: "Attach any relevant configuration files or code snippets that might help diagnose the issue. Use backticks (```) for formatting if pasting directly."
-      placeholder: "Paste or upload your configuration files/code snippets here."
+      description:
+        "Attach any relevant configuration files or code snippets that might
+        help diagnose the issue. Use backticks (```) for formatting if pasting
+        directly."
+      placeholder:
+        "Paste or upload your configuration files/code snippets here."
   - type: textarea
     id: dependencies-info
     validations:
       required: true
     attributes:
       label: "📂 Dependencies and Versions"
-      description: "List all dependencies and their versions used in your setup. This information helps identify compatibility issues."
+      description:
+        "List all dependencies and their versions used in your setup. This
+        information helps identify compatibility issues."
       placeholder: "e.g., Library X v1.2.3, Library Y v4.5.6"
   - type: input
     id: software-version
@@ -65,7 +82,9 @@ body:
       required: true
     attributes:
       label: "📦 Software Version"
-      description: "Specify the version of the software you are using. Avoid using vague terms like 'latest' or 'current'."
+      description:
+        "Specify the version of the software you are using. Avoid using vague
+        terms like 'latest' or 'current'."
       placeholder: "e.g., 1.10.0"
   - type: input
     id: operating-system
@@ -73,16 +92,22 @@ body:
       required: true
     attributes:
       label: "💻 Operating System"
-      description: "Provide the details of the operating system and architecture you are using."
-      placeholder: "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
+      description:
+        "Provide the details of the operating system and architecture you are
+        using."
+      placeholder:
+        "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
   - type: input
     id: browser-info
     validations:
       required: false
     attributes:
       label: "🌐 Browser Information"
-      description: "If applicable, specify the browser and version you are using."
-      placeholder: "e.g., Brave Version 1.73.101 Chromium: 131.0.6778.139 (Official Build) (64-bit)"
+      description:
+        "If applicable, specify the browser and version you are using."
+      placeholder:
+        "e.g., Brave Version 1.73.101 Chromium: 131.0.6778.139 (Official Build)
+        (64-bit)"
   - type: textarea
     id: environment-details
     validations:

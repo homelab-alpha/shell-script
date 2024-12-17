@@ -11,15 +11,23 @@ body:
       required: true
     attributes:
       label: "🔍 Have you found any related issues or pull requests?"
-      description: "Check if this feature has already been reported. Use [this link](https://github.com/homelab-alpha/shell-script/issues?q=) to search for related issues, and explain the differences, or indicate if you couldn't find any related issues."
-      placeholder: "For example, 'Related to #1, which also affects the ... system. These issues should not be merged because ...'"
+      description:
+        "Check if this feature has already been reported. Use [this
+        link](https://github.com/homelab-alpha/shell-script/issues?q=) to search
+        for related issues, and explain the differences, or indicate if you
+        couldn't find any related issues."
+      placeholder:
+        "For example, 'Related to #1, which also affects the ... system. These
+        issues should not be merged because ...'"
   - type: textarea
     id: feature-summary
     validations:
       required: true
     attributes:
       label: "💡 Feature Summary"
-      description: "Provide a brief summary of the feature or improvement you are proposing."
+      description:
+        "Provide a brief summary of the feature or improvement you are
+        proposing."
       placeholder: "Summarize the proposed feature."
   - type: textarea
     id: use-case
@@ -27,7 +35,9 @@ body:
       required: true
     attributes:
       label: "🎯 Use Case"
-      description: "Describe the use case for this feature. What problem does it solve or what need does it fulfill?"
+      description:
+        "Describe the use case for this feature. What problem does it solve or
+        what need does it fulfill?"
       placeholder: "Explain why this feature is necessary."
   - type: textarea
     id: proposed-solution
@@ -35,7 +45,9 @@ body:
       required: false
     attributes:
       label: "🔧 Proposed Solution"
-      description: "Provide details on how you envision this feature working. Include any technical details, mockups, or examples if possible."
+      description:
+        "Provide details on how you envision this feature working. Include any
+        technical details, mockups, or examples if possible."
       placeholder: "Describe how the feature could be implemented."
   - type: textarea
     id: alternatives-considered
@@ -43,7 +55,8 @@ body:
       required: false
     attributes:
       label: "🔍 Alternatives Considered"
-      description: "Describe any alternative solutions or features you've considered."
+      description:
+        "Describe any alternative solutions or features you've considered."
       placeholder: "What other solutions have you thought about?"
   - type: textarea
     id: additional-context
@@ -51,5 +64,6 @@ body:
       required: false
     attributes:
       label: "📋 Additional Context"
-      description: "Provide any other context or screenshots that might be helpful."
+      description:
+        "Provide any other context or screenshots that might be helpful."
       placeholder: "Add any other details here."

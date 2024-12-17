@@ -11,13 +11,22 @@ body:
       required: true
     attributes:
       label: "🔍 Have you found any related issues or pull requests?"
-      description: "Check if this bug has already been reported. Use [this link](https://github.com/homelab-alpha/shell-script/issues?q=) to search for related issues, and explain the differences, or indicate if you couldn't find any related issues."
-      placeholder: "For example, 'Related to #1, which also affects the ... system. These issues should not be merged because ...'"
+      description:
+        "Check if this bug has already been reported. Use [this
+        link](https://github.com/homelab-alpha/shell-script/issues?q=) to search
+        for related issues, and explain the differences, or indicate if you
+        couldn't find any related issues."
+      placeholder:
+        "For example, 'Related to #1, which also affects the ... system. These
+        issues should not be merged because ...'"
   - type: checkboxes
     id: security-policy-agreement
     attributes:
       label: "🛡️ Security Policy Agreement"
-      description: "Please confirm that you have read the [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) before reporting security-related bugs."
+      description:
+        "Please confirm that you have read the [Security
+        Policy](https://github.com/homelab-alpha/shell-script/security/policy)
+        before reporting security-related bugs."
       options:
         - label: "I have read and agree to the Security Policy."
           required: true
@@ -27,7 +36,9 @@ body:
       required: true
     attributes:
       label: "🐛 Bug Description"
-      description: "Provide a detailed explanation of the bug. Include steps to reproduce, expected behavior, and actual behavior."
+      description:
+        "Provide a detailed explanation of the bug. Include steps to reproduce,
+        expected behavior, and actual behavior."
       placeholder: "Describe the bug in detail."
   - type: textarea
     id: steps-to-reproduce
@@ -35,7 +46,9 @@ body:
       required: true
     attributes:
       label: "🧩 Steps to Reproduce"
-      description: "Provide a step-by-step guide to reproduce the bug. Include specific details to help us replicate the issue."
+      description:
+        "Provide a step-by-step guide to reproduce the bug. Include specific
+        details to help us replicate the issue."
       placeholder: "1. Step one\n2. Step two\n3. ..."
   - type: textarea
     id: expected-behavior
@@ -59,7 +72,9 @@ body:
       required: false
     attributes:
       label: "📜 Logs or Error Messages"
-      description: "Provide any relevant logs or error messages. Use backticks (```) for formatting."
+      description:
+        "Provide any relevant logs or error messages. Use backticks (```) for
+        formatting."
       placeholder: "Paste logs or error messages here."
   - type: textarea
     id: relevant-config-files
@@ -67,15 +82,21 @@ body:
       required: false
     attributes:
       label: "⚙️ Relevant Configuration Files"
-      description: "Attach any relevant configuration files or code snippets that might help diagnose the issue. Use backticks (```) for formatting if pasting directly."
-      placeholder: "Paste or upload your configuration files/code snippets here."
+      description:
+        "Attach any relevant configuration files or code snippets that might
+        help diagnose the issue. Use backticks (```) for formatting if pasting
+        directly."
+      placeholder:
+        "Paste or upload your configuration files/code snippets here."
   - type: textarea
     id: dependencies-info
     validations:
       required: true
     attributes:
       label: "📂 Dependencies and Versions"
-      description: "List all dependencies and their versions used in your setup. This information helps identify compatibility issues."
+      description:
+        "List all dependencies and their versions used in your setup. This
+        information helps identify compatibility issues."
       placeholder: "e.g., Library X v1.2.3, Library Y v4.5.6"
   - type: input
     id: software-version
@@ -83,7 +104,9 @@ body:
       required: true
     attributes:
       label: "📦 Software Version"
-      description: "Specify the version of the software you are using. Avoid using vague terms like 'latest' or 'current'."
+      description:
+        "Specify the version of the software you are using. Avoid using vague
+        terms like 'latest' or 'current'."
       placeholder: "e.g., 1.10.0"
   - type: input
     id: operating-system
@@ -91,8 +114,11 @@ body:
       required: true
     attributes:
       label: "💻 Operating System"
-      description: "Provide the details of the operating system and architecture you are using."
-      placeholder: "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
+      description:
+        "Provide the details of the operating system and architecture you are
+        using."
+      placeholder:
+        "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
   - type: textarea
     id: environment-details
     validations:
