@@ -1,9 +1,9 @@
 ---
 name: "🛡️ Security Issue"
 description: |
-  Notify the @homelab-alpha team about a security concern. Do NOT include
-  sensitive details.
-title: "GitHub Security Advisory"
+  Notify the @homelab-alpha team about a security concern. Please do NOT include
+  sensitive details in this issue.
+# title: "Security Issue Report"
 labels: [security]
 assignees: [homelab-alpha]
 body:
@@ -12,9 +12,24 @@ body:
       value: |
         ## ⚠️ Security Issue Reporting
 
-        **DO NOT PROVIDE ANY DETAILS HERE:** To report a vulnerability privately, please use [GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+        ### **IMPORTANT: DO NOT INCLUDE ANY DETAILS HERE:**
 
-        This issue template is intended to notify the maintainers, as GitHub Security Advisory system does not automatically notify the @homelab-alpha team.
+        To report a vulnerability privately, please use the GitHub Security Advisory.
+
+        This template is for notifying maintainers, as the GitHub Security Advisory
+        system does **not** automatically notify the @homelab-alpha team.
+
+        ### **Step 1:** Create a GitHub Security Advisory using the link below
+
+        [Create a new Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new)
+
+        ### **Step 2:** Once your advisory is created, paste the URL of your GitHub Advisory below
+
+        **Example of a GitHub Advisory URL:**
+
+        <https://github.com/homelab-alpha/shell-script/security/advisories/GHSA-9d2f-4v3j-p7qk>
+
+        After creating your advisory report, paste the GitHub Advisory URL below.
 
   - type: "textarea"
     id: github-advisory-url
@@ -22,9 +37,10 @@ body:
       required: true
     attributes:
       label: "GitHub Advisory URL"
-      placeholder: "After creating your advisory report, include the GitHub Advisory URL here."
+      placeholder: |
+        Paste the GitHub Advisory URL here.
 
   - type: "markdown"
     attributes:
       value: |
-        Thank you for helping to keep this project secure!
+        **Thank you for helping keep this project secure!**
