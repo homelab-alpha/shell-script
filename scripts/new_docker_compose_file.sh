@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-13T16:43:03+01:00
-# Version: 1.2.1
+# Date: 2024-12-18T10:42:22+01:00
+# Version: 1.3.0
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -70,7 +70,7 @@ for dir in "${directories[@]}"; do
 done
 
 # Create Docker startup files
-if ! touch "$dir_path/docker-compose.yml" "$dir_path/testing_docker-compose.yml" "$dir_path/.env" "$dir_path/stack.env" "$dir_path/my.cnf"; then
+if ! touch "$dir_path/docker-compose.yml" "$dir_path/docker-compose_testing.yml" "$dir_path/.env" "$dir_path/stack.env" "$dir_path/my.cnf"; then
   display_message "Failed to create Docker startup files in $dir_path."
   exit 1
 fi
@@ -150,11 +150,10 @@ services:
       PUID: "1000" # UserID
       PGID: "1000" # GroupID
       TZ: Europe/Amsterdam
-      MYSQL_RANDOM_ROOT_PASSWORD: \${MYSQL_RANDOM_ROOT_PASSWORD}
-      MYSQL_ROOT_PASSWORD: \${MYSQL_ROOT_PASSWORD_DB}
-      MYSQL_DATABASE: \${MYSQL_DATABASE_DB}
-      MYSQL_USER: \${MYSQL_USER_DB}
-      MYSQL_PASSWORD: \${MYSQL_PASSWORD_DB}
+      MYSQL_ROOT_PASSWORD: \${ROOT_PASSWORD_DB}
+      MYSQL_DATABASE: \${NAME_DB}
+      MYSQL_USER: \${USER_DB}
+      MYSQL_PASSWORD: \${PASSWORD_DB}
     hostname: ${container_name}_db
     networks:
       ${container_name}_net:
@@ -234,11 +233,11 @@ services:
       PUID: "1000" # UserID
       PGID: "1000" # GroupID
       TZ: Europe/Amsterdam
-      MYSQL_HOST: \${MYSQL_HOST}
-      MYSQL_PORT: \${MYSQL_PORT}
-      MYSQL_NAME: \${MYSQL_DATABASE_DB}
-      MYSQL_USER: \${MYSQL_USER_DB}
-      MYSQL_PASSWORD: \${MYSQL_PASSWORD_DB}
+      MYSQL_HOST: \${HOST_DB}
+      MYSQL_PORT: \${PORT_DB}
+      MYSQL_NAME: \${NAME_DB}
+      MYSQL_USER: \${USER_DB}
+      MYSQL_PASSWORD: \${PASSWORD_DB}
     command: ["change_me"]
     entrypoint: ["change_me"]
       # declares the default entrypoint for the service container.
@@ -301,7 +300,7 @@ volumes:
 EOL
 
 # Add content to testing_docker-compose.yml
-cat <<EOL >"$dir_path/testing_docker-compose.yml"
+cat <<EOL >"$dir_path/docker-compose_testing.yml"
 ---
 networks:
   ${container_name}_testing_net:
@@ -375,11 +374,10 @@ services:
       PUID: "1000" # UserID
       PGID: "1000" # GroupID
       TZ: Europe/Amsterdam
-      MYSQL_RANDOM_ROOT_PASSWORD: \${MYSQL_RANDOM_ROOT_PASSWORD}
-      MYSQL_ROOT_PASSWORD: \${MYSQL_ROOT_PASSWORD_DB}
-      MYSQL_DATABASE: \${MYSQL_DATABASE_DB}
-      MYSQL_USER: \${MYSQL_USER_DB}
-      MYSQL_PASSWORD: \${MYSQL_PASSWORD_DB}
+      MYSQL_ROOT_PASSWORD: \${ROOT_PASSWORD_DB}
+      MYSQL_DATABASE: \${NAME_DB}
+      MYSQL_USER: \${USER_DB}
+      MYSQL_PASSWORD: \${PASSWORD_DB}
     hostname: ${container_name}_testing_db
     networks:
       ${container_name}_testing_net:
@@ -459,11 +457,11 @@ services:
       PUID: "1000" # UserID
       PGID: "1000" # GroupID
       TZ: Europe/Amsterdam
-      MYSQL_HOST: \${MYSQL_HOST}
-      MYSQL_PORT: \${MYSQL_PORT}
-      MYSQL_NAME: \${MYSQL_DATABASE_DB}
-      MYSQL_USER: \${MYSQL_USER_DB}
-      MYSQL_PASSWORD: \${MYSQL_PASSWORD_DB}
+      MYSQL_HOST: \${HOST_DB}
+      MYSQL_PORT: \${PORT_DB}
+      MYSQL_NAME: \${NAME_DB}
+      MYSQL_USER: \${USER_DB}
+      MYSQL_PASSWORD: \${PASSWORD_DB}
     command: ["change_me"]
     entrypoint: ["change_me"]
       # declares the default entrypoint for the service container.
@@ -528,29 +526,27 @@ EOL
 # Add content to .env
 cat <<EOL >"$dir_path/.env"
 # Database configuration: ROOT
-MYSQL_RANDOM_ROOT_PASSWORD="false"
-MYSQL_ROOT_PASSWORD_DB="change_me"
+ROOT_PASSWORD_DB="change_me"
 
 # Database configuration: USER
-MYSQL_HOST="${container_name}_db"
-MYSQL_PORT=3306
-MYSQL_DATABASE_DB=${container_name}_db
-MYSQL_USER_DB=${container_name}
-MYSQL_PASSWORD_DB="change_me"
+HOST_DB="${container_name}_db"
+PORT_DB=3306
+NAME_DB=${container_name}_db
+USER_DB=${container_name}
+PASSWORD_DB="change_me"
 EOL
 
 # Add content to stack.env
 cat <<EOL >"$dir_path/stack.env"
 # Database configuration: ROOT
-MYSQL_RANDOM_ROOT_PASSWORD="false"
-MYSQL_ROOT_PASSWORD_DB="change_me"
+ROOT_PASSWORD_DB="change_me"
 
 # Database configuration: USER
-MYSQL_HOST="${container_name}_db"
-MYSQL_PORT=3306
-MYSQL_DATABASE_DB=${container_name}_db
-MYSQL_USER_DB=${container_name}
-MYSQL_PASSWORD_DB="change_me"
+HOST_DB="${container_name}_db"
+PORT_DB=3306
+NAME_DB=${container_name}_db
+USER_DB=${container_name}
+PASSWORD_DB="change_me"
 EOL
 
 # Add content to my.cnf
@@ -580,66 +576,218 @@ cat <<EOL >"$dir_path/my.cnf"
 # port = 3306
 socket = /run/mysqld/mysqld.sock
 
-# Import all .cnf files from configuration directory
-
-!includedir /etc/mysql/mariadb.conf.d/
-!includedir /etc/mysql/conf.d/
-
 [mysqld]
+# ============================================
+# General Server Settings
+# ============================================
+
+# Unique server ID for replication. Each server in a replication setup
+# must have a unique ID. Default is 0, which is invalid for replication.
+server-id = 1
+
+# Path to the database files. This is where all database data will be stored.
+datadir = /var/lib/mysql/
+
+# Location of the PID file. This file contains the process ID of the running MySQL server.
+pid-file = /var/run/mysqld/mysqld.pid
+
+# Disable DNS lookups when clients connect to the server, improving connection speed.
+# Note: With this setting enabled, only IP addresses will be logged.
+skip-name-resolve
+
+# Set the default storage engine for new tables. InnoDB is generally recommended
+# for its ACID compliance and support for transactions.
+default-storage-engine = InnoDB
+
+# Define the transaction isolation level. REPEATABLE-READ is a common default,
+# ensuring consistent reads within a transaction.
+transaction-isolation = REPEATABLE-READ
+
+# Prevent the use of symbolic links to ensure data security.
+skip-symbolic-links
+
+# ============================================
+# Performance Optimizations
+# ============================================
+
+# Enable native asynchronous I/O for improved performance in InnoDB.
+innodb-use-native-aio = 0
+
+# Set the size of the InnoDB buffer pool. This should be 70-80% of the available memory.
+# Larger values allow more data to be cached in memory, improving performance.
+innodb-buffer-pool-size = 2G
+
+# Configure the size of the InnoDB redo log files. Larger log files can improve
+# performance for write-heavy workloads but require more recovery time after a crash.
+innodb-log-file-size = 1G
+
+# Define the size of the InnoDB log buffer. This buffer holds transaction logs
+# in memory before they are written to disk. Larger buffers reduce disk I/O.
+innodb-log-buffer-size = 32M
+
+# Flush logs to disk after each transaction. This ensures ACID compliance,
+# but may reduce performance. Setting this to 2 can improve performance at the
+# cost of potential data loss during crashes.
+innodb-flush-log-at-trx-commit = 1
+
+# Number of background threads for read and write operations in InnoDB.
+# Increase these values for high I/O workloads.
+innodb-read-io-threads = 8
+innodb-write-io-threads = 8
+
+# Configure the I/O capacity for background operations such as flushing.
+# Set this based on your disk's capabilities.
+innodb-io-capacity = 6000
+innodb-io-capacity-max = 8000
+
+# Disable query caching as it is not beneficial for most modern workloads.
+# Consider enabling it only if your application benefits from repeated identical queries.
+query-cache-type = 0
+
+# Set the maximum size for temporary tables stored in memory.
+tmp-table-size = 64M
+
+# Configure the maximum size for internal temporary tables stored in memory.
+max-heap-table-size = 64M
+
+# Define the maximum number of simultaneous client connections. Adjust based
+# on your application's concurrency requirements.
+max-connections = 200
+
+# Number of threads to cache for reuse. Higher values reduce the overhead of
+# creating new threads for each connection.
+thread-cache-size = 50
+
+# Configure the cache size for table definitions and open tables. Larger caches
+# improve performance for workloads with many tables.
+table-definition-cache = 4000
+table-open-cache = 4000
+
+# Set the buffer size for the Aria storage engine, used in MariaDB-specific workloads.
+aria-pagecache-buffer-size = 128M
+
+# ============================================
+# Security Settings
+# ============================================
+
+# Restrict file imports and exports to a secure directory to prevent unauthorized access.
+secure-file-priv = /var/lib/mysql/
+
+# Load the password validation plugin to enforce strong password policies.
+# plugin-load-add = validate_password.so
+
+# Enforce a strong password policy with specific requirements.
+# validate-password-policy = STRONG
+
+# Minimum password length for increased security.
+# validate-password-length = 12
+
+# Require at least one uppercase letter in passwords.
+# validate-password-mixed-case-count = 1
+
+# Require at least one numeric character in passwords.
+# validate-password-number-count = 1
+
+# Require at least one special character in passwords.
+# validate-password-special-char-count = 1
+
+# ============================================
+# Binary Logging and Replication
+# ============================================
+
 # Enable binary logging for replication and point-in-time recovery.
-# The log file will be named 'binlog'. You can specify a different name if desired.
+# The log file will be named '${container_name}_binlog'. You can specify a different name if desired.
 log-bin = ${container_name}_binlog
 
 # Set the maximum size for each binary log file. Once the file size reaches this limit,
 # a new binary log file is created. A value of 0 means there is no size limit for the binary logs.
-max-binlog-size = 100M
+max-binlog-size = 500M
 
 # Define the number of days after which binary logs will be automatically purged.
 # This helps prevent the binary log files from growing indefinitely.
 expire-logs-days = 14
 
-# Optionally, you can set the maximum age for binary logs in seconds, overriding expire-logs-days.
-# This option is commented out here, but can be used for more precise control over log expiration.
-# binlog-expire-logs-seconds = 1209600  # 14 days in seconds
+# Enable checksums for binary logs to ensure data integrity.
+binlog-checksum = CRC32
 
-# Automatically purge relay logs that are no longer needed. Relay logs are used in replication.
-# Ensures that unnecessary logs are deleted to free up space and prevent corruption.
-relay-log-purge = 1
-
-# Enable relay log recovery to ensure consistency of data after server restarts.
-# This ensures that replication can continue from the last valid position.
-relay-log-recovery = 1
-
-# Specify the number of slave connections required before purging logs in replication scenarios.
-# This value is usually used for managing replication and cleanup.
-slave_connections_needed_for_purge = 0
-
-# Set the default transaction isolation level. REPEATABLE-READ ensures that
-# transactions can see consistent data throughout their duration without being impacted by others.
-transaction-isolation = REPEATABLE-READ
-
-# Enable checksum on binary logs to ensure integrity checks are performed to verify log validity.
-# This helps detect any corruption in the binary log files.
-binlog-checksum = 1
-
-# Use row-based replication for binary logging. This logs changes at the row level rather than
-# the statement level, ensuring that data changes are captured more accurately.
+# Configure the format for binary logging. ROW-based replication is recommended
+# for ensuring data consistency.
 binlog-format = ROW
 
-# Enable compression for binary logs to reduce the amount of disk space consumed by them.
+# Enable compression for binary logs to reduce disk usage.
 log-bin-compress = 1
 
-# Optionally, you can encrypt binary logs for added security. The encryption option is currently
-# disable. It can be enabled for environments requiring higher security.
+# Disable binary log encryption for better performance. Enable it if data security
+# requires encrypted logs.
 encrypt-binlog = 0
 
-# Disable native AIO (asynchronous I/O) support for InnoDB. This improves performance
-# by allowing multiple disk I/O operations to be performed concurrently.
-innodb_use_native_aio = 0
+# Automatically purge relay logs to save disk space.
+relay-log-purge = 1
 
-# Disable output of InnoDB status information. In some cases, you may want to disable this to reduce log noise
-# or avoid filling up log files with InnoDB-specific status updates.
-innodb_status_output = 0
+# Enable relay log recovery to ensure consistency during replication recovery.
+relay-log-recovery = 1
+
+# Configure whether replication slave connections are required before purging logs.
+slave_connections_needed_for_purge = 0
+
+# ============================================
+# Character Set and Encoding
+# ============================================
+
+# Set the server's default character set to UTF-8 with full Unicode support.
+character-set-server = utf8mb4
+
+# Set the default collation for the server to match the UTF-8 character set.
+collation-server = utf8mb4_general_ci
+
+# Ensure proper encoding when clients connect to the server.
+init-connect = 'SET NAMES utf8mb4'
+
+# ============================================
+# Monitoring and Debugging
+# ============================================
+
+# Enable the Performance Schema for detailed diagnostics.
+performance-schema = 1
+
+# Enable specific consumers in the Performance Schema for tracking events.
+performance-schema-consumer-events-statements-history = 1
+performance-schema-consumer-events-transactions-history = 1
+performance-schema-consumer-events-waits-history = 1
+
+# Enable detailed InnoDB status output for monitoring locks and transactions.
+innodb-status-output = 0
+innodb-status-output-locks = 0
+
+# Disable the general query log by default to avoid excessive disk usage.
+# Enable it only for debugging purposes.
+general-log = 0
+
+# ============================================
+# Temporary Files
+# ============================================
+
+# Specify a directory for temporary files. Storing temporary files on an SSD
+# can improve performance.
+# tmpdir = /tmp
+
+# ============================================
+# SSL/TLS Security
+# ============================================
+
+# SSL/TLS-instellingen
+# ssl-ca = /etc/mysql/ssl/ca-cert.pem
+# ssl-cert = /etc/mysql/ssl/server-cert.pem
+# ssl-key = /etc/mysql/ssl/server-key.pem
+# require-secure-transport = 1
+
+# ============================================
+# Inclusion of Additional Configuration Files
+# ============================================
+
+# Import all .cnf files from the specified configuration directories.
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mariadb.conf.d/
 EOL
 
 display_message "Docker container directory structure created in $dir_path."
