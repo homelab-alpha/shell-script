@@ -1052,10 +1052,9 @@ class Slack extends NotificationProvider {
         // Well-known ports (0 - 1023) plus a few commonly used ports
         const excludedPorts = new Set([
           0, 1, 5, 7, 9, 11, 13, 17, 19, 20, 21, 22, 23, 25, 53, 67, 68, 69, 70,
-          79, 80, 88, 110, 119, 123, 137, 138, 139, 143, 161, 162, 194, 443,
-          445, 465, 514, 540, 543, 544, 546, 547, 563, 587, 593, 631, 636, 853,
-          993, 995, 1080, 1433, 1434, 1521, 1522, 1723, 3306, 3389, 5432, 5900,
-          8080, 8443, 11211,
+          79, 88, 110, 119, 123, 137, 138, 139, 143, 161, 162, 194, 445, 465,
+          514, 540, 543, 544, 546, 547, 563, 587, 593, 631, 636, 853, 993, 995,
+          1080, 1433, 1434, 1521, 1522, 1723, 3306, 3389, 5432, 5900, 11211,
         ]);
 
         // Extract the port number from the URL, or use the default for the protocol
@@ -1384,7 +1383,8 @@ class Slack extends NotificationProvider {
         heartbeat,
         baseURL
       );
-      completeLogDebug("Slack notification data constructed", { data });
+      // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
+      completeLogInfo("Slack notification data constructed", { data });
 
       // Process deprecated Slack button URL if specified
       if (notification.slackbutton) {
