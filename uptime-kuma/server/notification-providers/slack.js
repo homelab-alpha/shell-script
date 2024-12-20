@@ -1053,7 +1053,8 @@ class Slack extends NotificationProvider {
           monitor.port || (validURL.protocol === "https:" ? 443 : 80);
 
         // Log the extracted port for debugging purposes
-        completeLogDebug("Extracted URL port", { urlPort, validURL });
+        // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
+        completeLogInfo("Extracted URL port", { urlPort, validURL });
 
         // Define a set of ports that are considered reserved and should not be included
         // Well-known ports (0 - 1023) plus a few commonly used ports
@@ -1082,7 +1083,8 @@ class Slack extends NotificationProvider {
 
           // Add the constructed button to the actions array
           actions.push(monitorButton);
-          completeLogDebug("Monitor button added", { button: monitorButton });
+          // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
+          completeLogInfo("Monitor button added", { button: monitorButton });
         }
       } catch (e) {
         // Log an error if the address format is invalid (e.g., non-URL format or malformed address)
