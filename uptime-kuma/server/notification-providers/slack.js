@@ -140,7 +140,7 @@ function logMessage(logLevel, message, additionalInfo = null) {
   const timestamp = dayjs().tz(timezone).format("YYYY-MM-DDTHH:mm:ssZ");
 
   // Hardcoded script name for the log. This could be dynamically set if needed.
-  const scriptName = "slack.js";
+  const scriptName = "SLACK";
 
   // Define color codes for different parts of the log message to improve readability in the terminal.
   const colors = {
@@ -1053,8 +1053,7 @@ class Slack extends NotificationProvider {
           monitor.port || (validURL.protocol === "https:" ? 443 : 80);
 
         // Log the extracted port for debugging purposes
-        // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
-        completeLogInfo("Extracted URL port", { urlPort, validURL });
+        completeLogDebug("Extracted URL port", { urlPort, validURL });
 
         // Define a set of ports that are considered reserved and should not be included
         // Well-known ports (0 - 1023) plus a few commonly used ports
@@ -1068,7 +1067,8 @@ class Slack extends NotificationProvider {
         // Check if the port is in the excluded list (e.g., commonly reserved ports)
         if (excludedPorts.has(urlPort)) {
           // If the port is excluded, do not add a button and log the exclusion
-          completeLogDebug("Address excluded due to reserved port", {
+          // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
+          completeLogInfo("Address excluded due to reserved port", {
             address: validURL.href,
             excludedPort: urlPort,
           });
@@ -1087,8 +1087,8 @@ class Slack extends NotificationProvider {
           completeLogInfo("Monitor button added", { button: monitorButton });
         }
       } catch (e) {
-        // Log an error if the address format is invalid (e.g., non-URL format or malformed address)
-        completeLogError("Invalid URL format", {
+        // Log an warning if the address format is invalid (e.g., non-URL format or malformed address)
+        completeLogWarn("Invalid URL format", {
           address,
           monitorName: monitor.name,
           error: e.message,
@@ -1381,8 +1381,7 @@ class Slack extends NotificationProvider {
         heartbeat,
         baseURL
       );
-      // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
-      completeLogInfo("Slack notification data constructed", { data });
+      completeLogDebug("Slack notification data constructed", { data });
 
       // Process deprecated Slack button URL if specified
       if (notification.slackbutton) {
