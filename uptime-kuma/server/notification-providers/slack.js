@@ -1048,6 +1048,13 @@ class Slack extends NotificationProvider {
         // Create a URL object to validate the address format and parse components
         const validURL = new URL(address);
 
+        // Extract the port directly from the monitor data if it's a valid port
+        const urlPort =
+          monitor.port || (validURL.protocol === "https:" ? 443 : 80);
+
+        // Log the extracted port for debugging purposes
+        completeLogDebug("Extracted URL port", { urlPort, validURL });
+
         // Define a set of ports that are considered reserved and should not be included
         // Well-known ports (0 - 1023) plus a few commonly used ports
         const excludedPorts = new Set([
@@ -1057,19 +1064,8 @@ class Slack extends NotificationProvider {
           1080, 1433, 1434, 1521, 1522, 1723, 3306, 3389, 5432, 5900, 11211,
         ]);
 
-        // Extract the port number from the URL, or use the default for the protocol
-        const defaultPort = validURL.protocol === "https:" ? 443 : 80;
-        const urlPort = validURL.port
-          ? parseInt(validURL.port, 10)
-          : defaultPort;
-
         // Check if the port is in the excluded list (e.g., commonly reserved ports)
-        if (isNaN(urlPort)) {
-          completeLogError("Failed to parse port", {
-            port: validURL.port,
-            address: validURL.href,
-          });
-        } else if (excludedPorts.has(urlPort)) {
+        if (excludedPorts.has(urlPort)) {
           // If the port is excluded, do not add a button and log the exclusion
           completeLogDebug("Address excluded due to reserved port", {
             address: validURL.href,
