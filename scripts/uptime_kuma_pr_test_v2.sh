@@ -2,8 +2,8 @@
 
 # Filename: uptime_kuma_pr_test_v2.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-11-03T12:27:31+01:00
-# Version: 1.0.0
+# Date: 2024-12-21T08:02:34+01:00
+# Version: 1.1.0
 
 # Description:
 # This script facilitates the testing of pull requests for Uptime-Kuma
@@ -102,9 +102,9 @@ display_system_info() {
     docker_version="Docker is not installed."
   fi
 
-  if command -v docker-compose &>/dev/null; then
+  if command -v docker compose &>/dev/null; then
     # Get Docker Compose version
-    docker_compose_version=$(docker-compose --version)
+    docker_compose_version=$(docker compose version)
   else
     # Message if Docker Compose is not found
     docker_compose_version="Docker Compose is not installed."
