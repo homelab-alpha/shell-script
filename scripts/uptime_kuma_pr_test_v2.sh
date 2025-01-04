@@ -2,8 +2,8 @@
 
 # Filename: uptime_kuma_pr_test_v2.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-21T08:02:34+01:00
-# Version: 1.1.0
+# Date: 2025-01-04T08:58:11+01:00
+# Version: 1.2.0
 
 # Description:
 # This script facilitates the testing of pull requests for Uptime-Kuma
@@ -156,12 +156,13 @@ version_2() {
     --env PGID="$pgid" \
     --name uptime-kuma-pr-test-v2 \
     --pull=always \
-    --rm \
     --publish "$port_app:3000/tcp" \
     --publish "$port_api:3001/tcp" \
-    --security-opt no-new-privileges:true \
+    --security-opt="no-new-privileges=true" \
     --interactive \
     --tty \
+    --no-healthcheck \
+    --rm \
     louislam/uptime-kuma:pr-test2 || {
     echo
     echo "Exiting container. Goodbye! Use CTRL+C to terminate."
@@ -189,13 +190,14 @@ version_2_persistent_storage() {
     --env PGID="$pgid" \
     --name uptime-kuma-pr-test-v2 \
     --pull=always \
-    --rm \
+    --volume uptime-kuma-pr-test-v2:/app/data \
     --publish "$port_app:3000/tcp" \
     --publish "$port_api:3001/tcp" \
-    --security-opt no-new-privileges:true \
+    --security-opt="no-new-privileges=true" \
     --interactive \
     --tty \
-    --volume uptime-kuma-pr-test-v2:/app/data \
+    --no-healthcheck \
+    --rm \
     louislam/uptime-kuma:pr-test2 || {
     echo
     echo "Exiting container. Goodbye! Use CTRL+C to terminate."
