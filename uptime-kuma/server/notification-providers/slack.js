@@ -713,13 +713,22 @@ class Slack extends NotificationProvider {
         : null;
       completeLogDebug("Monitor Ignore TLS:", monitorIgnoreTLS);
 
-      // Check if the heartbeat message is available and not "N/A", trim any extra spaces, or return null if not available.
-      const monitorDetails = heartbeat.msg
-        ? heartbeat.msg.trim() === "N/A"
-          ? null
-          : heartbeat.msg.trim()
-        : null;
+      // Check if the heartbeat message is a valid string and not "N/A".
+      // If valid, trim any leading or trailing spaces. Otherwise, set to null.
+      const monitorDetails =
+        typeof heartbeat.msg === "string" && heartbeat.msg.trim() !== "N/A"
+          ? heartbeat.msg.trim()
+          : null;
+
+      // Log the monitor details for debugging purposes.
       completeLogDebug("Monitor Details:", monitorDetails);
+
+      // Log a warning if `heartbeat.msg` is not a string or is missing.
+      if (typeof heartbeat.msg !== "string") {
+        completeLogWarn("heartbeat.msg is not a string or is missing", {
+          heartbeat,
+        });
+      }
 
       // Format the local day, date, and time based on the heartbeat data and timezone
       const timezoneInfo = this.getAllInformationFromTimezone(
