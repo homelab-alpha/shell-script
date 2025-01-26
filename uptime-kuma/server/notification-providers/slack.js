@@ -25,7 +25,6 @@ const logLevelsEnabled = {
 
 /**
  * Gets the corresponding color code for the specified log level.
- *
  * @param {string} logLevel - The log level (e.g., 'DEBUG', 'INFO', 'WARN', 'ERROR').
  * @returns {string}        - The color code for the given log level, or white if unknown.
  *
@@ -48,9 +47,9 @@ function getLogLevelColor(logLevel) {
 
 /**
  * Logs a debug level message if 'debug' log level is enabled in the configuration.
- *
- * @param {string} message            - The message to be logged.
- * @param {any} [additionalInfo=null] - Optional additional information to be logged alongside the message.
+ * @param {string} message     - The message to be logged.
+ * @param {any} additionalInfo - Optional additional information to be logged alongside the message.
+ * @returns {void}             - This function does not return any value.
  */
 function completeLogDebug(message, additionalInfo = null) {
   // Check if debug logging is enabled
@@ -61,9 +60,9 @@ function completeLogDebug(message, additionalInfo = null) {
 
 /**
  * Logs an info level message if 'info' log level is enabled in the configuration.
- *
- * @param {string} message            - The message to be logged.
- * @param {any} [additionalInfo=null] - Optional additional information to be logged alongside the message.
+ * @param {string} message     - The message to be logged.
+ * @param {any} additionalInfo - Optional additional information to be logged alongside the message.
+ * @returns {void}             - This function does not return any value.
  */
 function completeLogInfo(message, additionalInfo = null) {
   // Check if info logging is enabled
@@ -74,9 +73,9 @@ function completeLogInfo(message, additionalInfo = null) {
 
 /**
  * Logs a warn level message if 'warn' log level is enabled in the configuration.
- *
- * @param {string} message            - The message to be logged.
- * @param {any} [additionalInfo=null] - Optional additional information to be logged alongside the message.
+ * @param {string} message     - The message to be logged.
+ * @param {any} additionalInfo - Optional additional information to be logged alongside the message.
+ * @returns {void}             - This function does not return any value.
  */
 function completeLogWarn(message, additionalInfo = null) {
   // Check if warn logging is enabled
@@ -87,9 +86,9 @@ function completeLogWarn(message, additionalInfo = null) {
 
 /**
  * Logs an error level message if 'error' log level is enabled in the configuration.
- *
- * @param {string} message            - The message to be logged.
- * @param {any} [additionalInfo=null] - Optional additional information to be logged alongside the message.
+ * @param {string} message     - The message to be logged.
+ * @param {any} additionalInfo - Optional additional information to be logged alongside the message.
+ * @returns {void}             - This function does not return any value.
  */
 function completeLogError(message, additionalInfo = null) {
   // Check if error logging is enabled
@@ -99,36 +98,14 @@ function completeLogError(message, additionalInfo = null) {
 }
 
 /**
- * General function to format and log the message with the appropriate log level.
- *
- * @param {string} logLevel           - The log level to be used in the message.
- * @param {string} message            - The main log message.
- * @param {any} [additionalInfo=null] - Optional additional information (e.g., stack trace, context).
- */
-function logMessage(logLevel, message, additionalInfo = null) {
-  const color = getLogLevelColor(logLevel); // Get the color for the current log level
-  const timestamp = dayjs().format(); // Get the current timestamp in ISO 8601 format
-
-  // Log the message, prefixing it with the appropriate log level and timestamp
-  let logOutput = `${color}[${logLevel}] ${timestamp} - ${message}\x1b[0m`;
-
-  // If additional info is provided (e.g., error stack trace), log it as well
-  if (additionalInfo) {
-    logOutput += `\n${JSON.stringify(additionalInfo, null, 2)}`;
-  }
-
-  console.log(logOutput); // Output the log to the console
-}
-
-/**
  * Generates and logs a complete log message with timestamp, script name, log level, and optional additional information.
  *
  * The log message includes color formatting for different sections (timestamp, script name, log level) and can include
  * additional information in either compact or indented format, depending on the configuration.
- *
- * @param {string} logLevel           - The log level (e.g., 'DEBUG', 'INFO', 'WARN', 'ERROR').
- * @param {string} message            - The main log message.
- * @param {any} [additionalInfo=null] - Optional additional information (e.g., stack trace or context) to include in the log.
+ * @param {string} logLevel    - The log level (e.g., 'DEBUG', 'INFO', 'WARN', 'ERROR').
+ * @param {string} message     - The main log message.
+ * @param {any} additionalInfo - Optional additional information (e.g., stack trace or context) to include in the log.
+ * @returns {void}             - This function does not return any value.
  */
 function logMessage(logLevel, message, additionalInfo = null) {
   // Automatically detect the system's time zone using the Intl API
@@ -182,9 +159,9 @@ class Slack extends NotificationProvider {
   /**
    * Validates the configuration object for Slack notifications to ensure all required fields are present.
    * Throws an error if required fields are missing. Sets a default icon if no custom icon is provided.
-   *
    * @param {object} notification - The Slack notification configuration object.
    * @throws {Error}              - Throws an error if any required fields are missing or invalid.
+   * @returns {void}              - This function does not return any value.
    */
   validateNotificationConfig(notification) {
     const requiredFields = [
@@ -252,9 +229,8 @@ class Slack extends NotificationProvider {
    * Converts a timezone string to the corresponding continent, country, and local timezone.
    * Retrieves the mapping for a given timezone string from predefined sets of continent names,
    * country names, and local timezones. If the timezone is not found, it returns "Unknown" for all values.
-   *
    * @param {string} timezone - The timezone string (e.g., "Europe/Amsterdam").
-   * @returns {Object}        - An object containing the corresponding continent, country, and local timezone.
+   * @returns {object}        - An object containing the corresponding continent, country, and local timezone.
    */
   getAllInformationFromTimezone(timezone) {
     const timezoneToInfo = {
@@ -523,7 +499,6 @@ class Slack extends NotificationProvider {
   /**
    * Formats a UTC time string into a readable local day string.
    * Converts the UTC time to the specified timezone and formats it as the full weekday name.
-   *
    * @param {string} utcTime  - The UTC time to be formatted (ISO 8601 string format).
    * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
    * @returns {string}        - The formatted local day string (e.g., "Monday").
@@ -544,7 +519,6 @@ class Slack extends NotificationProvider {
   /**
    * Formats a UTC time string into a readable local date string.
    * Converts the UTC time to the specified timezone and formats it as a readable date.
-   *
    * @param {string} utcTime  - The UTC time to be formatted (ISO 8601 string format).
    * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
    * @returns {string}        - The formatted local date string (e.g., "Dec 31, 2024").
@@ -565,7 +539,6 @@ class Slack extends NotificationProvider {
   /**
    * Formats a UTC time string into a readable local time string.
    * Converts the UTC time to the specified timezone and formats it as a 24-hour time string.
-   *
    * @param {string} utcTime  - The UTC time to be formatted (ISO 8601 string format).
    * @param {string} timezone - The timezone to which the UTC time should be converted (e.g., "Europe/Amsterdam").
    * @returns {string}        - The formatted local time string (e.g., "15:30:00").
@@ -586,12 +559,12 @@ class Slack extends NotificationProvider {
   /**
    * Constructs the Slack message blocks, including the header, monitor details, and actions.
    * Adds additional information such as monitor status, timezone, and local time to the message.
-   *
    * @param {string} baseURL   - The base URL of Uptime Kuma, used for constructing monitor-specific links.
    * @param {object} monitor   - The monitor object containing details like name, status, and tags.
    * @param {object} heartbeat - Heartbeat data object that provides status and timestamp information.
    * @param {string} title     - The title of the message (typically the alert title).
    * @returns {Array<object>}  - An array of Slack message blocks, including headers, monitor details, and action buttons.
+   * @throws {Error}           - Throws an error if the monitor or heartbeat data is invalid, or if constructing the blocks fails.
    */
   buildBlocks(baseURL, monitor, heartbeat, title) {
     const blocks = []; // Initialize an array to hold the message blocks
@@ -603,7 +576,10 @@ class Slack extends NotificationProvider {
       // Create and add the header block with the message title
       blocks.push({
         type: "header",
-        text: { type: "plain_text", text: title },
+        text: {
+          type: "plain_text",
+          text: title,
+        },
       });
 
       // Initialize the variable for the status message based on the heartbeat status
@@ -629,8 +605,10 @@ class Slack extends NotificationProvider {
           break;
         case 4:
           // TlS STATUS: TlS certificate is about to expire
-          const caseMessage4 = monitor ? monitor.message : null;
-          statusMessage = caseMessage4 || "No additional information";
+          {
+            const caseMessage4 = monitor ? monitor.message : null;
+            statusMessage = caseMessage4 || "No additional information";
+          }
           break;
         case 5:
           // SLACK NOTIFICATION TEST: Triggered manually to test the Slack integration
@@ -639,13 +617,17 @@ class Slack extends NotificationProvider {
           break;
         case 6:
           // REPORT: Fallback Message, issue detected
-          const caseMessage6 = monitor ? monitor.message : null;
-          statusMessage = caseMessage6 || "No additional information";
+          {
+            const caseMessage6 = monitor ? monitor.message : null;
+            statusMessage = caseMessage6 || "No additional information";
+          }
           break;
         default:
           // UNKNOWN: The system status is unrecognized or undefined
-          const defaultMessage = monitor ? monitor.message : null;
-          statusMessage = defaultMessage || "No additional information";
+          {
+            const defaultMessage = monitor ? monitor.message : null;
+            statusMessage = defaultMessage || "No additional information";
+          }
           break;
       }
 
@@ -725,7 +707,7 @@ class Slack extends NotificationProvider {
 
       // Log a warning if `heartbeat.msg` is not a string or is missing.
       if (typeof heartbeat.msg !== "string") {
-        completeLogWarn("heartbeat.msg is not a string or is missing", {
+        completeLogDebug("heartbeat.msg is not a string or is missing", {
           heartbeat,
         });
       }
@@ -759,7 +741,6 @@ class Slack extends NotificationProvider {
       /**
        * Get the priority of a tag based on its name.
        * The priority order handles both lowercase and uppercase tag names.
-       *
        * @param {string} tagName - The name of the tag.
        * @returns {number}       - The priority value (lower is higher priority).
        */
@@ -781,13 +762,12 @@ class Slack extends NotificationProvider {
       /**
        * Get the priority of a given tag.
        * This function handles known patterns and assigns a default priority for unrecognized tags.
-       *
        * @param {string} tagName - The name of the tag to check.
        * @returns {number}       - The tag's priority (default to 7 if unknown).
        */
       const getTagPriority = (tagName) => {
         // Check if the tag name exists in the priority map
-        if (priorityOrder.hasOwnProperty(tagName)) {
+        if (Object.prototype.hasOwnProperty.call(priorityOrder, tagName)) {
           return priorityOrder[tagName];
         }
 
@@ -835,7 +815,6 @@ class Slack extends NotificationProvider {
        * Formats a section of the message based on the provided title, value, and group settings.
        * The formatting style is determined by the `groupSettings` parameter, which controls how
        * the title and value are displayed in the resulting string.
-       *
        * @param {string} title          - The title to be displayed for the section.
        * @param {string} value          - The content or value associated with the section.
        * @param {string} groupSettings  - A setting that dictates the formatting style for the section.
@@ -992,14 +971,19 @@ class Slack extends NotificationProvider {
       // Add action buttons if available
       const actions = this.buildActions(baseURL, monitor);
       if (actions.length) {
-        blocks.push({ type: "actions", elements: actions });
+        blocks.push({
+          type: "actions",
+          elements: actions,
+        });
         completeLogDebug("Action buttons added", { actions });
       } else {
         completeLogInfo("No action buttons available to add");
       }
 
       // Log the final Slack message blocks construction
-      completeLogDebug("Final Slack message blocks constructed", { blocks });
+      completeLogDebug("Final Slack message blocks constructed", {
+        blocks,
+      });
 
       return blocks; // Return the constructed blocks
     } catch (error) {
@@ -1014,7 +998,6 @@ class Slack extends NotificationProvider {
   /**
    * Builds action buttons for the Slack message to allow user interactions with the monitor.
    * This includes buttons to visit the Uptime Kuma dashboard and the monitor's address (if available and valid).
-   *
    * @param {string} baseURL - The base URL of the Uptime Kuma instance used to generate monitor-specific links.
    * @param {object} monitor - The monitor object containing details like ID, name, and address.
    * @returns {Array}        - An array of button objects to be included in the Slack message payload.
@@ -1023,7 +1006,10 @@ class Slack extends NotificationProvider {
     const actions = []; // Initialize an empty array to hold the action buttons
 
     // Log the start of the action button creation process for debugging purposes
-    completeLogDebug("Starting action button creation", { baseURL, monitor });
+    completeLogDebug("Starting action button creation", {
+      baseURL,
+      monitor,
+    });
 
     // Add Uptime Kuma dashboard button if a valid baseURL is provided
     if (baseURL) {
@@ -1039,7 +1025,9 @@ class Slack extends NotificationProvider {
 
         // Add the constructed button to the actions array
         actions.push(uptimeButton);
-        completeLogDebug("Uptime Kuma button added", { button: uptimeButton });
+        completeLogDebug("Uptime Kuma button added", {
+          button: uptimeButton,
+        });
       } catch (e) {
         // Log an error if constructing the URL fails (e.g., baseURL is incorrect or monitor ID is invalid)
         completeLogError("Failed to construct Uptime Kuma button URL", {
@@ -1085,7 +1073,10 @@ class Slack extends NotificationProvider {
           // If the port is valid (not in excluded ports), construct a button to visit the monitor's URL
           const monitorButton = {
             type: "button",
-            text: { type: "plain_text", text: `Visit ${monitor.name}` },
+            text: {
+              type: "plain_text",
+              text: `Visit ${monitor.name}`,
+            },
             value: "Site",
             url: validURL.href,
           };
@@ -1093,7 +1084,9 @@ class Slack extends NotificationProvider {
           // Add the constructed button to the actions array
           actions.push(monitorButton);
           // NOTE: completeLogInfo is temporary by default; it should be completeLogDebug.
-          completeLogInfo("Monitor button added", { button: monitorButton });
+          completeLogInfo("Monitor button added", {
+            button: monitorButton,
+          });
         }
       } catch (e) {
         // Log an warning if the address format is invalid (e.g., non-URL format or malformed address)
@@ -1123,7 +1116,6 @@ class Slack extends NotificationProvider {
    * Creates the payload for a Slack message, which may include rich content based on heartbeat data.
    * Constructs either a simple text message or a detailed rich message for Slack,
    * depending on the notification configuration and heartbeat status.
-   *
    * @param {object} notification   - Configuration object containing Slack notification settings (e.g., channel, username).
    * @param {string} message        - The main content of the notification message.
    * @param {object|null} monitor   - The monitor object containing details (optional).
@@ -1137,7 +1129,9 @@ class Slack extends NotificationProvider {
 
     // Fallback to default monitor values if the monitor object is null or missing a 'name' property
     if (!monitor || !monitor.name) {
-      completeLogDebug("Monitor object is null or missing 'name'", { monitor });
+      completeLogDebug("Monitor object is null or missing 'name'", {
+        monitor,
+      });
 
       // Use the 'message' as the fallback monitor name if the 'name' property is missing
       const fallbackMessage =
@@ -1171,7 +1165,9 @@ class Slack extends NotificationProvider {
     }
 
     // Initialize variables for status icon, message, and color based on heartbeat status
-    let statusIcon, statusMessage, colorBased;
+    let statusIcon;
+    let statusMessage;
+    let colorBased;
 
     // Determine the appropriate status icon, message, and color based on the heartbeat status
     switch (heartbeat.status) {
@@ -1288,7 +1284,6 @@ class Slack extends NotificationProvider {
   /**
    * Handles migration of a deprecated Slack button URL to the primary base URL if needed.
    * Updates the `primaryBaseURL` setting with the provided deprecated URL if it is not already configured.
-   *
    * @param {string} url      - The deprecated URL to be checked and potentially migrated.
    *                            This URL could be in an older format or pointing to an outdated resource.
    * @throws {Error}          - Throws an error if there is an issue updating the `primaryBaseURL`.
@@ -1344,7 +1339,6 @@ class Slack extends NotificationProvider {
   /**
    * Sends a Slack notification with optional detailed blocks if heartbeat data is provided.
    * The message can include a channel notification tag if configured in the notification settings.
-   *
    * @param {object} notification   - Slack notification configuration, including webhook URL, channel, and optional settings.
    * @param {string} message        - The content to be sent in the Slack notification.
    * @param {object|null} monitor   - The monitor object containing monitor details (optional).
