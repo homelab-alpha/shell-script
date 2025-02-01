@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-18T10:42:22+01:00
-# Version: 1.3.0
+# Date: 2025-02-01T14:36:25+01:00
+# Version: 1.3.2
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -526,27 +526,31 @@ EOL
 # Add content to .env
 cat <<EOL >"$dir_path/.env"
 # Database configuration: ROOT
-ROOT_PASSWORD_DB="change_me"
+# Change the MySQL root password to a strong, unique password of your choice. Avoid using symbols like !";#$%&'()*+,-./:;<=>?@[]^_\`{|}~
+ROOT_PASSWORD_DB=change_me
 
 # Database configuration: USER
-HOST_DB="${container_name}_db"
-PORT_DB=3306
+HOST_DB=${container_name}_db
 NAME_DB=${container_name}_db
+# Change the MySQL password to a strong, unique password of your choice.
+PASSWORD_DB=change_me
+PORT_DB=3306
 USER_DB=${container_name}
-PASSWORD_DB="change_me"
 EOL
 
 # Add content to stack.env
 cat <<EOL >"$dir_path/stack.env"
 # Database configuration: ROOT
-ROOT_PASSWORD_DB="change_me"
+# Change the MySQL root password to a strong, unique password of your choice. Avoid using symbols like !";#$%&'()*+,-./:;<=>?@[]^_\`{|}~
+ROOT_PASSWORD_DB=change_me
 
 # Database configuration: USER
-HOST_DB="${container_name}_db"
-PORT_DB=3306
+HOST_DB=${container_name}_db
 NAME_DB=${container_name}_db
+# Change the MySQL password to a strong, unique password of your choice.
+PASSWORD_DB=change_me
+PORT_DB=3306
 USER_DB=${container_name}
-PASSWORD_DB="change_me"
 EOL
 
 # Add content to my.cnf
