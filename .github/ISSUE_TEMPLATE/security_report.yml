@@ -32,14 +32,14 @@ body:
 
         ## **Step 2: Share the Advisory URL**
 
-        Once you've created your advisory, please share the URL below. This will notify the @homelab-alpha team and enable them to take the appropriate action.
+        Once you've created your advisory, please share the URL below. This will notify the Homelab-Alpha team and enable them to take the appropriate action.
 
   - type: "textarea"
     id: github-advisory-url
     validations:
       required: true
     attributes:
-      label: "GitHub Advisory URL"
+      label: "GitHub Advisory URL for @homelab-alpha"
       placeholder: |
-        Paste the GitHub Advisory URL here.
+        Please paste the GitHub Advisory URL here. Only the URL is required.
         Example: https://github.com/homelab-alpha/shell-script/security/advisories/GHSA-9d2f-4v3j-p7qk
