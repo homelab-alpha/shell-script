@@ -1,7 +1,105 @@
-# Folders
+################################################################################
+#                                                                              #
+#        ██████╗ ██╗████████╗██╗ ██████╗ ███╗   ██╗ ██████╗ ██████╗ ███████╗   #
+#       ██╔════╝ ██║╚══██╔══╝██║██╔════╝ ████╗  ██║██╔═══██╗██╔══██╗██╔════╝   #
+#      ╔██║  ███╗██║   ██║   ██║██║  ███╗██╔██╗ ██║██║   ██║██████╔╝█████╗     #
+#      ║██║   ██║██║   ██║   ██║██║   ██║██║╚██╗██║██║   ██║██╔══██╗██╔══╝     #
+#    ██║╚██████╔╝██║   ██║   ██║╚██████╔╝██║ ╚████║╚██████╔╝██║  ██║███████╗   #
+#    ╚═╝ ╚═════╝ ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝   #
+#                                                                              #
+################################################################################
 
-# Files
+## Database Files
+### MySQL/MariaDB
+*.db
+*.frm
+*.ib_logfile*
+*.ibd
+*.MRG
+*.myd
+*.myi
+*.ndb
+*.ndbcluster
+*.sock
 
-# Temporary Files and Folders
+### PostgreSQL
+*.backup
+*.pid
+*.sql
+
+### Redis
+*.aof
+*.rdb
+
+### SQLite
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## Build Systems
+
+## Coverage Files
+
+## Docker
+docker-compose.override.yml
+
+## Environment and Configuration Files
+.env
+stack.env
+
+## External Dependencies
+composer.lock
+
+## Folders
+.vscode/
+build/
+dist/
+node_modules/
+out/
+
+## IDEs and Editors
+.idea/.name
+.idea/workspace.xml
+*.iml
+*.iws
+*.sublime-project
+*.sublime-workspace
+
+## Logs
+*.binlog
+*.err
+*.log
+*.relaylog
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## Node.js
+.eslintcache
+.prettierignore
+
+## Programming Languages
+
+## System Files
+.DS_Store
+.LSOverride
+AppleDouble
+Desktop.ini
+ehthumbs.db
+Icon\r
+Thumbs.db
+
+## Temporary Files and Folders
+*.bak
+*.swp
+*.tmp
 temp*
 TEMP*
+
+## Vim/Neovim
+*.swo
+*.swp
+
+## EditorConfig
+.editorconfig
