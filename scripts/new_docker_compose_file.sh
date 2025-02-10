@@ -525,31 +525,49 @@ EOL
 
 # Add content to .env
 cat <<EOL >"$dir_path/.env"
-# Database configuration: ROOT
-# Change the MySQL root password to a strong, unique password of your choice. Avoid using symbols like !";#$%&'()*+,-./:;<=>?@[]^_\`{|}~
-ROOT_PASSWORD_DB=change_me
+# Database Configuration: ROOT USER
+# Change the MySQL root password to a strong, unique password of your choice.
+# Ensure the password is complex and not easily guessable.
+ROOT_PASSWORD_DB=StrongUniqueRootPassword1234
 
-# Database configuration: USER
+# Database Configuration: USER
+# Database host and connection settings
 HOST_DB=${container_name}_db
+
+# Database name: Change this to your desired database name
 NAME_DB=${container_name}_db
-# Change the MySQL password to a strong, unique password of your choice.
-PASSWORD_DB=change_me
+
+# MySQL user password: Change this to a strong, unique password
+PASSWORD_DB=StrongUniqueUserPassword5678
+
+# MySQL connection port (default: 3306)
 PORT_DB=3306
+
+# MySQL username: Change this to your desired username
 USER_DB=${container_name}
 EOL
 
 # Add content to stack.env
 cat <<EOL >"$dir_path/stack.env"
-# Database configuration: ROOT
-# Change the MySQL root password to a strong, unique password of your choice. Avoid using symbols like !";#$%&'()*+,-./:;<=>?@[]^_\`{|}~
-ROOT_PASSWORD_DB=change_me
+# Database Configuration: ROOT USER
+# Change the MySQL root password to a strong, unique password of your choice.
+# Ensure the password is complex and not easily guessable.
+ROOT_PASSWORD_DB=StrongUniqueRootPassword1234
 
-# Database configuration: USER
+# Database Configuration: USER
+# Database host and connection settings
 HOST_DB=${container_name}_db
+
+# Database name: Change this to your desired database name
 NAME_DB=${container_name}_db
-# Change the MySQL password to a strong, unique password of your choice.
-PASSWORD_DB=change_me
+
+# MySQL user password: Change this to a strong, unique password
+PASSWORD_DB=StrongUniqueUserPassword5678
+
+# MySQL connection port (default: 3306)
 PORT_DB=3306
+
+# MySQL username: Change this to your desired username
 USER_DB=${container_name}
 EOL
 
