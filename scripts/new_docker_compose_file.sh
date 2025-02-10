@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-02-01T14:36:25+01:00
-# Version: 1.3.2
+# Date: 2025-02-10T18:02:54+01:00
+# Version: 1.3.4
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -595,7 +595,7 @@ cat <<EOL >"$dir_path/my.cnf"
 #
 [client-server]
 # Port or socket location where to connect
-# port = 3306
+port = 3306
 socket = /run/mysqld/mysqld.sock
 
 [mysqld]
