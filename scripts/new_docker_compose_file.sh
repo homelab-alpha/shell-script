@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-02-10T18:02:54+01:00
-# Version: 1.3.4
+# Date: 2025-02-11T09:50:53+01:00
+# Version: 1.3.5
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -143,6 +143,10 @@ services:
       - /docker/${container_name}/production/my.cnf:/etc/my.cnf
     env_file:
       # adds environment variables to the container based on the file content.
+      # Choose the correct environment file:
+      # - Use '.env' for Docker Compose.
+      # - Use 'stack.env' for Portainer.
+      # Comment out the file you are not using in the Compose file to avoid issues.
       - .env
       - stack.env
     environment:
@@ -226,6 +230,10 @@ services:
       # - /docker/${container_name}/production/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
+      # Choose the correct environment file:
+      # - Use '.env' for Docker Compose.
+      # - Use 'stack.env' for Portainer.
+      # Comment out the file you are not using in the Compose file to avoid issues.
       - .env
       - stack.env
     environment:
@@ -367,6 +375,10 @@ services:
       - /docker/${container_name}/testing/my.cnf:/etc/my.cnf
     env_file:
       # adds environment variables to the container based on the file content.
+      # Choose the correct environment file:
+      # - Use '.env' for Docker Compose.
+      # - Use 'stack.env' for Portainer.
+      # Comment out the file you are not using in the Compose file to avoid issues.
       - .env
       - stack.env
     environment:
@@ -450,6 +462,10 @@ services:
       # - /docker/${container_name}/testing/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
+      # Choose the correct environment file:
+      # - Use '.env' for Docker Compose.
+      # - Use 'stack.env' for Portainer.
+      # Comment out the file you are not using in the Compose file to avoid issues.
       - .env
       - stack.env
     environment:
