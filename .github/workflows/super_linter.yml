@@ -1,5 +1,5 @@
 ---
-name: Super-Linter
+name: Super Linter
 
 on:
   push:
@@ -17,8 +17,7 @@ concurrency:
 permissions: read-all
 
 jobs:
-  build:
-    name: Super-Linter
+  super-linter:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,7 +29,7 @@ jobs:
         with:
           fetch-depth: false
           fetch-tags: false
-      - name: Super-linter
+      - name: Super Linter
         uses: super-linter/super-linter@v7.2.1
         env:
           BASH_SEVERITY: warning

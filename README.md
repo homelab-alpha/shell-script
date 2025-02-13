@@ -1,6 +1,6 @@
 # Homelab-Alpha
 
-[![Super-Linter](https://github.com/homelab-alpha/shell-script/actions/workflows/super-linter.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super-linter.yml)
+[![Super Linter](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml)
 
 Welcome to the Homelab-Alpha Shell Script Repository!
 

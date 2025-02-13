@@ -1,5 +1,5 @@
 ---
-name: "Automated Management of Stale and Unreproducible Issues"
+name: "Stale and Unreproducible Issue Management"
 
 on:
   workflow_dispatch:
@@ -13,7 +13,8 @@ jobs:
   stale:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - name: Manage Stale Issues
+        uses: actions/stale@v9
         with:
           stale-issue-message: |-
             We are cleaning up outdated `help wanted` issues. Your issue has been open for 70 days without any activity.
@@ -36,7 +37,8 @@ jobs:
           operations-per-run: 250
           stale-issue-label: "stale"
 
-      - uses: actions/stale@v9
+      - name: Manage Unreproducible Issues
+        uses: actions/stale@v9
         with:
           stale-issue-message: |-
             This issue has been marked as `cannot reproduce` by a maintainer.
