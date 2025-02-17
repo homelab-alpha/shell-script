@@ -1,25 +1,25 @@
-# 📝 Pull Request Template
+# 📝 Pull Request
 
 ⚠️ **Please read this before submitting your pull request:**
 
 Since we do not accept all types of pull requests, ensure that you have reviewed
 the pull request rules: [Pull Request Rules]
 
----
+## 📋 Overview
 
-## 📋 Overview \*
+_Required:_ Please fill out this section before submitting.
 
 Provide a clear summary of the purpose and scope of this pull request:
 
 - What problem does this pull request address?
 - Why is it necessary?
-- What functionality or features does it add or improve?
-
----
+- What features or functionality does this pull request introduce or enhance?
 
 ## 🔄 Changes
 
-### 🛠️ Type of Change \*
+### 🛠️ Type of Change
+
+_Required:_ Please fill out this section before submitting.
 
 Please select all options that apply:
 
@@ -33,7 +33,9 @@ Please select all options that apply:
 - [ ] 🔧 Other (please specify):
   - _Enter additional details here_
 
-### 🔗 Related Issues \*
+### 🔗 Related Issues
+
+_Optional:_ Remove this section if not applicable.
 
 Reference any related GitHub issues or tasks that this pull request addresses.
 Use proper issue links or numbers, for example:
@@ -42,18 +44,18 @@ Use proper issue links or numbers, for example:
 - Fixes #456
 - Relates to #789
 
----
-
 ## 📦 Dependencies Added/Updated
+
+_Optional:_ Remove this section if not applicable.
 
 - **New Dependencies:** List newly added libraries, frameworks, or tools, along
   with a short description.
 - **Updated Dependencies:** List any updates to existing dependencies and
   describe why the update was necessary.
 
----
-
 ## 🌍 Internationalization (i18n)
+
+_Optional:_ Remove this section if not applicable.
 
 If this pull request affects language support or translations, describe the
 changes:
@@ -62,9 +64,9 @@ changes:
 - Updates to existing translations.
 - Steps to verify the translations.
 
----
+## ✅ Testing
 
-## ✅ Testing \*
+_Optional:_ Remove this section if not applicable.
 
 Describe how the changes were tested:
 
@@ -73,24 +75,24 @@ Describe how the changes were tested:
 - **Manual Testing:** Provide clear steps to verify the functionality manually.
 - **Test Coverage:** Ensure relevant code is adequately tested.
 
----
-
 ## ⚡ Performance Considerations
+
+_Optional:_ Remove this section if not applicable.
 
 - Have you analyzed the performance impact of this change? If so, explain your
   findings.
 - If applicable, describe any benchmarks or profiling results.
 
----
-
 ## 🔒 Security Impact
+
+_Optional:_ Remove this section if not applicable.
 
 - Does this change introduce or address any security concerns?
   - If yes, please describe the risk and the mitigation approach.
 
----
-
 ## 🚀 Deployment Considerations
+
+_Optional:_ Remove this section if not applicable.
 
 Discuss any aspects related to deploying these changes:
 
@@ -102,9 +104,9 @@ Discuss any aspects related to deploying these changes:
   so, explain why and how to address it.
 - **Rollback Plan:** Provide steps for reverting the changes if needed.
 
----
+## 📄 Checklist
 
-## 📄 Checklist \*
+_Required:_ Please fill out this section before submitting.
 
 Before submitting your pull request, ensure the following tasks are completed:
 
@@ -121,27 +123,27 @@ Before submitting your pull request, ensure the following tasks are completed:
 - [ ] 🧰 Dependency updates are listed and explained.
 - [ ] I have read and understood the [Pull Request Rules].
 
----
+## 📰 Release Notes
 
-## 📰 Release Notes (if applicable)
+_Required:_ Please ensure this section is filled out before submitting.
 
 Provide a short summary of how this change should be described in the release
 notes:
 
 - Example: "Fixed a bug causing X to fail under Y conditions."
 
----
+## 📷 Screenshots or Visual Changes
 
-## 📷 Screenshots or Visual Changes (if applicable)
+_Optional:_ Remove this section if not applicable.
 
 If this pull request introduces visual changes, provide the following:
 
 - **Before and After:** Screenshots or comparisons, if applicable.
 - **UI Changes:** Highlight modifications to the user interface.
 
----
-
 ## ℹ️ Additional Context
+
+_Optional:_ Remove this section if not applicable.
 
 Provide any additional information to help reviewers:
 
