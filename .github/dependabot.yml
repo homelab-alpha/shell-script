@@ -11,7 +11,6 @@ updates:
     commit-message:
       prefix: "dependabot"
     labels:
-      - "auto-merge"
       - "dependencies"
       - "github-actions"
     open-pull-requests-limit: 5
