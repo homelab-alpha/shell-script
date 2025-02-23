@@ -7,10 +7,15 @@ permissions:
   pull-requests: write
   contents: write
 
+env:
+  DISABLE_AUTOMERGE: true
+
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    if:
+      ${{ github.actor == 'dependabot[bot]' && vars.DISABLE_AUTOMERGE != 'true'
+      }}
     steps:
       - name: Dependabot metadata
         id: metadata
