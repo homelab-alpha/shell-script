@@ -1,156 +1,271 @@
-# 📝 Pull Request
+<!--
+⚠️ Important: Review Before Submitting Your Pull Request
 
-⚠️ **Please read this before submitting your pull request:**
+Before submitting your pull request, please ensure that you have thoroughly
+reviewed our contribution guidelines. We do not accept all types of pull requests,
+so make sure to follow the rules outlined in the Pull Request Guidelines.
 
-Since we do not accept all types of pull requests, ensure that you have reviewed
-the pull request rules: [Pull Request Rules]
+https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-requests
+
+How to Respond to Questions in This Pull Request
+
+1. Carefully read each question in the pull request template.
+2. Provide your answers directly beneath the corresponding section.
+3. Replace the placeholder "..." with your response and remove the ellipsis.
+4. Do not remove the HTML comment tags, as this will break the Pull Request template.
+
+By following this structure helps us maintain clear and organized pull requests,
+making the review process more efficient.
+
+Thank you for contributing! 🙏
+-->
 
 ## 📋 Overview
 
-_Required:_ Please fill out this section before submitting.
+<!--
+REQUIRED: Provide a concise summary of the purpose and scope of this pull request.
 
-Provide a clear summary of the purpose and scope of this pull request:
+- What problem does this pull request address?:
+  Describe the problem this PR solves.
 
-- What problem does this pull request address?
-- Why is it necessary?
-- What features or functionality does this pull request introduce or enhance?
+- Why is this change necessary?:
+  Explain the motivation and importance of this change.
 
-## 🔄 Changes
+- What features or functionality does this pull request introduce or enhance?:
+  Outline the new or improved functionality introduced.
 
-### 🛠️ Type of Change
+Provide your answer below:
+-->
 
-_Required:_ Please fill out this section before submitting.
+### What problem does this pull request address?
 
-Please select all options that apply:
+...
 
-- [ ] 🐛 Bugfix (non-breaking change that fixes an issue)
+### Why is this change necessary?
+
+...
+
+### What features or functionality does this pull request introduce or enhance?
+
+...
+
+## 🛠️ Type of Change
+
+<!--
+REQUIRED: Select all options that apply by marking them with an "[x]".
+-->
+
+- [ ] 🐛 Bugfix (a non-breaking change that resolves an issue)
 - [ ] 🎨 User Interface (UI) updates
-- [ ] ✨ New feature (non-breaking change that adds functionality)
-- [ ] ⚠️ Breaking change (a fix or feature that changes existing functionality
-      in an unexpected way)
+- [ ] ✨ New feature (a non-breaking change that adds new functionality)
+- [ ] ⚠️ Breaking change (a change that alters existing functionality in a way that could cause issues)
+- [ ] 📄 New Documentation (addition of new documentation)
+- [ ] 📄 Documentation Update (modification of existing documentation)
+- [ ] 📄 Documentation Update Required (this change requires updates to related documentation)
 - [ ] 🌍 Internationalization (i18n) improvements
-- [ ] 📄 Documentation update
 - [ ] 🔧 Other (please specify):
-  - _Enter additional details here_
+  - Provide additional details here.
 
-### 🔗 Related Issues
+## 🔗 Related Issues
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Reference related GitHub issues or tasks this PR addresses.
+NOTE: Remove this section if not applicable.
 
-Reference any related GitHub issues or tasks that this pull request addresses.
-Use proper issue links or numbers, for example:
+Use proper issue links or numbers, and only include issues directly related to
+this PR. Remove any irrelevant references.
 
-- Resolves #123
-- Fixes #456
-- Relates to #789
+Examples:
+
+- Relates to #issue-number
+- Resolves #issue-number
+- Fixes #issue-number
+
+Provide your answer below:
+-->
+
+...
 
 ## 📦 Dependencies Added/Updated
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Describe any new or updated dependencies.
+NOTE: Remove this section if not applicable.
 
-- **New Dependencies:** List newly added libraries, frameworks, or tools, along
-  with a short description.
-- **Updated Dependencies:** List any updates to existing dependencies and
-  describe why the update was necessary.
+- New Dependencies: List new dependencies and their purposes.
+- Updated Dependencies: Summarize any updates to existing dependencies and why
+  they were made.
+
+Provide your answer below:
+-->
+
+### New Dependencies
+
+...
+
+### Updated Dependencies
+
+...
 
 ## 🌍 Internationalization (i18n)
 
-_Optional:_ Remove this section if not applicable.
-
-If this pull request affects language support or translations, describe the
-changes:
+<!--
+OPTIONAL: Describe any internationalization (i18n) changes made.
+NOTE:     Remove this section if not applicable.
 
 - New languages added or removed.
 - Updates to existing translations.
-- Steps to verify the translations.
+- Steps for verifying translations.
+
+Provide your answer below:
+-->
+
+...
 
 ## ✅ Testing
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Describe your testing approach and steps taken.
+NOTE: Remove this section if not applicable.
 
-Describe how the changes were tested:
+- New Tests: Outline any unit, integration, or end-to-end tests added.
+- Modified Tests: Explain changes to existing test cases.
+- Manual Testing: Detail steps for manually verifying the functionality.
+- Test Coverage: Ensure relevant code is sufficiently tested.
 
-- **New Tests:** Outline any unit, integration, or end-to-end tests added.
-- **Modified Tests:** Specify changes made to existing test cases.
-- **Manual Testing:** Provide clear steps to verify the functionality manually.
-- **Test Coverage:** Ensure relevant code is adequately tested.
+Provide your answer below:
+-->
+
+...
 
 ## ⚡ Performance Considerations
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Mention any relevant performance considerations.
+NOTE: Remove this section if not applicable.
 
-- Have you analyzed the performance impact of this change? If so, explain your
-  findings.
-- If applicable, describe any benchmarks or profiling results.
+- Have you analyzed the performance impact? If so, explain your findings.
+- Provide benchmarks or profiling results if applicable.
+
+Provide your answer below:
+-->
+
+...
 
 ## 🔒 Security Impact
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Outline any potential security impact and mitigation.
+NOTE: Remove this section if not applicable.
 
-- Does this change introduce or address any security concerns?
-  - If yes, please describe the risk and the mitigation approach.
+Does this change introduce or address any security risks? If yes, describe the
+risks and your mitigation approach.
+
+Provide your answer below:
+-->
+
+...
 
 ## 🚀 Deployment Considerations
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Describe deployment-related details.
+NOTE: Remove this section if not applicable.
 
-Discuss any aspects related to deploying these changes:
+- Pre-deployment Steps: List any necessary tasks to perform before deployment.
+- Impact Assessment: Assess the impact of the change on the system.
+- Backward Compatibility: Specify if the change affects backward compatibility
+  and how to mitigate it.
+- Rollback Plan: Provide a clear rollback plan if necessary.
 
-- **Pre-deployment Steps:** Mention database migrations, configuration updates,
-  or other steps.
-- **Impact Assessment:** Highlight how these changes may affect existing
-  systems.
-- **Backward Compatibility:** Does this change break backward compatibility? If
-  so, explain why and how to address it.
-- **Rollback Plan:** Provide steps for reverting the changes if needed.
+Provide your answer below:
+-->
+
+### Pre-deployment Steps
+
+...
+
+### Impact Assessment
+
+...
+
+### Backward Compatibility
+
+...
+
+### Rollback Plan
+
+...
 
 ## 📄 Checklist
 
-_Required:_ Please fill out this section before submitting.
+<!--
+REQUIRED: Select all options that apply by marking them with an "[x]".
+-->
 
-Before submitting your pull request, ensure the following tasks are completed:
-
-- [ ] 🔍 My code adheres to the style guidelines of this project.
-- [ ] ✅ I ran code linters for modified files.
-- [ ] 🛠️ I have reviewed and tested my code.
-- [ ] 📝 I have commented my code, especially in hard-to-understand areas (e.g.,
-      using JSDoc).
+- [ ] 🔍 My code follows the style guidelines of this project.
+- [ ] ✅ I ran code linters on the modified files.
+- [ ] 🛠️ I have reviewed and tested my code thoroughly.
+- [ ] 📝 I have commented my code, especially in hard-to-understand areas (e.g., using JSDoc for methods).
 - [ ] ⚠️ My changes generate no new warnings.
 - [ ] 🧪 I have added automated tests, if required.
-- [ ] 📄 Documentation updates (if applicable) are included.
+- [ ] 🤖 My code required automated testing, and I have added the necessary tests (optional task).
+- [ ] 📄 Documentation updates are included in this PR.
 - [ ] 🔒 I have considered potential security impacts and mitigated risks.
-- [ ] 🌍 I have verified any internationalization (i18n) changes are correct.
+- [ ] 🌍 I have verified that any internationalization (i18n) changes are correct.
 - [ ] 🧰 Dependency updates are listed and explained.
-- [ ] I have read and understood the [Pull Request Rules].
+- [ ] 📚 I have read and understood the [Pull Request Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-requests).
 
 ## 📰 Release Notes
 
-_Required:_ Please ensure this section is filled out before submitting.
+<!--
+REQUIRED: Provide a summary of the most important change for the changelog.
 
-Provide a short summary of how this change should be described in the release
-notes:
+Example:
 
-- Example: "Fixed a bug causing X to fail under Y conditions."
+- Fixed a bug causing X to fail under Y conditions.
+
+Provide your answer below:
+-->
+
+...
 
 ## 📷 Screenshots or Visual Changes
 
-_Optional:_ Remove this section if not applicable.
+<!--
+OPTIONAL: Provide screenshots for visual changes.
+NOTE: Remove this section if not applicable.
 
-If this pull request introduces visual changes, provide the following:
+Please upload the image directly here by pasting it or dragging and dropping.
+Avoid using external image services as the image will be uploaded automatically.
 
-- **Before and After:** Screenshots or comparisons, if applicable.
-- **UI Changes:** Highlight modifications to the user interface.
+If this pull request introduces visual changes, please provide the following details.
+
+- UI Modifications: Highlight any changes made to the user interface.
+- Before & After: Include screenshots or comparisons.
+
+Example:
+
+| Changes  | Before                | After                |
+| -------- | --------------------- | -------------------- |
+| Change 1 | ![Before](image-link) | ![After](image-link) |
+| Change 2 | ![Before](image-link) | ![After](image-link) |
+-->
+
+Please upload screenshots directly here.
 
 ## ℹ️ Additional Context
 
-_Optional:_ Remove this section if not applicable.
-
-Provide any additional information to help reviewers:
+<!--
+OPTIONAL: Add any other notes or references useful for reviewers.
+NOTE: Remove this section if not applicable.
 
 - Design decisions or trade-offs made during development.
 - Alternative solutions considered but not implemented.
 - Relevant links, such as specifications, discussions, or resources.
 - Dependencies or related pull requests that must be addressed before merging.
 
-[Pull Request Rules]:
-  https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-requests
+Provide your answer below:
+-->
+
+...

@@ -1,17 +1,19 @@
 ---
-name: "🛡️ Security Issue"
+name: 🛡️ Security Issue
 description: |
   Notify the Homelab-Alpha team about a security concern. Please do NOT include any sensitive details in this issue.
-# title: "Security Issue Report"
-labels: [security]
-assignees: [homelab-alpha]
+# title: "[GHSA]: "
+labels: ["security", "P1: high"]
+# projects: ["exemple/1", "exemple/2"]
+assignees:
+  - homelab-alpha
 body:
-  - type: "markdown"
+  - type: markdown
     attributes:
       value: |
-        ## **⚠️ Report a Security Vulnerability**
+        ## ❗ IMPORTANT: DO NOT SHARE VULNERABILITY DETAILS HERE
 
-        ### **IMPORTANT: DO NOT SHARE VULNERABILITY DETAILS HERE**
+        ### ⚠️ Report a Security Vulnerability
 
         If you have discovered a security vulnerability, please report it securely using the GitHub Security Advisory.
 
@@ -22,24 +24,24 @@ body:
         - **Credit**: You will be automatically credited as a contributor for identifying and reporting the vulnerability. Your contribution will be reflected in the MITRE Credit System.
         - **Important Reminder**: **Do not include any sensitive or detailed vulnerability information in this issue.** This issue is only for sharing the advisory URL to notify the maintainers of the repository, not for discussing the vulnerability itself.
 
-        **Thank you for helping keep this project secure!**
+        Thank you for helping keep this project secure!
 
-        ## **Step 1: Submit a GitHub Security Advisory**
+        ## **Step 1**: Submit a GitHub Security Advisory
 
         Right-click the link below and select `Open link in new tab` to access the page. This will keep the security issue open, allowing you to easily return and paste the Advisory URL here later.
 
         ➡️ [Create a New Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new)
 
-        ## **Step 2: Share the Advisory URL**
+        ## **Step 2**: Share the Advisory URL
 
         Once you've created your advisory, please share the URL below. This will notify the Homelab-Alpha team and enable them to take the appropriate action.
 
-  - type: "textarea"
+  - type: textarea
     id: github-advisory-url
     validations:
       required: true
     attributes:
-      label: "GitHub Advisory URL for @homelab-alpha"
+      label: GitHub Advisory URL
       placeholder: |
         Please paste the GitHub Advisory URL here. Only the URL is required.
-        Example: https://github.com/homelab-alpha/shell-script/security/advisories/GHSA-9d2f-4v3j-p7qk
+        e.g., https://github.com/homelab-alpha/shell-script/security/advisories/GHSA-9d2f-4v3j-p7qk

@@ -1,130 +1,163 @@
 ---
-name: "🐛 Bug Report"
-description: "Report a bug or issue in this repository."
-# title: "[Bug]: <Brief description of the bug> "
-labels: [bug]
-assignees: [homelab-alpha]
+name: 🐛 Bug Report
+description: |
+  Report a bug or issue in this repository.
+# title: "[Bug]: "
+labels: ["bug", "P2: moderate"]
+# projects: ["exemple/1", "exemple/2"]
+assignees:
+  - homelab-alpha
 body:
-  - type: textarea
-    id: duplicate-check-related-issues
-    validations:
-      required: true
+  - type: markdown
     attributes:
-      label: "🔍 Have you found any related issues or pull requests?"
-      description:
-        "Check if this bug has already been reported. Use [this
-        link](https://github.com/homelab-alpha/shell-script/issues?q=) to search
-        for related issues, and explain the differences, or indicate if you
-        couldn't find any related issues."
-      placeholder:
-        "For example, 'Related to #1, which also affects the ... system. These
-        issues should not be merged because ...'"
+      value: |
+        ## ❗Important Announcement
+
+        ### 🚫 Please Avoid Unnecessary Pings
+
+        We kindly ask users to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters requiring immediate attention.
+
+        - **Why**: To help maintainers focus on high-priority tasks, unnecessary or repeated pings should be minimized. This ensures quicker responses for issues that truly need attention.
+        - **What This Means**: Non-urgent pings may be ignored or addressed later. Please evaluate the urgency of your request before pinging a maintainer.
+
+        #### When is Pinging Appropriate?
+
+        - ✅ **Appropriate**: Critical issues or urgent matters that require immediate attention.
+        - ❌ **Not Appropriate**: Non-urgent or repeated pings, which may be ignored or addressed later.
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if this bug has already been reported
+      description: |
+        To avoid duplicate reports, please search for existing issues before submitting a new one. You can find the list of current issues **[HERE](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20)**.
+      options:
+        - label: |
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20) and found no similar reports.
+          required: true
+
   - type: checkboxes
     id: security-policy-agreement
     attributes:
-      label: "🛡️ Security Policy Agreement"
-      description:
-        "Please confirm that you have read the [Security
-        Policy](https://github.com/homelab-alpha/shell-script/security/policy)
-        before reporting security-related bugs."
+      label: 🛡️ Security Policy Agreement
+      description: |
+        Please review and acknowledge the Security Policy before reporting any security-related bugs or issues. You can find the full Security Policy **[HERE](https://github.com/homelab-alpha/shell-script/security/policy)**.
       options:
-        - label: "I have read and agree to the Security Policy."
+        - label: |
+            I have read and agree to Homelab-Alpha's [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy).
           required: true
+
   - type: textarea
     id: bug-description
     validations:
       required: true
     attributes:
-      label: "🐛 Bug Description"
-      description:
-        "Provide a detailed explanation of the bug. Include steps to reproduce,
-        expected behavior, and actual behavior."
-      placeholder: "Describe the bug in detail."
+      label: 🐛 Bug Description
+      description: |
+        Provide a detailed explanation of the bug. Include steps to reproduce, expected behavior, and actual behavior.
+      placeholder: |
+        Describe the bug in detail.
+
   - type: textarea
     id: steps-to-reproduce
     validations:
       required: true
     attributes:
-      label: "🧩 Steps to Reproduce"
-      description:
-        "Provide a step-by-step guide to reproduce the bug. Include specific
-        details to help us replicate the issue."
-      placeholder: "1. Step one\n2. Step two\n3. ..."
+      label: 🧩 Steps to Reproduce
+      description: |
+        Provide a step-by-step guide to reproduce the bug. Include specific details to help us replicate the issue.
+      placeholder: |
+        1. Open the app.
+        2. Navigate to the settings page.
+        3. Click on the 'Save' button.
+        4. Observe the error message.
+        5. ...
+
   - type: textarea
     id: expected-behavior
     validations:
       required: true
     attributes:
-      label: "✔️ Expected Behavior"
-      description: "Describe what you expected to happen."
-      placeholder: "What should have happened instead?"
+      label: ✔️ Expected Behavior
+      description: |
+        Describe what you expected to happen.
+      placeholder: |
+        What should have happened instead?
+
   - type: textarea
     id: actual-behavior
     validations:
       required: true
     attributes:
-      label: "❌ Actual Behavior"
-      description: "Describe what actually happened."
-      placeholder: "What happened instead?"
+      label: ❌ Actual Behavior
+      description: |
+        Describe what actually happened.
+      placeholder: |
+        What happened instead?
+
   - type: textarea
     id: logs-or-errors
     validations:
       required: false
     attributes:
-      label: "📜 Logs or Error Messages"
-      description:
-        "Provide any relevant logs or error messages. Use backticks (```) for
-        formatting."
-      placeholder: "Paste logs or error messages here."
+      label: 📜 Logs or Error Messages
+      description: |
+        Share any logs or error messages related to your issue, if available.
+      render: bash session
+      placeholder: |
+        Paste logs or error messages here. This will be automatically formatted into code, so no need for backticks.
+
   - type: textarea
     id: relevant-config-files
     validations:
       required: false
     attributes:
-      label: "⚙️ Relevant Configuration Files"
-      description:
-        "Attach any relevant configuration files or code snippets that might
-        help diagnose the issue. Use backticks (```) for formatting if pasting
-        directly."
-      placeholder:
-        "Paste or upload your configuration files/code snippets here."
+      label: ⚙️ Relevant Configuration Files
+      description: |
+        Attach any relevant configuration files or code snippets that might help diagnose the issue.
+      render: bash session
+      placeholder: |
+        Paste or upload your configuration files/code snippets here. This will be automatically formatted into code, so no need for backticks.
+
   - type: textarea
     id: dependencies-info
     validations:
       required: true
     attributes:
-      label: "📂 Dependencies and Versions"
-      description:
-        "List all dependencies and their versions used in your setup. This
-        information helps identify compatibility issues."
-      placeholder: "e.g., Library X v1.2.3, Library Y v4.5.6"
+      label: 📂 Dependencies and Versions
+      description: |
+        List all dependencies and their versions used in your setup. This information helps identify compatibility issues.
+      placeholder: |
+        e.g., Library X v1.2.3, Library Y v4.5.6
+
   - type: input
     id: software-version
     validations:
       required: true
     attributes:
-      label: "📦 Software Version"
-      description:
-        "Specify the version of the software you are using. Avoid using vague
-        terms like 'latest' or 'current'."
-      placeholder: "e.g., 1.10.0"
+      label: 📦 Software Version
+      description: |
+        Specify the version of the software you are using. Avoid using vague terms like 'latest' or 'current'.
+      placeholder: |
+        e.g., 1.10.0
+
   - type: input
     id: operating-system
     validations:
       required: true
     attributes:
-      label: "💻 Operating System"
-      description:
-        "Provide the details of the operating system and architecture you are
-        using."
-      placeholder:
-        "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
+      label: 💻 Operating System
+      description: |
+        Provide the details of the operating system and architecture you are using.
+      placeholder: |
+        e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)
+
   - type: textarea
     id: environment-details
     validations:
       required: true
     attributes:
-      label: "🖥️ Environment Details"
+      label: 🖥️ Environment Details
       description: |
         Provide detailed information about your setup to help us understand your environment better:
           - **Hosting Environment**: Are you running this on a local machine, cloud provider (AWS, Azure, etc.), or other platforms?

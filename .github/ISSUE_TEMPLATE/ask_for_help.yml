@@ -1,119 +1,148 @@
 ---
-name: "❓ Ask for help"
-description: "Submit a question related to this repository."
-# title: "[Help]: <Brief description of the issue> "
-labels: [help]
+name: ❓ Ask for help
+description: |
+  Submit a question related to this repository.
+# title: "[Help]: "
+labels: ["help", "P3: low"]
+# projects: ["exemple/1", "exemple/2"]
+# assignees:
+#   - homelab-alpha
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ❗Important Announcement
+
+        ### 🚫 Please Avoid Unnecessary Pings
+
+        We kindly ask users to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters requiring immediate attention.
+
+        - **Why**: To help maintainers focus on high-priority tasks, unnecessary or repeated pings should be minimized. This ensures quicker responses for issues that truly need attention.
+        - **What This Means**: Non-urgent pings may be ignored or addressed later. Please evaluate the urgency of your request before pinging a maintainer.
+
+        #### When is Pinging Appropriate?
+
+        - ✅ **Appropriate**: Critical issues or urgent matters that require immediate attention.
+        - ❌ **Not Appropriate**: Non-urgent or repeated pings, which may be ignored or addressed later.
+
   - type: checkboxes
     id: duplicate-check
     attributes:
-      label: "⚠️ Please verify that this question has NOT been raised before"
-      description:
-        "Ensure this question has not already been raised. Use [this
-        link](https://github.com/homelab-alpha/shell-script/issues?q=) to
-        search."
+      label: ⚠️ Please check if your question has already been reported
+      description: |
+        To avoid duplicate reports, please search for existing issues before submitting a new one. You can find the list of current issues **[HERE](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20)**.
       options:
-        - label: "I confirm that no similar issue exists."
+        - label: |
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20) and found no similar reports.
           required: true
+
   - type: checkboxes
     id: security-policy-agreement
     attributes:
-      label: "🛡️ Security Policy Agreement"
-      description:
-        "Please confirm that you have read the [Security
-        Policy](https://github.com/homelab-alpha/shell-script/security/policy)
-        before reporting security-related issues."
+      label: 🛡️ Security Policy Agreement
+      description: |
+        Please review and acknowledge the Security Policy before reporting any security-related bugs or issues. You can find the full Security Policy **[HERE](https://github.com/homelab-alpha/shell-script/security/policy)**.
       options:
-        - label: "I have read and agree to the Security Policy."
+        - label: |
+            I have read and agree to Homelab-Alpha's [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy).
           required: true
+
   - type: textarea
     id: problem-description
     validations:
       required: true
     attributes:
-      label: "📝 Describe your problem"
-      description:
-        "Provide a detailed explanation of your issue or question. Include steps
-        to reproduce, screenshots, or any relevant details."
-      placeholder: "Describe your question or problem in detail."
+      label: 📝 Describe your problem
+      description: |
+        Provide a detailed explanation of your issue or question. Include steps to reproduce, screenshots, or any relevant details.
+      placeholder: |
+        Describe your question or problem in detail.
+
   - type: textarea
     id: attempted-solutions
     validations:
       required: true
     attributes:
-      label: "🔍 Attempted Solutions"
-      description:
-        "List the steps you've taken to troubleshoot the issue or answer your
-        question. Include both successful and unsuccessful attempts."
-      placeholder: "List all the actions you've tried to address the issue."
+      label: 🔍 Attempted Solutions
+      description: |
+        List the steps you've taken to troubleshoot the issue or answer your question. Include both successful and unsuccessful attempts.
+      placeholder: |
+        List all the actions you've tried to address the issue.
+
   - type: textarea
     id: logs-or-errors
     validations:
       required: false
     attributes:
-      label: "📜 Logs or Error Messages"
-      description:
-        "Share any logs or error messages related to your issue, if available."
+      label: 📜 Logs or Error Messages
+      description: |
+        Share any logs or error messages related to your issue, if available.
+      render: bash session
+      placeholder: |
+        Paste logs or error messages here. This will be automatically formatted into code, so no need for backticks.
+
   - type: textarea
     id: relevant-config-files
     validations:
       required: false
     attributes:
-      label: "⚙️ Relevant Configuration Files"
-      description:
-        "Attach any relevant configuration files or code snippets that might
-        help diagnose the issue. Use backticks (```) for formatting if pasting
-        directly."
-      placeholder:
-        "Paste or upload your configuration files/code snippets here."
+      label: ⚙️ Relevant Configuration Files
+      description: |
+        Attach any relevant configuration files or code snippets that might help diagnose the issue.
+      render: bash session
+      placeholder: |
+        Paste or upload your configuration files/code snippets here. This will be automatically formatted into code, so no need for backticks.
+
   - type: textarea
     id: dependencies-info
     validations:
       required: true
     attributes:
-      label: "📂 Dependencies and Versions"
-      description:
-        "List all dependencies and their versions used in your setup. This
-        information helps identify compatibility issues."
-      placeholder: "e.g., Library X v1.2.3, Library Y v4.5.6"
+      label: 📂 Dependencies and Versions
+      description: |
+        List all dependencies and their versions used in your setup. This information helps identify compatibility issues.
+      placeholder: |
+        e.g., Library X v1.2.3, Library Y v4.5.6
+
   - type: input
     id: software-version
     validations:
       required: true
     attributes:
-      label: "📦 Software Version"
-      description:
-        "Specify the version of the software you are using. Avoid using vague
-        terms like 'latest' or 'current'."
-      placeholder: "e.g., 1.10.0"
+      label: 📦 Software Version
+      description: |
+        Specify the version of the software you are using. Avoid using vague terms like 'latest' or 'current'.
+      placeholder: |
+        e.g., 1.10.0
+
   - type: input
     id: operating-system
     validations:
       required: true
     attributes:
-      label: "💻 Operating System"
-      description:
-        "Provide the details of the operating system and architecture you are
-        using."
-      placeholder:
-        "e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)"
+      label: 💻 Operating System
+      description: |
+        Provide the details of the operating system and architecture you are using.
+      placeholder: |
+        e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)
+
   - type: input
     id: browser-info
     validations:
       required: false
     attributes:
-      label: "🌐 Browser Information"
-      description:
-        "If applicable, specify the browser and version you are using."
-      placeholder:
-        "e.g., Brave Version 1.73.101 Chromium: 131.0.6778.139 (Official Build)
-        (64-bit)"
+      label: 🌐 Browser Information
+      description: |
+        If applicable, specify the browser and version you are using.
+      placeholder: |
+        e.g., Brave Version 1.73.101 Chromium: 131.0.6778.139 (Official Build) (64-bit)
+
   - type: textarea
     id: environment-details
     validations:
       required: true
     attributes:
-      label: "🖥️ Environment Details"
+      label: 🖥️ Environment Details
       description: |
         Provide detailed information about your setup to help us understand your environment better:
           - **Hosting Environment**: Are you running this on a local machine, cloud provider (AWS, Azure, etc.), or other platforms?
