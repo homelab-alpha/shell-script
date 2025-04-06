@@ -11,19 +11,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## ❗Important Announcement
+        **🚫 Please Avoid Unnecessary Pings**
 
-        ### 🚫 Please Avoid Unnecessary Pings
+        We kindly ask all contributors to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters that require immediate attention.
 
-        We kindly ask users to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters requiring immediate attention.
-
-        - **Why**: To help maintainers focus on high-priority tasks, unnecessary or repeated pings should be minimized. This ensures quicker responses for issues that truly need attention.
-        - **What This Means**: Non-urgent pings may be ignored or addressed later. Please evaluate the urgency of your request before pinging a maintainer.
-
-        #### When is Pinging Appropriate?
-
-        - ✅ **Appropriate**: Critical issues or urgent matters that require immediate attention.
-        - ❌ **Not Appropriate**: Non-urgent or repeated pings, which may be ignored or addressed later.
+        **Why**: Limiting pings to urgent matters helps maintainers focus on and prioritize essential tasks more effectively.
 
   - type: checkboxes
     id: duplicate-check
