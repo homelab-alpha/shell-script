@@ -2,8 +2,8 @@
 
 # Filename: new_docker_container.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-04-22T07:30:49+02:00
-# Version: 2.1.0
+# Date: 2025-02-11T13:17:00+01:00
+# Version: 2.0.0
 
 # Description: This script creates a new Docker container directory structure
 # and configuration files based on user input.
@@ -636,11 +636,6 @@ innodb-use-native-aio = 0
 # Set the size of the InnoDB buffer pool. This should be 70-80% of the available memory.
 # Larger values allow more data to be cached in memory, improving performance.
 innodb-buffer-pool-size = 2G
-
-# Split the InnoDB buffer pool into multiple instances.
-# Improves concurrency and performance in multi-core systems by reducing contention.
-# Recommended: 1 instance per 1GB of buffer pool size.
-innodb-buffer-pool-instances = 2
 
 # Configure the size of the InnoDB redo log files. Larger log files can improve
 # performance for write-heavy workloads but require more recovery time after a crash.
