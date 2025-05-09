@@ -2,8 +2,8 @@
 
 # Filename: install_latest_hugo.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-07T14:32:39+01:00
-# Version: 1.1.1
+# Date: 2025-05-09T10:21:45+02:00
+# Version: 1.1.2
 
 # Description: This script fetches the latest version of Hugo from the official
 # GitHub repository, downloads it, installs it to /usr/local/hugo-extended, and
@@ -30,6 +30,7 @@ log_error() {
 }
 
 # Start the script execution
+log "─────────────────────────────────────────────────"
 log "Script execution started."
 
 # Checking if Hugo is already installed, and log the current version if present
@@ -61,15 +62,18 @@ log "Download directory: $DOWNLOAD_DIR"
 
 # Downloading the Hugo tarball from the GitHub release URL
 log "Downloading Hugo version ${LATEST_VERSION}..."
+echo
 if ! wget "$DOWNLOAD_URL" -O "$DOWNLOAD_DIR/hugo_extended_${LATEST_VERSION}_linux-amd64.tar.gz"; then
   log_error "Failed to download Hugo version ${LATEST_VERSION}. Exiting."
   exit 1
 fi
+echo
 log "Successfully downloaded Hugo version ${LATEST_VERSION} to $DOWNLOAD_DIR."
 
 # Extracting the Hugo tarball into the download directory
 log "Extracting Hugo files..."
 tar -xzf "$DOWNLOAD_DIR/hugo_extended_${LATEST_VERSION}_linux-amd64.tar.gz" -C "$DOWNLOAD_DIR"
+echo
 
 # Ensuring the target directory /usr/local/hugo-extended exists
 log "Ensuring target directory exists: /usr/local/hugo-extended"

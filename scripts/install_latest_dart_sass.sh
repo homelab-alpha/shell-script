@@ -2,8 +2,8 @@
 
 # Filename: install_latest_dart_sass.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-07T14:34:33+01:00
-# Version: 1.1.1
+# Date: 2025-05-09T10:21:29+02:00
+# Version: 1.1.2
 
 # Description: This script fetches the latest version of Dart Sass from the
 # official GitHub repository, downloads it, installs it to /usr/local/dart-sass,
@@ -30,6 +30,7 @@ log_error() {
 }
 
 # Start logging the execution
+log "─────────────────────────────────────────────────"
 log "Script execution started."
 
 # Check if Sass is already installed and log the current version
@@ -61,15 +62,18 @@ log "Download directory: $DOWNLOAD_DIR"
 
 # Download the Dart Sass tarball to the specified directory
 log "Downloading Dart Sass version ${LATEST_VERSION}..."
+echo
 if ! wget "$DOWNLOAD_URL" -O "$DOWNLOAD_DIR/dart-sass-${LATEST_VERSION}-linux-x64.tar.gz"; then
   log_error "Failed to download Dart Sass version ${LATEST_VERSION}. Exiting."
   exit 1
 fi
+echo
 log "Successfully downloaded Dart Sass version ${LATEST_VERSION} to $DOWNLOAD_DIR."
 
 # Extract the downloaded tarball
 log "Extracting Dart Sass files..."
 tar -xzf "$DOWNLOAD_DIR/dart-sass-${LATEST_VERSION}-linux-x64.tar.gz" -C "$DOWNLOAD_DIR"
+echo
 
 # Ensure that the target installation directory exists
 log "Ensuring target directory exists: /usr/local/dart-sass"

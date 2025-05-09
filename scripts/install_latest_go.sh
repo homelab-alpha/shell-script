@@ -2,8 +2,8 @@
 
 # Filename: install_latest_go.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-07T14:33:21+01:00
-# Version: 1.1.1
+# Date: 2025-05-09T10:21:38+02:00
+# Version: 1.1.2
 
 # Description: This script fetches the latest version of Go from the official Go
 # download page, downloads it, installs it to /usr/local/go, and cleans up the
@@ -30,6 +30,7 @@ log_error() {
 }
 
 # Start the script execution
+log "─────────────────────────────────────────────────"
 log "Script execution started."
 
 # Check if Go is already installed and display the version if found
@@ -64,15 +65,18 @@ log "Download directory: $DOWNLOAD_DIR"
 
 # Download the Go tarball for the latest version
 log "Downloading Go version ${LATEST_VERSION}..."
+echo
 if ! wget "$DOWNLOAD_URL" -O "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar.gz"; then
   log_error "Failed to download Go version ${LATEST_VERSION}. Exiting."
   exit 1
 fi
+echo
 log "Successfully downloaded Go version ${LATEST_VERSION} to $DOWNLOAD_DIR."
 
 # Extract the tarball to the download directory
 log "Extracting Go files..."
 tar -xzf "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar.gz" -C "$DOWNLOAD_DIR"
+echo
 
 # Ensure the target directory for installation exists
 log "Ensuring target directory exists: /usr/local/go"

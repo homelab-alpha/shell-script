@@ -2,8 +2,8 @@
 
 # Filename: install_latest_jetbrains_mono.sh
 # Author: GJS (homelab-alpha)
-# Date: 2024-12-07T14:32:15+01:00
-# Version: 1.1.1
+# Date: 2025-05-09T10:21:54+02:00
+# Version: 1.1.2
 
 # Description: This script fetches the latest version of JetBrains Mono from the
 # official GitHub repository, downloads it, installs it to the system-wide fonts
@@ -30,6 +30,7 @@ log_error() {
 }
 
 # Start the script execution
+log "─────────────────────────────────────────────────"
 log "Script execution started."
 
 # Function to check if a command is available in the system.
@@ -71,15 +72,18 @@ mkdir -p "$DOWNLOAD_DIR"
 
 # Download the latest version of JetBrains Mono font from GitHub.
 log "Downloading JetBrains Mono version ${LATEST_VERSION}..."
+echo
 if ! wget -v "$DOWNLOAD_URL" -O "$DOWNLOAD_DIR/JetBrainsMono-${LATEST_VERSION}.zip"; then
   log_error "Failed to download JetBrains Mono version ${LATEST_VERSION}. Exiting."
   exit 1
 fi
+echo
 log "Successfully downloaded JetBrains Mono to $DOWNLOAD_DIR."
 
 # Extract the downloaded zip file to the appropriate directory.
 log "Extracting JetBrains Mono zip file..."
 unzip "$DOWNLOAD_DIR/JetBrainsMono-${LATEST_VERSION}.zip" -d "$DOWNLOAD_DIR/JetBrainsMono-${LATEST_VERSION}"
+echo
 
 # Ensure that the target font directory exists before installation.
 log "Ensuring target font directory exists: $JETBRAINS_MONO_DIR"
