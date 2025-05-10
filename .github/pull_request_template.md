@@ -18,20 +18,19 @@ By following this structure helps us maintain clear and organized pull requests,
 making the review process more efficient.
 
 Thank you for contributing! 🙏
+
+
+PS: 🚫 Please Avoid Unnecessary Pings
+
+We kindly ask all contributors to refrain from pinging maintainers unless absolutely
+necessary. Pings should be reserved for critical issues or urgent matters that
+require immediate attention.
+
+Why: Limiting pings to urgent matters helps maintainers focus on and prioritize
+essential tasks more effectively.
 -->
 
 # 🐙 Pull Request Information
-
-<details>
-<summary><b>🚫 Please Avoid Unnecessary Pings</b> (Click here for more details)</summary>
-<p>
-
-We kindly ask all contributors to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters that require immediate attention.
-
-**Why**: Limiting pings to urgent matters helps maintainers focus on and prioritize essential tasks more effectively.
-
-</p>
-</details>
 
 ## 📋 Overview
 
