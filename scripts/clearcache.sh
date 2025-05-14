@@ -72,7 +72,6 @@ if [ ! -f "$log_file" ]; then
   log_message "INFO: Log file created: $log_file"
 fi
 
-
 # Synchronize the file system
 sync
 

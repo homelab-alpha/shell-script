@@ -130,8 +130,8 @@ sync_containers() {
         ((fail_count++))
         echo "Error: Failed to pull $container."
         # Log more detailed error information
-        echo "Detailed error for $container:" >> "$log_file"
-        docker pull "$container" 2>> "$log_file"
+        echo "Detailed error for $container:" >>"$log_file"
+        docker pull "$container" 2>>"$log_file"
       fi
     else
       ((invalid_count++))

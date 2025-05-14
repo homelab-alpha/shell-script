@@ -18,12 +18,12 @@
 function cpg() {
   # Check if the number of arguments is not equal to 2
   if [ $# -ne 2 ]; then
-    echo "Usage: cpg source destination"  # Print usage information
-    return 1  # Return error status
+    echo "Usage: cpg source destination" # Print usage information
+    return 1                             # Return error status
   fi
 
-  local source="$1"  # Assign the first argument to the source variable
-  local destination="$2"  # Assign the second argument to the destination variable
+  local source="$1"      # Assign the first argument to the source variable
+  local destination="$2" # Assign the second argument to the destination variable
 
   # Check if the source is a directory
   if [ -d "$source" ]; then
@@ -33,10 +33,10 @@ function cpg() {
       # Change directory to the copied directory in the destination
       cp -r "$source" "$destination" && cd "$destination/$(basename "$source")" || exit
     else
-      echo "Destination is not a directory: $destination"  # Print error message
-      return 1  # Return error status
+      echo "Destination is not a directory: $destination" # Print error message
+      return 1                                            # Return error status
     fi
   else
-    cp "$source" "$destination"  # Copy the source file to the destination
+    cp "$source" "$destination" # Copy the source file to the destination
   fi
 }

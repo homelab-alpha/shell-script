@@ -75,6 +75,5 @@ anticipate your contributions!
 [Conventional Commits specification]: https://conventionalcommits.org/
 [Code Style + Standards Guides]: CODE_STYLE_AND_STANDARDS_GUIDES.md
 [pull request]: https://github.com/homelab-alpha/shell-script/pulls
-[ideas]:
-  https://github.com/homelab-alpha/shell-script/discussions/categories/ideas
+[ideas]: https://github.com/homelab-alpha/shell-script/discussions/categories/ideas
 [Homelab-Alpha license]: LICENSE.md
