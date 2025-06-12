@@ -3,13 +3,33 @@
   "timezone": "Europe/Amsterdam",
   "schedule": "before 5am every weekday",
   "extends": [
-
     "config:recommended",
     "schedule:weekly",
     "group:allNonMajor",
-    ":automergeMinor"
-
+    ":automergeMinor",
+    ":automergePatch"
   ],
-  "rangeStrategy": "bump",
-  "ignoreDeps": []
+  "rangeStrategy": "auto",
+  "ignoreDeps": [],
+  "labels": ["dependencies"],
+  "semanticCommits": "enabled",
+  "packageRules": [
+    {
+      "updateTypes": ["major"],
+      "labels": ["breaking change", "dependencies", "P0: critical"]
+    },
+    {
+      "updateTypes": ["minor"],
+      "labels": ["dependencies", "P2: moderate"]
+    },
+    {
+      "updateTypes": ["patch"],
+      "labels": ["dependencies", "P3: low"]
+    },
+    {
+      "depTypeList": ["devDependencies"],
+      "updateTypes": ["minor", "patch"],
+      "automerge": false
+    }
+  ]
 }
