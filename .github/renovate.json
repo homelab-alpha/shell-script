@@ -11,24 +11,47 @@
   ],
   "rangeStrategy": "auto",
   "ignoreDeps": [],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "semanticCommits": "enabled",
   "packageRules": [
     {
-      "updateTypes": ["major"],
-      "labels": ["breaking change", "dependencies", "P0: critical"]
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "labels": [
+        "breaking change",
+        "dependencies",
+        "P0: critical"
+      ]
     },
     {
-      "updateTypes": ["minor"],
-      "labels": ["dependencies", "P2: moderate"]
+      "matchUpdateTypes": [
+        "minor"
+      ],
+      "labels": [
+        "dependencies",
+        "P2: moderate"
+      ]
     },
     {
-      "updateTypes": ["patch"],
-      "labels": ["dependencies", "P3: low"]
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "labels": [
+        "dependencies",
+        "P3: low"
+      ]
     },
     {
-      "depTypeList": ["devDependencies"],
-      "updateTypes": ["minor", "patch"],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
       "automerge": false
     }
   ]
