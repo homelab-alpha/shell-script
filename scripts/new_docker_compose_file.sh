@@ -2,8 +2,8 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-04-23T06:00:00+02:00
-# Version: 2.1.1
+# Date: 2025-06-12T12:20:53+02:00
+# Version: 2.1.2
 
 # Description:
 # This script automates the creation of a Docker-Compose environment based
@@ -656,9 +656,9 @@ skip-symbolic-links
 # Enable native asynchronous I/O for improved performance in InnoDB.
 innodb-use-native-aio = 0
 
-# Set the size of the InnoDB buffer pool. This should be 70-80% of the available memory.
-# Larger values allow more data to be cached in memory, improving performance.
-innodb-buffer-pool-size = 1G
+# Minimum InnoDB buffer pool size when auto-shrinking under memory pressure.
+# Shrinks pool halfway between current size and this value. 0 = no minimum.
+innodb-buffer-pool-size-auto-min = 0
 
 # Configure the size of the InnoDB redo log files. Larger log files can improve
 # performance for write-heavy workloads but require more recovery time after a crash.
