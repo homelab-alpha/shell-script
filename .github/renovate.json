@@ -9,6 +9,9 @@
     ":automergeMinor",
     ":automergePatch"
   ],
+  "assignees": [
+    "homelab-alpha"
+  ],
   "rangeStrategy": "auto",
   "ignoreDeps": [],
   "labels": [
@@ -52,7 +55,8 @@
         "minor",
         "patch"
       ],
-      "automerge": false
+      "automerge": false,
+      "automergeType": "squash"
     }
   ]
 }
