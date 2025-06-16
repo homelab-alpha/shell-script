@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Filename: new_docker_container.sh
+# Filename: new_docker_project.sh
 # Author: GJS (homelab-alpha)
 # Date: 2025-06-16T17:11:10+02:00
 # Version: 2.1.3
@@ -8,7 +8,7 @@
 # Description: This script creates a new Docker container directory structure
 # and configuration files based on user input.
 
-# Usage: ./new_docker_container.sh
+# Usage: ./new_docker_project.sh
 
 # Check if script is run with sudo
 if [ "$EUID" -ne 0 ]; then
