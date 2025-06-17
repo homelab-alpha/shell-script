@@ -2,8 +2,8 @@
 
 # Filename: new_docker_project.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-06-16T17:11:10+02:00
-# Version: 2.1.3
+# Date: 2025-06-17T07:20:35+02:00
+# Version: 2.1.4
 
 # Description: This script creates a new Docker container directory structure
 # and configuration files based on user input.
@@ -660,6 +660,10 @@ skip-symbolic-links
 
 # Enable native asynchronous I/O for improved performance in InnoDB.
 innodb-use-native-aio = 0
+
+# Set the size of the InnoDB buffer pool. This should be 70-80% of the available memory.
+# Larger values allow more data to be cached in memory, improving performance.
+innodb-buffer-pool-size = 1G
 
 # Minimum InnoDB buffer pool size when auto-shrinking under memory pressure.
 # Shrinks pool halfway between current size and this value. 0 = no minimum.
