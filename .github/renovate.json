@@ -27,7 +27,9 @@
         "breaking change",
         "dependencies",
         "P0: critical"
-      ]
+      ],
+      "automerge": false,
+      "automergeType": "squash"
     },
     {
       "matchUpdateTypes": [
@@ -36,7 +38,9 @@
       "labels": [
         "dependencies",
         "P2: moderate"
-      ]
+      ],
+      "automerge": false,
+      "automergeType": "squash"
     },
     {
       "matchUpdateTypes": [
@@ -45,7 +49,9 @@
       "labels": [
         "dependencies",
         "P3: low"
-      ]
+      ],
+      "automerge": false,
+      "automergeType": "squash"
     },
     {
       "matchDepTypes": [
