@@ -25,7 +25,6 @@
       ],
       "labels": [
         "breaking change",
-        "dependencies",
         "P0: critical"
       ],
       "automerge": false,
@@ -36,8 +35,7 @@
         "minor"
       ],
       "labels": [
-        "dependencies",
-        "P2: moderate"
+        "P1: high"
       ],
       "automerge": false,
       "automergeType": "squash"
@@ -47,7 +45,6 @@
         "patch"
       ],
       "labels": [
-        "dependencies",
         "P3: low"
       ],
       "automerge": false,
@@ -58,8 +55,23 @@
         "devDependencies"
       ],
       "matchUpdateTypes": [
-        "minor",
+        "minor"
+      ],
+      "labels": [
+        "P2: moderate"
+      ],
+      "automerge": false,
+      "automergeType": "squash"
+    },
+    {
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "matchUpdateTypes": [
         "patch"
+      ],
+      "labels": [
+        "P4: negligible"
       ],
       "automerge": false,
       "automergeType": "squash"
