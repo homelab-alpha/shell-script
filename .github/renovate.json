@@ -24,6 +24,7 @@
         "major"
       ],
       "labels": [
+        "dependencies",
         "breaking change",
         "P0: critical"
       ],
@@ -35,6 +36,7 @@
         "minor"
       ],
       "labels": [
+        "dependencies",
         "P1: high"
       ],
       "automerge": false,
@@ -45,6 +47,7 @@
         "patch"
       ],
       "labels": [
+        "dependencies",
         "P3: low"
       ],
       "automerge": false,
@@ -58,6 +61,7 @@
         "minor"
       ],
       "labels": [
+        "dependencies",
         "P2: moderate"
       ],
       "automerge": false,
@@ -71,6 +75,7 @@
         "patch"
       ],
       "labels": [
+        "dependencies",
         "P4: negligible"
       ],
       "automerge": false,
