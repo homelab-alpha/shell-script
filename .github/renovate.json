@@ -17,33 +17,33 @@
   "packageRules": [
     {
       "matchUpdateTypes": ["major"],
-      "labels": ["dependencies", "breaking change", "P0: critical"],
+      "labels": ["dependencies", "breaking change", "major"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
       "matchUpdateTypes": ["minor"],
-      "labels": ["dependencies", "P1: high"],
+      "labels": ["dependencies", "minor"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
       "matchUpdateTypes": ["patch"],
-      "labels": ["dependencies", "P3: low"],
+      "labels": ["dependencies", "patch"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor"],
-      "labels": ["dependencies", "P2: moderate"],
+      "labels": ["dependencies", "minor"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch"],
-      "labels": ["dependencies", "P4: negligible"],
+      "labels": ["dependencies", "patch"],
       "automerge": false,
       "automergeType": "squash"
     }
