@@ -1,8 +1,6 @@
 {
   "threshold": 0,
-  "reporters": [
-    "consoleFull"
-  ],
+  "reporters": ["consoleFull"],
   "ignore": [
     "**/github/workspace/functions/**",
     "**/github/workspace/scripts/**",
