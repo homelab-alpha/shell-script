@@ -12,7 +12,6 @@
   "assignees": ["homelab-alpha"],
   "rangeStrategy": "auto",
   "ignoreDeps": [],
-  "labels": ["dependencies"],
   "semanticCommits": "enabled",
   "packageRules": [
     {
@@ -35,16 +34,23 @@
     },
     {
       "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"],
+      "labels": ["dev", "dependencies", "breaking change", "major"],
+      "automerge": false,
+      "automergeType": "squash"
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor"],
-      "labels": ["dependencies", "minor"],
+      "labels": ["dev", "dependencies", "minor"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["patch"],
-      "labels": ["dependencies", "patch"],
-      "automerge": false,
+      "labels": ["dev", "dependencies", "patch"],
+      "automerge": true,
       "automergeType": "squash"
     }
   ]
