@@ -16,7 +16,7 @@
   "packageRules": [
     {
       "matchUpdateTypes": ["major"],
-      "labels": ["dependencies", "breaking change", "major"],
+      "labels": ["dependencies", "major"],
       "automerge": false,
       "automergeType": "squash"
     },
@@ -35,7 +35,7 @@
     {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["major"],
-      "labels": ["dev", "dependencies", "breaking change", "major"],
+      "labels": ["dev", "dependencies", "major"],
       "automerge": false,
       "automergeType": "squash"
     },
