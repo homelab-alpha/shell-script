@@ -10,7 +10,7 @@
     ":automergePatch"
   ],
   "assignees": ["homelab-alpha"],
-  "rangeStrategy": "auto",
+  "rangeStrategy": "bump",
   "ignoreDeps": [],
   "semanticCommits": "enabled",
   "packageRules": [
