@@ -4,7 +4,7 @@ name: "Stale and Unreproducible Issue Management"
 on:
   workflow_dispatch:
   schedule:
-    - cron: "00 03 * * *"
+    - cron: "00 03 * * 0"
 
 permissions:
   issues: write
