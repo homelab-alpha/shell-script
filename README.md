@@ -1,8 +1,9 @@
-# Homelab-Alpha
+# Shell Script
 
 [![Super Linter](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml)
+[![Last commit](https://img.shields.io/github/last-commit/homelab-alpha/shell-script?style=flat&logo=github&logoColor=96a1a9&label=Last%20commit&labelColor=313A41&color=BA935B&cacheSeconds=3600)](https://github.com/homelab-alpha/shell-script/commits/main/)
 
-Welcome to the Homelab-Alpha Shell Script Repository!
+Welcome to the Homelab-Alpha Shell Script repository!
 
 For all related documentation and more information about this repository, please
 visit [Homelab-Alpha/Shell-Script].
