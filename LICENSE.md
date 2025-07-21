@@ -134,7 +134,6 @@ a. _**License grant.**_
    hereby grants You a worldwide, royalty-free, non-sublicensable,
    non-exclusive, irrevocable license to exercise the Licensed Rights in the
    Licensed Material to:
-
    - a. reproduce and Share the Licensed Material, in whole or in part, for
      NonCommercial purposes only; and
 
@@ -158,7 +157,6 @@ a. _**License grant.**_
    produces Adapted Material.
 
 5. **Downstream recipients.**
-
    - a. **Offer from the Licensor – Licensed Material.** Every recipient of the
      Licensed Material automatically receives an offer from the Licensor to
      exercise the Licensed Rights under the terms and conditions of this Public
@@ -208,7 +206,6 @@ a. _**Attribution.**_
 
    a. retain the following if it is supplied by the Licensor with the Licensed
    Material:
-
    - i. identification of the creator(s) of the Licensed Material and any others
      designated to receive attribution, in any reasonable manner requested by
      the Licensor (including by pseudonym if designated);
