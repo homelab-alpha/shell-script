@@ -38,6 +38,8 @@ jobs:
           VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           VALIDATE_GIT_COMMITLINT: false
           VALIDATE_JSCPD: false
+          VALIDATE_JUPYTER_NBQA_BLACK: false
           VALIDATE_POWERSHELL: false
+          VALIDATE_PYTHON_BLACK: false
           VALIDATE_SHELL_SHFMT: false
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
