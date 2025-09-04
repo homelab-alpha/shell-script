@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Manage Stale Issues
-        uses: actions/stale@v9.1.0
+        uses: actions/stale@v10.0.0
         with:
           stale-issue-message: |-
             We are cleaning up outdated `help wanted` issues. Your issue has been open for 70 days without any activity.
@@ -38,7 +38,7 @@ jobs:
           stale-issue-label: "stale"
 
       - name: Manage Unreproducible Issues
-        uses: actions/stale@v9.1.0
+        uses: actions/stale@v10.0.0
         with:
           stale-issue-message: |-
             This issue has been marked as `cannot reproduce` by a maintainer.
