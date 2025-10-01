@@ -30,7 +30,7 @@ jobs:
           fetch-depth: false
           fetch-tags: false
       - name: Super Linter
-        uses: super-linter/super-linter@v8.1.0
+        uses: super-linter/super-linter@v8.2.0
         env:
           BASH_SEVERITY: warning
           VALIDATE_ALL_CODEBASE: true
