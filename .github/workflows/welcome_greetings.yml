@@ -1,10 +1,15 @@
 name: Welcome Greetings
 
 on:
-  pull_request_target:
-    types: [opened]
   issues:
-    types: [opened]
+    types:
+      - opened
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+  workflow_dispatch:
 
 permissions:
   issues: write
@@ -12,13 +17,14 @@ permissions:
 
 jobs:
   greetings:
+    name: Welcome New Contributors
     runs-on: ubuntu-latest
+
     steps:
-      - name: Welcome New Contributors
-        uses: actions/first-interaction@v3.1.0
+      - uses: actions/first-interaction@v3.1.0
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
             ## Hello there! 👋
 
             Thank you for opening your first issue! 🎉
@@ -31,7 +37,7 @@ jobs:
             [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
             [Contribution Guidelines]: https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md
 
-          pr-message: |
+          pr_message: |
             ## Hello there! 👋
 
             Thank you for submitting your first pull request! 🎉
