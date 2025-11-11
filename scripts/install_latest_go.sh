@@ -2,8 +2,8 @@
 
 # Filename: install_latest_go.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-05-09T10:21:38+02:00
-# Version: 1.1.2
+# Date: 2025-11-11T16:01:05+01:00
+# Version: 1.2.0
 
 # Description: This script fetches the latest version of Go from the official Go
 # download page, downloads it, installs it to /usr/local/go, and cleans up the
@@ -43,10 +43,7 @@ fi
 
 # Fetch the latest stable version of Go from the official website
 log "Fetching the latest version of Go from the official download page..."
-LATEST_VERSION_OUTPUT=$(curl -s https://go.dev/VERSION?m=text)
-
-# Extract the version number from the output and remove the 'go' prefix
-LATEST_VERSION="$(echo $LATEST_VERSION_OUTPUT | awk '{print $1}' | sed 's/go//')"
+LATEST_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -n 1 | sed 's/^go//')
 
 # If the version cannot be determined, log an error and exit
 if [ -z "$LATEST_VERSION" ]; then
@@ -75,8 +72,22 @@ log "Successfully downloaded Go version ${LATEST_VERSION} to $DOWNLOAD_DIR."
 
 # Extract the tarball to the download directory
 log "Extracting Go files..."
-tar -xzf "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar.gz" -C "$DOWNLOAD_DIR"
-echo
+
+# Decompress the tarball (will create a .tar file)
+if gzip -d "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar.gz"; then
+  log "Decompression of the tarball was successful."
+else
+  log_error "Failed to decompress Go tarball. Exiting."
+  exit 1
+fi
+
+# Extract the tar file
+if tar -xf "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar" -C "$DOWNLOAD_DIR"; then
+  log "Extraction of the tar file was successful."
+else
+  log_error "Failed to extract Go tar file. Exiting."
+  exit 1
+fi
 
 # Ensure the target directory for installation exists
 log "Ensuring target directory exists: /usr/local/go"
@@ -96,7 +107,7 @@ log "Go version ${LATEST_VERSION} installed successfully to /usr/local/go."
 
 # Clean up the downloaded tarball after installation
 log "Cleaning up temporary files..."
-rm "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar.gz"
+rm "$DOWNLOAD_DIR/go${LATEST_VERSION}.linux-amd64.tar"
 log "Cleanup complete."
 
 # Verify if Go was installed successfully and is available in the PATH
