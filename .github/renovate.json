@@ -1,10 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "timezone": "Europe/Amsterdam",
-  "schedule": "before 5am every weekday",
+  "schedule": ["* 9-17 * * 1-7"],
   "extends": [
     "config:recommended",
-    "schedule:weekly",
     "group:allNonMajor",
     ":automergeMinor",
     ":automergePatch"
