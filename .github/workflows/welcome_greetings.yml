@@ -24,30 +24,32 @@ jobs:
       - uses: actions/first-interaction@v3.1.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
+
           issue_message: |
-            ## Hello there! 👋
+            ## 👋 Hello there, and welcome!
 
-            Thank you for opening your first issue! 🎉
+            Thank you for opening an issue — we're happy to have you here! 🎉
+            Before we move forward, please take a moment to review the following:
 
-            Before you continue, please take a moment to review our [Code of Conduct] and [Contribution Guidelines].
-            These documents will help you understand our community and contribute effectively.
+            - 📘 **[Code of Conduct]**
+            - 🛠️ **[Contribution Guidelines]**
 
-            We truly appreciate your effort!
+            These help keep our community healthy and ensure smooth collaboration for everyone.
+            We appreciate your time and effort — thanks for helping improve the project! 🙌
 
-            [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
-            [Contribution Guidelines]: https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md
+            [Code of Conduct]: https://github.com/homelab-alpha/adguard-home/blob/main/CODE_OF_CONDUCT.md
+            [Contribution Guidelines]: https://github.com/homelab-alpha/adguard-home/blob/main/CONTRIBUTING.md
 
           pr_message: |
-            ## Hello there! 👋
+            ## 👋 Hello, and thank you for your contribution! 🎉
 
-            Thank you for submitting your first pull request! 🎉
+            We appreciate your pull request — your support helps the project grow! 🚀
+            Our team will review your submission as soon as possible.
 
-            The Homelab-Alpha team will review your contribution as soon as possible.
+            In the meantime, please ensure the following:
 
-            In the meantime, please make sure of the following:
+            - ✅ All relevant documentation is updated
+            - ✅ All necessary tests are included and passing
+            - ✅ CI/CD workflows complete successfully
 
-            - ✅ Ensure all relevant documentation is updated.
-            - ✅ Verify that all necessary tests are included and passing.
-            - ✅ Check that CI/CD workflows complete successfully.
-
-            We truly appreciate your effort and look forward to reviewing your pull request!
+            Thank you again for your time and effort. We’re looking forward to reviewing your pull request! 🙌
