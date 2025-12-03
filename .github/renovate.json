@@ -2,7 +2,7 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "timezone": "Europe/Amsterdam",
   "schedule": ["* 9-17 * * 1-7"],
-  "prHourlyLimit": 10,
+  "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
   "extends": ["config:recommended", ":automergeMinor", ":automergePatch"],
   "assignees": ["homelab-alpha"],
