@@ -93,7 +93,7 @@ class RecentUploadChartWidget extends ChartWidget
                 [
                     'label' => 'Average',
                     'data' => array_fill(0, count($results), Average::averageUpload($results)),
-                    'borderColor' => 'rgb(243, 7, 6, 1)',
+                    'borderColor' => 'rgb(243, 7, 6, 0.4)',
                     'pointBackgroundColor' => 'rgb(243, 7, 6, 1)',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
@@ -110,7 +110,7 @@ class RecentUploadChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => true,
+                    'display' => false,
                 ],
                 'tooltip' => [
                     'enabled' => true,
