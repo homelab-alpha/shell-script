@@ -92,7 +92,7 @@ class RecentPingChartWidget extends ChartWidget
                 [
                     'label' => 'Average',
                     'data' => array_fill(0, count($results), Average::averagePing($results)),
-                    'borderColor' => 'rgb(243, 7, 6, 1)',
+                    'borderColor' => 'rgb(243, 7, 6, 0.4)',
                     'pointBackgroundColor' => 'rgb(243, 7, 6, 1)',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
@@ -109,7 +109,7 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => true,
+                    'display' => false,
                 ],
                 'tooltip' => [
                     'enabled' => true,
