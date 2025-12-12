@@ -18,7 +18,6 @@ volumes:
   - /docker/speedtest-tracker/production/RecentPingChartWidget.php:/app/www/app/Filament/Widgets/RecentPingChartWidget.php
   - /docker/speedtest-tracker/production/RecentUploadChartWidget.php:/app/www/app/Filament/Widgets/RecentUploadChartWidget.php
   - /docker/speedtest-tracker/production/RecentUploadLatencyChartWidget.php:/app/www/app/Filament/Widgets/RecentUploadLatencyChartWidget.php
-  - /docker/speedtest-tracker/production/StatsOverviewWidget.php:/app/www/app/Filament/Widgets/StatsOverviewWidget.php
 ```
 
 ## Notes
