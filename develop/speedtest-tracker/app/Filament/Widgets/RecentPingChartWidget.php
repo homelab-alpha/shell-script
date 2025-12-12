@@ -81,9 +81,9 @@ class RecentPingChartWidget extends ChartWidget
                 [
                     'label' => 'Ping',
                     'data' => $results->map(fn ($item) => $item->ping),
-                    'borderColor' => 'rgba(16, 185, 129)',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
-                    'pointBackgroundColor' => 'rgba(16, 185, 129)',
+                    'borderColor' => '#FBC02D',
+                    'backgroundColor' => '#FBC02D33',
+                    'pointBackgroundColor' => '#FBC02D',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
@@ -92,8 +92,8 @@ class RecentPingChartWidget extends ChartWidget
                 [
                     'label' => 'Average',
                     'data' => array_fill(0, count($results), Average::averagePing($results)),
-                    'borderColor' => 'rgb(243, 7, 6, 0.4)',
-                    'pointBackgroundColor' => 'rgb(243, 7, 6, 1)',
+                    'borderColor' => '#9C27B0',
+                    'pointBackgroundColor' => '#9C27B0',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,

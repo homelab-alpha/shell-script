@@ -82,9 +82,9 @@ class RecentUploadChartWidget extends ChartWidget
                 [
                     'label' => 'Upload',
                     'data' => $results->map(fn ($item) => ! blank($item->upload) ? Number::bitsToMagnitude(bits: $item->upload_bits, precision: 2, magnitude: 'mbit') : null),
-                    'borderColor' => 'rgba(139, 92, 246)',
-                    'backgroundColor' => 'rgba(139, 92, 246, 0.1)',
-                    'pointBackgroundColor' => 'rgba(139, 92, 246)',
+                    'borderColor' => '#0288D1',
+                    'backgroundColor' => '#0288D133',
+                    'pointBackgroundColor' => '#0288D1',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
@@ -93,8 +93,8 @@ class RecentUploadChartWidget extends ChartWidget
                 [
                     'label' => 'Average',
                     'data' => array_fill(0, count($results), Average::averageUpload($results)),
-                    'borderColor' => 'rgb(243, 7, 6, 0.4)',
-                    'pointBackgroundColor' => 'rgb(243, 7, 6, 1)',
+                    'borderColor' => '#9C27B0',
+                    'pointBackgroundColor' => '#9C27B0',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,

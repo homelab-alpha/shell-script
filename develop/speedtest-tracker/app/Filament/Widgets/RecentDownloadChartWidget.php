@@ -83,9 +83,9 @@ class RecentDownloadChartWidget extends ChartWidget
                 [
                     'label' => 'Download',
                     'data' => $results->map(fn ($item) => ! blank($item->download) ? Number::bitsToMagnitude(bits: $item->download_bits, precision: 2, magnitude: 'mbit') : null),
-                    'borderColor' => 'rgba(14, 165, 233)',
-                    'backgroundColor' => 'rgba(14, 165, 233, 0.1)',
-                    'pointBackgroundColor' => 'rgba(14, 165, 233)',
+                    'borderColor' => '#00796B',
+                    'backgroundColor' => '#00796B33',
+                    'pointBackgroundColor' => '#00796B',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
@@ -94,8 +94,8 @@ class RecentDownloadChartWidget extends ChartWidget
                 [
                     'label' => 'Average',
                     'data' => array_fill(0, count($results), Average::averageDownload($results)),
-                    'borderColor' => 'rgb(243, 7, 6, 0.4)',
-                    'pointBackgroundColor' => 'rgb(243, 7, 6, 1)',
+                    'borderColor' => '#9C27B0',
+                    'pointBackgroundColor' => '#9C27B0',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
