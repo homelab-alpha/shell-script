@@ -79,7 +79,19 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
+                    'label' => 'Average',
+                    'order' => 1,
+                    'data' => array_fill(0, count($results), Average::averagePing($results)),
+                    'borderColor' => '#9C27B0',
+                    'pointBackgroundColor' => '#9C27B0',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
+                [
                     'label' => 'Ping',
+                    'order' => 2,
                     'data' => $results->map(fn ($item) => $item->ping),
                     'borderColor' => '#FBC02D',
                     'backgroundColor' => '#FBC02D33',
@@ -88,16 +100,6 @@ class RecentPingChartWidget extends ChartWidget
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
                     'pointRadius' => count($results) <= 24 ? 3 : 0,
-                ],
-                [
-                    'label' => 'Average',
-                    'data' => array_fill(0, count($results), Average::averagePing($results)),
-                    'borderColor' => '#9C27B0',
-                    'pointBackgroundColor' => '#9C27B0',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),

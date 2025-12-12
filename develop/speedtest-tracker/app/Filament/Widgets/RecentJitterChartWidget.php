@@ -78,7 +78,20 @@ class RecentJitterChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
+                    'label' => 'Ping (ms)',
+                    'order' => 1,
+                    'data' => $results->map(fn ($item) => $item->ping_jitter),
+                    'borderColor' => '#FBC02D',
+                    'backgroundColor' => '#FBC02D33',
+                    'pointBackgroundColor' => '#FBC02D',
+                    'fill' => true,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                ],
+                [
                     'label' => 'Download (ms)',
+                    'order' => 3,
                     'data' => $results->map(fn ($item) => $item->download_jitter),
                     'borderColor' => '#00796B',
                     'backgroundColor' => '#00796B33',
@@ -90,21 +103,11 @@ class RecentJitterChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Upload (ms)',
+                    'order' => 2,
                     'data' => $results->map(fn ($item) => $item->upload_jitter),
                     'borderColor' => '#0288D1',
                     'backgroundColor' => '#0288D133',
                     'pointBackgroundColor' => '#0288D1',
-                    'fill' => true,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
-                ],
-                [
-                    'label' => 'Ping (ms)',
-                    'data' => $results->map(fn ($item) => $item->ping_jitter),
-                    'borderColor' => '#FBC02D',
-                    'backgroundColor' => '#FBC02D33',
-                    'pointBackgroundColor' => '#FBC02D',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,

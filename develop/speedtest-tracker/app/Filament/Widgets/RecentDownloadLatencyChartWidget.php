@@ -77,8 +77,21 @@ class RecentDownloadLatencyChartWidget extends ChartWidget
 
         return [
             'datasets' => [
+                [
+                    'label' => 'Average (ms)',
+                    'order' => 1,
+                    'data' => $results->map(fn ($item) => $item->download_latency_iqm),
+                    'borderColor' => '#6A1B9A',
+                    'backgroundColor' => '#6A1B9A33',
+                    'pointBackgroundColor' => '#6A1B9A',
+                    'fill' => true,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                ],
                 // [
                 //     'label' => 'High (ms)',
+                //     'order' => 3,
                 //     'data' => $results->map(fn ($item) => $item->download_latency_high),
                 //     'borderColor' => '#D32F2F',
                 //     'backgroundColor' => '#D32F2F33',
@@ -90,6 +103,7 @@ class RecentDownloadLatencyChartWidget extends ChartWidget
                 // ],
                 // [
                 //     'label' => 'Low (ms)',
+                //     'order' => 1,
                 //     'data' => $results->map(fn ($item) => $item->download_latency_low),
                 //     'borderColor' => '#1976D2',
                 //     'backgroundColor' => '#1976D233',
@@ -99,17 +113,6 @@ class RecentDownloadLatencyChartWidget extends ChartWidget
                 //     'tension' => 0.4,
                 //     'pointRadius' => count($results) <= 24 ? 3 : 0,
                 // ],
-                [
-                    'label' => 'Average (ms)',
-                    'data' => $results->map(fn ($item) => $item->download_latency_iqm),
-                    'borderColor' => '#6A1B9A',
-                    'backgroundColor' => '#6A1B9A33',
-                    'pointBackgroundColor' => '#6A1B9A',
-                    'fill' => true,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
-                ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
         ];

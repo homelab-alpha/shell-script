@@ -80,7 +80,19 @@ class RecentUploadChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
+                    'label' => 'Average',
+                    'order' => 1,
+                    'data' => array_fill(0, count($results), Average::averageUpload($results)),
+                    'borderColor' => '#9C27B0',
+                    'pointBackgroundColor' => '#9C27B0',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
+                [
                     'label' => 'Upload',
+                    'order' => 2,
                     'data' => $results->map(fn ($item) => ! blank($item->upload) ? Number::bitsToMagnitude(bits: $item->upload_bits, precision: 2, magnitude: 'mbit') : null),
                     'borderColor' => '#0288D1',
                     'backgroundColor' => '#0288D133',
@@ -89,16 +101,6 @@ class RecentUploadChartWidget extends ChartWidget
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
                     'pointRadius' => count($results) <= 24 ? 3 : 0,
-                ],
-                [
-                    'label' => 'Average',
-                    'data' => array_fill(0, count($results), Average::averageUpload($results)),
-                    'borderColor' => '#9C27B0',
-                    'pointBackgroundColor' => '#9C27B0',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
