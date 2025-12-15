@@ -82,10 +82,11 @@ class RecentDownloadChartWidget extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Average',
-                    'order' => 1,
+                    'order' => 2,
                     'data' => array_fill(0, count($results), Average::averageDownload($results)),
-                    'borderColor' => '#9C27B0',
-                    'pointBackgroundColor' => '#9C27B0',
+                    'borderColor' => '#BA55D3',
+                    'backgroundColor' => '#BA55D333',
+                    'pointBackgroundColor' => '#BA55D3',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
@@ -93,15 +94,15 @@ class RecentDownloadChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Download',
-                    'order' => 2,
+                    'order' => 1,
                     'data' => $results->map(fn ($item) => ! blank($item->download) ? Number::bitsToMagnitude(bits: $item->download_bits, precision: 2, magnitude: 'mbit') : null),
-                    'borderColor' => '#00796B',
-                    'backgroundColor' => '#00796B33',
-                    'pointBackgroundColor' => '#00796B',
+                    'borderColor' => '#4682B4',
+                    'backgroundColor' => '#4682B433',
+                    'pointBackgroundColor' => '#4682B4',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => count($results) <= 6 ? 3 : 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
@@ -113,7 +114,7 @@ class RecentDownloadChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => false,
+                    'display' => true,
 
                 ],
                 'tooltip' => [

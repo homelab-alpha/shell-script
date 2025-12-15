@@ -81,10 +81,11 @@ class RecentUploadChartWidget extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Average',
-                    'order' => 1,
+                    'order' => 2,
                     'data' => array_fill(0, count($results), Average::averageUpload($results)),
-                    'borderColor' => '#9C27B0',
-                    'pointBackgroundColor' => '#9C27B0',
+                    'borderColor' => '#BA55D3',
+                    'backgroundColor' => '#BA55D333',
+                    'pointBackgroundColor' => '#BA55D3',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
@@ -92,15 +93,15 @@ class RecentUploadChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Upload',
-                    'order' => 2,
+                    'order' => 1,
                     'data' => $results->map(fn ($item) => ! blank($item->upload) ? Number::bitsToMagnitude(bits: $item->upload_bits, precision: 2, magnitude: 'mbit') : null),
-                    'borderColor' => '#0288D1',
-                    'backgroundColor' => '#0288D133',
-                    'pointBackgroundColor' => '#0288D1',
+                    'borderColor' => '#5F9EA0',
+                    'backgroundColor' => '#5F9EA033',
+                    'pointBackgroundColor' => '#5F9EA0',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => count($results) <= 6 ? 3 : 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
@@ -112,7 +113,7 @@ class RecentUploadChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => false,
+                    'display' => true,
                 ],
                 'tooltip' => [
                     'enabled' => true,

@@ -80,10 +80,11 @@ class RecentPingChartWidget extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Average',
-                    'order' => 1,
+                    'order' => 2,
                     'data' => array_fill(0, count($results), Average::averagePing($results)),
-                    'borderColor' => '#9C27B0',
-                    'pointBackgroundColor' => '#9C27B0',
+                    'borderColor' => '#BA55D3',
+                    'backgroundColor' => '#BA55D333',
+                    'pointBackgroundColor' => '#BA55D3',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
@@ -91,15 +92,15 @@ class RecentPingChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Ping',
-                    'order' => 2,
+                    'order' => 1,
                     'data' => $results->map(fn ($item) => $item->ping),
-                    'borderColor' => '#FBC02D',
-                    'backgroundColor' => '#FBC02D33',
-                    'pointBackgroundColor' => '#FBC02D',
+                    'borderColor' => '#939597',
+                    'backgroundColor' => '#93959733',
+                    'pointBackgroundColor' => '#939597',
                     'fill' => true,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => count($results) <= 6 ? 3 : 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
@@ -111,7 +112,7 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => false,
+                    'display' => true,
                 ],
                 'tooltip' => [
                     'enabled' => true,
