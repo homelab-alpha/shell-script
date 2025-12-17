@@ -13,10 +13,6 @@ trait HasChartFilters
     {
         return [
             // Minutes
-            '1m'   => 'Last 1 minute',
-            '2m'   => 'Last 2 minutes',
-            '3m'   => 'Last 3 minutes',
-            '4m'   => 'Last 4 minutes',
             '5m'   => 'Last 5 minutes',
             '10m'  => 'Last 10 minutes',
             '15m'  => 'Last 15 minutes',
@@ -29,6 +25,7 @@ trait HasChartFilters
             '3h'   => 'Last 3 hours',
             '6h'   => 'Last 6 hours',
             '12h'  => 'Last 12 hours',
+            '18h'  => 'Last 18 hours',
             '24h'  => 'Last 24 hours',
             '36h'  => 'Last 36 hours',
             '48h'  => 'Last 48 hours',
