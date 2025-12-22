@@ -24,7 +24,7 @@ class RecentPingChartWidget extends ChartWidget
 
     public function mount(): void
     {
-        config(['speedtest.default_chart_range' => '24h']);
+        config(['speedtest.default_chart_range' => '18h']);
 
         $this->filter = $this->filter ?? config('speedtest.default_chart_range');
     }
@@ -75,30 +75,30 @@ class RecentPingChartWidget extends ChartWidget
 
         return [
             'datasets' => [
-                [
-                    'label' => 'Average',
-                    'order' => 2,
-                    'data' => array_fill(0, count($results), Average::averagePing($results)),
-                    'borderColor' => 'rgba(243, 7, 6, 1)',
-                    'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
-                    'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
-                    // 'showLine' => false,
-                ],
+                // [
+                //     'label' => 'Average',
+                //     'order' => 2,
+                //     'data' => array_fill(0, count($results), Average::averagePing($results)),
+                //     'borderColor' => 'rgba(243, 7, 6, 1)',
+                //     'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
+                //     'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
+                //     'fill' => false,
+                //     'cubicInterpolationMode' => 'monotone',
+                //     'tension' => 0.4,
+                //     'pointRadius' => 0,
+                //     // 'showLine' => false,
+                // ],
                 [
                     'label' => 'Ping',
                     'order' => 1,
                     'data' => $results->map(fn ($item) => $item->ping),
-                    'borderColor' => 'rgba(139, 92, 246, 1)',
-                    'backgroundColor' => 'rgba(139, 92, 246, 0.1)',
-                    'pointBackgroundColor' => 'rgba(139, 92, 246, 1)',
-                    'fill' => true,
+                    'borderColor' => 'rgb(168, 85, 247)',
+                    'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
+                    'pointBackgroundColor' => 'rgb(168, 85, 247)',
+                    'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
@@ -110,7 +110,7 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => true,
+                    'display' => false,
                 ],
                 'tooltip' => [
                     'enabled' => true,

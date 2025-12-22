@@ -76,29 +76,29 @@ class RecentUploadChartWidget extends ChartWidget
 
         return [
             'datasets' => [
-                [
-                    'label' => 'Average',
-                    'order' => 2,
-                    'data' => array_fill(0, count($results), Average::averageUpload($results)),
-                    'borderColor' =>'rgba(243, 7, 6, 1)',
-                    'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
-                    'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
-                ],
+                // [
+                //     'label' => 'Average',
+                //     'order' => 2,
+                //     'data' => array_fill(0, count($results), Average::averageUpload($results)),
+                //     'borderColor' =>'rgba(243, 7, 6, 1)',
+                //     'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
+                //     'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
+                //     'fill' => false,
+                //     'cubicInterpolationMode' => 'monotone',
+                //     'tension' => 0.4,
+                //     'pointRadius' => 0,
+                // ],
                 [
                     'label' => 'Upload',
                     'order' => 1,
                     'data' => $results->map(fn ($item) => ! blank($item->upload) ? Number::bitsToMagnitude(bits: $item->upload_bits, precision: 2, magnitude: 'mbit') : null),
-                    'borderColor' => 'rgba(16, 185, 129, 1)',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
-                    'pointBackgroundColor' => 'rgba(16, 185, 129, 1)',
-                    'fill' => true,
+                    'borderColor' => 'rgb(245, 158, 11)',
+                    'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
+                    'pointBackgroundColor' => 'rgb(245, 158, 11)',
+                    'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
@@ -110,7 +110,7 @@ class RecentUploadChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => true,
+                    'display' => false,
                 ],
                 'tooltip' => [
                     'enabled' => true,

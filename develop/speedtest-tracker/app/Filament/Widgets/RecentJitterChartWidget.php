@@ -23,7 +23,7 @@ class RecentJitterChartWidget extends ChartWidget
 
     public function mount(): void
     {
-        config(['speedtest.default_chart_range' => '6h']);
+        config(['speedtest.default_chart_range' => '24h']);
 
         $this->filter = $this->filter ?? config('speedtest.default_chart_range');
     }
@@ -78,37 +78,37 @@ class RecentJitterChartWidget extends ChartWidget
                     'label' => 'Download (ms)',
                     'order' => 2,
                     'data' => $results->map(fn ($item) => $item->download_jitter),
-                    'borderColor' => 'rgba(14, 165, 233, 1)',
-                    'backgroundColor' => 'rgba(14, 165, 233, 0.1)',
-                    'pointBackgroundColor' => 'rgba(14, 165, 233, 1)',
-                    'fill' => true,
+                    'borderColor' => 'rgb(59, 130, 246)',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
+                    'pointBackgroundColor' => 'rgb(59, 130, 246)',
+                    'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => 0,
                 ],
                 [
                     'label' => 'Ping (ms)',
                     'order' => 1,
                     'data' => $results->map(fn ($item) => $item->ping_jitter),
-                    'borderColor' => 'rgba(139, 92, 246, 1)',
-                    'backgroundColor' => 'rgba(139, 92, 246, 0.1)',
-                    'pointBackgroundColor' => 'rgba(139, 92, 246, 1)',
-                    'fill' => true,
+                    'borderColor' => 'rgb(168, 85, 247)',
+                    'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
+                    'pointBackgroundColor' => 'rgb(168, 85, 247)',
+                    'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => 0,
                 ],
                 [
                     'label' => 'Upload (ms)',
                     'order' => 3,
                     'data' => $results->map(fn ($item) => $item->upload_jitter),
-                    'borderColor' => 'rgba(16, 185, 129, 1)',
-                    'backgroundColor' => 'rgba(16, 185, 129, 0.1)',
-                    'pointBackgroundColor' => 'rgba(16, 185, 129, 1)',
-                    'fill' => true,
+                    'borderColor' => 'rgb(245, 158, 11)',
+                    'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
+                    'pointBackgroundColor' => 'rgb(245, 158, 11)',
+                    'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
-                    'pointRadius' => count($results) <= 24 ? 3 : 0,
+                    'pointRadius' => 0,
                 ],
             ],
             'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
@@ -120,7 +120,7 @@ class RecentJitterChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => true,
+                    'display' => false,
                 ],
                 'tooltip' => [
                     'enabled' => true,
