@@ -4,6 +4,8 @@ namespace App\Filament\Widgets;
 
 use App\Enums\ResultStatus;
 use App\Filament\Widgets\Concerns\HasChartFilters;
+use App\Helpers\Average;
+use App\Helpers\Number;
 use App\Models\Result;
 use Filament\Widgets\ChartWidget;
 
@@ -30,43 +32,15 @@ class RecentUploadLatencyChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $timeFilters = [
-            // Minutes
-            '5m'   => now()->subMinutes(5),
-            '10m'  => now()->subMinutes(10),
-            '15m'  => now()->subMinutes(15),
-            '30m'  => now()->subMinutes(30),
-            '45m'  => now()->subMinutes(45),
+        // Haal de datum op uit de trait
+        $fromDate = $this->getFilterDate($this->filter);
 
-            // Hours
-            '1h'   => now()->subHour(),
-            '2h'   => now()->subHours(2),
-            '3h'   => now()->subHours(3),
-            '6h'   => now()->subHours(6),
-            '12h'  => now()->subHours(12),
-            '18h'  => now()->subHours(18),
-            '24h'  => now()->subDay(),
-            '36h'  => now()->subHours(36),
-            '48h'  => now()->subHours(48),
-            '72h'  => now()->subHours(72),
-
-            // Days
-            '5d'   => now()->subDays(5),
-            '7d'   => now()->subDays(7),
-            '14d'  => now()->subDays(14),
-            '28d'  => now()->subDays(28),
-            '31d'  => now()->subDays(31),
-            '45d'  => now()->subDays(45),
-            '60d'  => now()->subDays(60),
-            '90d'  => now()->subDays(90),
-            '100d' => now()->subDays(100),
-        ];
         $results = Result::query()
             ->select(['id', 'data', 'created_at'])
             ->where('status', ResultStatus::Completed)
             ->when(
-                isset($timeFilters[$this->filter]),
-                fn($query) => $query->where('created_at', '>=', $timeFilters[$this->filter])
+                $fromDate,
+                fn($query) => $query->where('created_at', '>=', $fromDate)
             )
             ->orderBy('created_at')
             ->get();

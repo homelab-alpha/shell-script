@@ -4,6 +4,8 @@ namespace App\Filament\Widgets;
 
 use App\Enums\ResultStatus;
 use App\Filament\Widgets\Concerns\HasChartFilters;
+use App\Helpers\Average;
+use App\Helpers\Number;
 use App\Models\Result;
 use Filament\Widgets\ChartWidget;
 
@@ -30,44 +32,14 @@ class RecentJitterChartWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $timeFilters = [
-            // Minutes
-            '5m'   => now()->subMinutes(5),
-            '10m'  => now()->subMinutes(10),
-            '15m'  => now()->subMinutes(15),
-            '30m'  => now()->subMinutes(30),
-            '45m'  => now()->subMinutes(45),
-
-            // Hours
-            '1h'   => now()->subHour(),
-            '2h'   => now()->subHours(2),
-            '3h'   => now()->subHours(3),
-            '6h'   => now()->subHours(6),
-            '12h'  => now()->subHours(12),
-            '18h'  => now()->subHours(18),
-            '24h'  => now()->subDay(),
-            '36h'  => now()->subHours(36),
-            '48h'  => now()->subHours(48),
-            '72h'  => now()->subHours(72),
-
-            // Days
-            '5d'   => now()->subDays(5),
-            '7d'   => now()->subDays(7),
-            '14d'  => now()->subDays(14),
-            '28d'  => now()->subDays(28),
-            '31d'  => now()->subDays(31),
-            '45d'  => now()->subDays(45),
-            '60d'  => now()->subDays(60),
-            '90d'  => now()->subDays(90),
-            '100d' => now()->subDays(100),
-        ];
+        $fromDate = $this->getFilterDate($this->filter);
 
         $results = Result::query()
             ->select(['id', 'data', 'created_at'])
             ->where('status', ResultStatus::Completed)
             ->when(
-                isset($timeFilters[$this->filter]),
-                fn($query) => $query->where('created_at', '>=', $timeFilters[$this->filter])
+                $fromDate,
+                fn ($query) => $query->where('created_at', '>=', $fromDate)
             )
             ->orderBy('created_at')
             ->get();
@@ -76,7 +48,7 @@ class RecentJitterChartWidget extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Download (ms)',
-                    'order' => 2,
+                    'order' => 1,
                     'data' => $results->map(fn ($item) => $item->download_jitter),
                     'borderColor' => 'rgb(59, 130, 246)',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
@@ -88,7 +60,7 @@ class RecentJitterChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Ping (ms)',
-                    'order' => 1,
+                    'order' => 3,
                     'data' => $results->map(fn ($item) => $item->ping_jitter),
                     'borderColor' => 'rgb(168, 85, 247)',
                     'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
@@ -100,7 +72,7 @@ class RecentJitterChartWidget extends ChartWidget
                 ],
                 [
                     'label' => 'Upload (ms)',
-                    'order' => 3,
+                    'order' => 2,
                     'data' => $results->map(fn ($item) => $item->upload_jitter),
                     'borderColor' => 'rgb(245, 158, 11)',
                     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
