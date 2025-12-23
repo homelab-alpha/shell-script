@@ -62,7 +62,15 @@ class RecentPingChartWidget extends ChartWidget
                 [
                     'label' => 'Ping',
                     'order' => 1,
-                    'data' => $results->map(fn ($item) => $item->ping),
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->ping)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->ping,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
                     'borderColor' => 'rgb(168, 85, 247)',
                     'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
                     'pointBackgroundColor' => 'rgb(168, 85, 247)',

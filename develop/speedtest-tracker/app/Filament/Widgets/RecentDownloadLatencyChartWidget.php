@@ -50,6 +50,15 @@ class RecentDownloadLatencyChartWidget extends ChartWidget
                     'label' => 'Average (ms)',
                     'order' => 3,
                     'data' => $results->map(fn ($item) => $item->download_latency_iqm),
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->ping)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->ping,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
                     'borderColor' => 'rgb(59, 130, 246)',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
                     'pointBackgroundColor' => 'rgb(59, 130, 246)',
@@ -61,7 +70,15 @@ class RecentDownloadLatencyChartWidget extends ChartWidget
                 // [
                 //     'label' => 'High (ms)',
                 //     'order' => 2,
-                //     'data' => $results->map(fn ($item) => $item->download_latency_high),
+                //     'data' => $results->map(fn ($item) =>
+                //         ! blank($item->download_latency_high)
+                //             ? Number::bitsToMagnitude(
+                //                 bits: $item->pidownload_latency_highng,
+                //                 precision: 2,
+                //                 magnitude: 'ms'
+                //             )
+                //             : null
+                //     ),
                 //     'borderColor' => 'rgb(59, 130, 246)',
                 //     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
                 //     'pointBackgroundColor' => 'rgb(59, 130, 246)',
@@ -73,7 +90,15 @@ class RecentDownloadLatencyChartWidget extends ChartWidget
                 // [
                 //     'label' => 'Low (ms)',
                 //     'order' => 1,
-                //     'data' => $results->map(fn ($item) => $item->download_latency_low),
+                //     'data' => $results->map(fn ($item) =>
+                //         ! blank($item->download_latency_low)
+                //             ? Number::bitsToMagnitude(
+                //                 bits: $item->download_latency_low,
+                //                 precision: 2,
+                //                 magnitude: 'ms'
+                //             )
+                //             : null
+                //     ),
                 //     'borderColor' => 'rgb(245, 158, 11)',
                 //     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
                 //     'pointBackgroundColor' => 'rgb(245, 158, 11)',

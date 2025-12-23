@@ -49,7 +49,15 @@ class RecentJitterChartWidget extends ChartWidget
                 [
                     'label' => 'Download (ms)',
                     'order' => 1,
-                    'data' => $results->map(fn ($item) => $item->download_jitter),
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->download_jitter)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->download_jitter,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
                     'borderColor' => 'rgb(59, 130, 246)',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
                     'pointBackgroundColor' => 'rgb(59, 130, 246)',
@@ -61,7 +69,15 @@ class RecentJitterChartWidget extends ChartWidget
                 [
                     'label' => 'Ping (ms)',
                     'order' => 3,
-                    'data' => $results->map(fn ($item) => $item->ping_jitter),
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->ping_jitter)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->ping_jitter,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
                     'borderColor' => 'rgb(168, 85, 247)',
                     'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
                     'pointBackgroundColor' => 'rgb(168, 85, 247)',
@@ -73,7 +89,15 @@ class RecentJitterChartWidget extends ChartWidget
                 [
                     'label' => 'Upload (ms)',
                     'order' => 2,
-                    'data' => $results->map(fn ($item) => $item->upload_jitter),
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->upload_jitter)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->upload_jitter,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
                     'borderColor' => 'rgb(245, 158, 11)',
                     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
                     'pointBackgroundColor' => 'rgb(245, 158, 11)',
