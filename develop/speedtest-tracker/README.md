@@ -11,6 +11,7 @@ Add the following volume mappings under your service definition:
 
 ```yaml
 volumes:
+  - /docker/speedtest-tracker/production/dashboard.blade.php:/app/www/resources/views/dashboard.blade.php
   - /docker/speedtest-tracker/production/HasChartFilters.php:/app/www/app/Filament/Widgets/Concerns/HasChartFilters.php
   - /docker/speedtest-tracker/production/RecentDownloadChartWidget.php:/app/www/app/Filament/Widgets/RecentDownloadChartWidget.php
   - /docker/speedtest-tracker/production/RecentDownloadLatencyChartWidget.php:/app/www/app/Filament/Widgets/RecentDownloadLatencyChartWidget.php
