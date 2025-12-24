@@ -25,15 +25,19 @@ class RecentDownloadChartWidget extends ChartWidget
 
     public function mount(): void
     {
-        config(['speedtest.default_chart_range' => '12h']);
+        config(['speedtest.default_chart_range' => '24h']);
 
-        $this->filter = $this->filter ?? config('speedtest.default_chart_range');
+        $this->filter = $this->filter
+            ?? config('speedtest.default_chart_range');
     }
 
     protected function getData(): array
     {
-        $fromDate = $this->getFilterDate($this->filter);
+        // Get the filter date and its associated time format
+        $fromDate    = $this->getFilterDate($this->filter);
+        $labelFormat = $this->getFilterLabelFormat($this->filter);
 
+        // Get the results
         $results = Result::query()
             ->select(['id', 'download', 'created_at'])
             ->where('status', ResultStatus::Completed)
@@ -44,26 +48,26 @@ class RecentDownloadChartWidget extends ChartWidget
             ->orderBy('created_at')
             ->get();
 
-
+        // Return the data for the chart
         return [
             'datasets' => [
-                // [
-                //     'label' => 'Average',
-                //     'order' => 2,
-                //     'data' => array_fill(0, count($results), Average::averageDownload($results)),
-                //     'borderColor' =>'rgba(243, 7, 6, 1)',
-                //     'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
-                //     'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
-                //     'fill' => false,
-                //     'cubicInterpolationMode' => 'monotone',
-                //     'tension' => 0.4,
-                //     'pointRadius' => 0,
-                // ],
+                [
+                    'label' => 'Average',
+                    'order' => 2,
+                    'data' => array_fill(0, count($results), Average::averageDownload($results)),
+                    'borderColor' =>'rgba(243, 7, 6, 1)',
+                    'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
+                    'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
                 [
                     'label' => 'Download',
                     'order' => 1,
                     'data' => $results->map(fn ($item) =>
-                        ! blank($item->download)
+                        ! blank($item->download_bits)
                             ? Number::bitsToMagnitude(
                                 bits: $item->download_bits,
                                 precision: 2,
@@ -80,7 +84,13 @@ class RecentDownloadChartWidget extends ChartWidget
                     'pointRadius' => 0,
                 ],
             ],
-            'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
+
+            // Adjust labels based on filter format
+            'labels' => $results->map(fn ($item) =>
+                $item->created_at
+                    ->timezone(config('app.display_timezone'))
+                    ->format($labelFormat)
+            ),
         ];
     }
 
@@ -89,8 +99,7 @@ class RecentDownloadChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => false,
-
+                    'display' => true,
                 ],
                 'tooltip' => [
                     'enabled' => true,

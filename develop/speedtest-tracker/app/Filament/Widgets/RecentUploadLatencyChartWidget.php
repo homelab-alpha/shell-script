@@ -25,26 +25,30 @@ class RecentUploadLatencyChartWidget extends ChartWidget
 
     public function mount(): void
     {
-        config(['speedtest.default_chart_range' => '36h']);
+        config(['speedtest.default_chart_range' => '24h']);
 
-        $this->filter = $this->filter ?? config('speedtest.default_chart_range');
+        $this->filter = $this->filter
+            ?? config('speedtest.default_chart_range');
     }
 
     protected function getData(): array
     {
-        // Haal de datum op uit de trait
-        $fromDate = $this->getFilterDate($this->filter);
+        // Get the filter date and its associated time format
+        $fromDate    = $this->getFilterDate($this->filter);
+        $labelFormat = $this->getFilterLabelFormat($this->filter);
 
+        // Get the results
         $results = Result::query()
             ->select(['id', 'data', 'created_at'])
             ->where('status', ResultStatus::Completed)
             ->when(
                 $fromDate,
-                fn($query) => $query->where('created_at', '>=', $fromDate)
+                fn ($query) => $query->where('created_at', '>=', $fromDate)
             )
             ->orderBy('created_at')
             ->get();
 
+        // Return the data for the chart
         return [
             'datasets' => [
                 [
@@ -59,6 +63,46 @@ class RecentUploadLatencyChartWidget extends ChartWidget
                             )
                             : null
                     ),
+                    'borderColor' => 'rgb(59, 130, 246)',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
+                    'pointBackgroundColor' => 'rgb(59, 130, 246)',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
+                [
+                    'label' => 'High (ms)',
+                    'order' => 1,
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->upload_latency_high)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->upload_latency_high,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
+                    'borderColor' => 'rgb(243, 7, 6)',
+                    'backgroundColor' => 'rgba(243, 7, 6, 0.2)',
+                    'pointBackgroundColor' => 'rgb(243, 7, 6)',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
+                [
+                    'label' => 'Low (ms)',
+                    'order' => 2,
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->upload_latency_low)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->upload_latency_low,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
                     'borderColor' => 'rgb(245, 158, 11)',
                     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
                     'pointBackgroundColor' => 'rgb(245, 158, 11)',
@@ -67,48 +111,14 @@ class RecentUploadLatencyChartWidget extends ChartWidget
                     'tension' => 0.4,
                     'pointRadius' => 0,
                 ],
-                // [
-                //     'label' => 'High (ms)',
-                //     'order' => 2,
-                //     'data' => $results->map(fn ($item) =>
-                //         ! blank($item->upload_latency_high)
-                //             ? Number::bitsToMagnitude(
-                //                 bits: $item->upload_latency_high,
-                //                 precision: 2,
-                //                 magnitude: 'ms'
-                //             )
-                //             : null
-                //     ),
-                //     'borderColor' => 'rgb(59, 130, 246)',
-                //     'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
-                //     'pointBackgroundColor' => 'rgb(59, 130, 246)',
-                //     'fill' => false,
-                //     'cubicInterpolationMode' => 'monotone',
-                //     'tension' => 0.4,
-                //     'pointRadius' => 0,
-                // ],
-                // [
-                //     'label' => 'Low (ms)',
-                //     'order' => 1,
-                //     'data' => $results->map(fn ($item) =>
-                //         ! blank($item->upload_latency_low)
-                //             ? Number::bitsToMagnitude(
-                //                 bits: $item->upload_latency_low,
-                //                 precision: 2,
-                //                 magnitude: 'ms'
-                //             )
-                //             : null
-                //     ),
-                //     'borderColor' => 'rgb(245, 158, 11)',
-                //     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
-                //     'pointBackgroundColor' => 'rgb(245, 158, 11)',
-                //     'fill' => false,
-                //     'cubicInterpolationMode' => 'monotone',
-                //     'tension' => 0.4,
-                //     'pointRadius' => 0,
-                // ],
             ],
-            'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
+
+            // Adjust labels based on filter format
+            'labels' => $results->map(fn ($item) =>
+                $item->created_at
+                    ->timezone(config('app.display_timezone'))
+                    ->format($labelFormat)
+            ),
         ];
     }
 
@@ -117,7 +127,7 @@ class RecentUploadLatencyChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => false,
+                    'display' => true,
                 ],
                 'tooltip' => [
                     'enabled' => true,

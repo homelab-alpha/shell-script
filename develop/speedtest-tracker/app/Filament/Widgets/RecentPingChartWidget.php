@@ -25,15 +25,19 @@ class RecentPingChartWidget extends ChartWidget
 
     public function mount(): void
     {
-        config(['speedtest.default_chart_range' => '18h']);
+        config(['speedtest.default_chart_range' => '24h']);
 
-        $this->filter = $this->filter ?? config('speedtest.default_chart_range');
+        $this->filter = $this->filter
+            ?? config('speedtest.default_chart_range');
     }
 
     protected function getData(): array
     {
-        $fromDate = $this->getFilterDate($this->filter);
+        // Get the filter date and its associated time format
+        $fromDate    = $this->getFilterDate($this->filter);
+        $labelFormat = $this->getFilterLabelFormat($this->filter);
 
+        // Get the results
         $results = Result::query()
             ->select(['id', 'ping', 'created_at'])
             ->where('status', ResultStatus::Completed)
@@ -44,21 +48,21 @@ class RecentPingChartWidget extends ChartWidget
             ->orderBy('created_at')
             ->get();
 
+        // Return the data for the chart
         return [
             'datasets' => [
-                // [
-                //     'label' => 'Average',
-                //     'order' => 2,
-                //     'data' => array_fill(0, count($results), Average::averagePing($results)),
-                //     'borderColor' => 'rgba(243, 7, 6, 1)',
-                //     'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
-                //     'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
-                //     'fill' => false,
-                //     'cubicInterpolationMode' => 'monotone',
-                //     'tension' => 0.4,
-                //     'pointRadius' => 0,
-                //     // 'showLine' => false,
-                // ],
+                [
+                    'label' => 'Average',
+                    'order' => 2,
+                    'data' => array_fill(0, count($results), Average::averagePing($results)),
+                    'borderColor' => 'rgba(243, 7, 6, 1)',
+                    'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
+                    'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
                 [
                     'label' => 'Ping',
                     'order' => 1,
@@ -80,7 +84,13 @@ class RecentPingChartWidget extends ChartWidget
                     'pointRadius' => 0,
                 ],
             ],
-            'labels' => $results->map(fn ($item) => $item->created_at->timezone(config('app.display_timezone'))->format(config('app.chart_datetime_format'))),
+
+            // Adjust labels based on filter format
+            'labels' => $results->map(fn ($item) =>
+                $item->created_at
+                    ->timezone(config('app.display_timezone'))
+                    ->format($labelFormat)
+            ),
         ];
     }
 
@@ -89,7 +99,7 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => false,
+                    'display' => true,
                 ],
                 'tooltip' => [
                     'enabled' => true,
