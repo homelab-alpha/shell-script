@@ -55,6 +55,11 @@ trait HasChartFilters
                 'date'   => now()->subDay(),
                 'format' => 'D H:i',
             ],
+            '36h' => [
+                'label'  => 'Last 36 hours',
+                'date'   => now()->subHours(36),
+                'format' => 'D H:i',
+            ],
 
             // Days
             '7d' => [
@@ -74,6 +79,11 @@ trait HasChartFilters
             ],
 
             // Long-term
+            '45d' => [
+                'label'  => 'Last 45 days',
+                'date'   => now()->subDays(45),
+                'format' => 'M jS, Y',
+            ],
             '90d' => [
                 'label'  => 'Last 90 days',
                 'date'   => now()->subDays(90),
