@@ -52,26 +52,6 @@ class RecentUploadLatencyChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Average (ms)',
-                    'order' => 3,
-                    'data' => $results->map(fn ($item) =>
-                        ! blank($item->upload_latency_iqm)
-                            ? Number::bitsToMagnitude(
-                                bits: $item->upload_latency_iqm,
-                                precision: 2,
-                                magnitude: 'ms'
-                            )
-                            : null
-                    ),
-                    'borderColor' => 'rgb(59, 130, 246)',
-                    'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
-                    'pointBackgroundColor' => 'rgb(59, 130, 246)',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
-                ],
-                [
                     'label' => 'High (ms)',
                     'order' => 1,
                     'data' => $results->map(fn ($item) =>
@@ -106,6 +86,26 @@ class RecentUploadLatencyChartWidget extends ChartWidget
                     'borderColor' => 'rgb(245, 158, 11)',
                     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
                     'pointBackgroundColor' => 'rgb(245, 158, 11)',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
+                [
+                    'label' => 'Average (ms)',
+                    'order' => 3,
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->upload_latency_iqm)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->upload_latency_iqm,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
+                    'borderColor' => 'rgb(59, 130, 246)',
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.2)',
+                    'pointBackgroundColor' => 'rgb(59, 130, 246)',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,

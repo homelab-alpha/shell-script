@@ -52,18 +52,6 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Average',
-                    'order' => 2,
-                    'data' => array_fill(0, count($results), Average::averagePing($results)),
-                    'borderColor' => 'rgba(243, 7, 6, 1)',
-                    'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
-                    'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
-                ],
-                [
                     'label' => 'Ping',
                     'order' => 1,
                     'data' => $results->map(fn ($item) =>
@@ -83,6 +71,18 @@ class RecentPingChartWidget extends ChartWidget
                     'tension' => 0.4,
                     'pointRadius' => 0,
                 ],
+                // [
+                //     'label' => 'Average',
+                //     'order' => 2,
+                //     'data' => array_fill(0, count($results), Average::averagePing($results)),
+                //     'borderColor' => 'rgba(243, 7, 6, 1)',
+                //     'backgroundColor' => 'rgba(243, 7, 6, 0.1)',
+                //     'pointBackgroundColor' => 'rgba(243, 7, 6, 1)',
+                //     'fill' => false,
+                //     'cubicInterpolationMode' => 'monotone',
+                //     'tension' => 0.4,
+                //     'pointRadius' => 0,
+                // ],
             ],
 
             // Adjust labels based on filter format
@@ -99,7 +99,7 @@ class RecentPingChartWidget extends ChartWidget
         return [
             'plugins' => [
                 'legend' => [
-                    'display' => true,
+                    'display' => false,
                 ],
                 'tooltip' => [
                     'enabled' => true,

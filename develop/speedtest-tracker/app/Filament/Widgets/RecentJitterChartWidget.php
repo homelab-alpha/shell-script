@@ -72,26 +72,6 @@ class RecentJitterChartWidget extends ChartWidget
                     'pointRadius' => 0,
                 ],
                 [
-                    'label' => 'Ping (ms)',
-                    'order' => 3,
-                    'data' => $results->map(fn ($item) =>
-                        ! blank($item->ping_jitter)
-                            ? Number::bitsToMagnitude(
-                                bits: $item->ping_jitter,
-                                precision: 2,
-                                magnitude: 'ms'
-                            )
-                            : null
-                    ),
-                    'borderColor' => 'rgb(168, 85, 247)',
-                    'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
-                    'pointBackgroundColor' => 'rgb(168, 85, 247)',
-                    'fill' => false,
-                    'cubicInterpolationMode' => 'monotone',
-                    'tension' => 0.4,
-                    'pointRadius' => 0,
-                ],
-                [
                     'label' => 'Upload (ms)',
                     'order' => 2,
                     'data' => $results->map(fn ($item) =>
@@ -106,6 +86,26 @@ class RecentJitterChartWidget extends ChartWidget
                     'borderColor' => 'rgb(245, 158, 11)',
                     'backgroundColor' => 'rgba(245, 158, 11, 0.2)',
                     'pointBackgroundColor' => 'rgb(245, 158, 11)',
+                    'fill' => false,
+                    'cubicInterpolationMode' => 'monotone',
+                    'tension' => 0.4,
+                    'pointRadius' => 0,
+                ],
+                [
+                    'label' => 'Ping (ms)',
+                    'order' => 3,
+                    'data' => $results->map(fn ($item) =>
+                        ! blank($item->ping_jitter)
+                            ? Number::bitsToMagnitude(
+                                bits: $item->ping_jitter,
+                                precision: 2,
+                                magnitude: 'ms'
+                            )
+                            : null
+                    ),
+                    'borderColor' => 'rgb(168, 85, 247)',
+                    'backgroundColor' => 'rgba(168, 85, 247, 0.2)',
+                    'pointBackgroundColor' => 'rgb(168, 85, 247)',
                     'fill' => false,
                     'cubicInterpolationMode' => 'monotone',
                     'tension' => 0.4,
