@@ -1,22 +1,10 @@
 ---
 name: 🐛 Bug Report
-description: |
-  Report a bug or issue in this repository.
-# title: "[Bug]: "
+description: Encounter a bug or issue with this project? Report it here, and we'll investigate and resolve it as soon as possible!
 labels: ["bug", "P2: moderate"]
-# projects: ["exemple/1", "exemple/2"]
 assignees:
   - homelab-alpha
 body:
-  - type: markdown
-    attributes:
-      value: |
-        **🚫 Please Avoid Unnecessary Pings**
-
-        We kindly ask all contributors to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters that require immediate attention.
-
-        **Why**: Limiting pings to urgent matters helps maintainers focus on and prioritize essential tasks more effectively.
-
   - type: checkboxes
     id: duplicate-check
     attributes:
@@ -111,17 +99,6 @@ body:
       placeholder: |
         Paste or upload your configuration files/code snippets here. This will be automatically formatted into code, so no need for backticks.
 
-  - type: textarea
-    id: dependencies-info
-    validations:
-      required: true
-    attributes:
-      label: 📂 Dependencies and Versions
-      description: |
-        List all dependencies and their versions used in your setup. This information helps identify compatibility issues.
-      placeholder: |
-        e.g., Library X v1.2.3, Library Y v4.5.6
-
   - type: input
     id: software-version
     validations:
@@ -145,19 +122,21 @@ body:
         e.g., Ubuntu Server 24.04.1 LTS (GNU/Linux 6.8.0-48-generic x86_64)
 
   - type: textarea
-    id: environment-details
+    id: environment-setup
     validations:
       required: true
     attributes:
-      label: 🖥️ Environment Details
+      label: 🖥️ Environment Setup
       description: |
         Provide detailed information about your setup to help us understand your environment better:
+          - **Dependencies and Versions**: List all dependencies and their versions used in your setup (e.g., Library X v1.2.3, Library Y v4.5.6).
           - **Hosting Environment**: Are you running this on a local machine, cloud provider (AWS, Azure, etc.), or other platforms?
           - **Runtime Details**: Specify the runtime environment, such as Docker, Kubernetes, Node.js, etc.
           - **Database Configuration**: Mention the type of database (e.g., SQLite, MariaDB, PostgreSQL) and any relevant configurations.
           - **Storage Details**: Describe the file system or storage setup used (e.g., ext4, NTFS, ZFS, NFS).
           - **Additional Context**: Other context that might affect the issue.
       value: |
+        - Dependencies and Versions:
         - Hosting Environment:
         - Runtime Details:
         - Database Configuration:
