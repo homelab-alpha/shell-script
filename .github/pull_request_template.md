@@ -9,25 +9,15 @@ https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-req
 
 How to Respond to Questions in This Pull Request
 
-1. Carefully read each question in the pull request template.
+1. Carefully read each question in the pull request shell-script.
 2. Provide your answers directly beneath the corresponding section.
 3. Replace the placeholder "..." with your response and remove the ellipsis.
-4. Do not remove the HTML comment tags, as this will break the Pull Request template.
+4. Do not remove the HTML comment tags, as this will break the Pull Request shell-script.
 
 By following this structure helps us maintain clear and organized pull requests,
 making the review process more efficient.
 
 Thank you for contributing! 🙏
-
-
-PS: 🚫 Please Avoid Unnecessary Pings
-
-We kindly ask all contributors to refrain from pinging maintainers unless absolutely
-necessary. Pings should be reserved for critical issues or urgent matters that
-require immediate attention.
-
-Why: Limiting pings to urgent matters helps maintainers focus on and prioritize
-essential tasks more effectively.
 -->
 
 # 🐙 Pull Request Information
@@ -67,22 +57,22 @@ Provide your answer below:
 REQUIRED: Select all options that apply by marking them with an "[x]".
 -->
 
-- [ ] 🐛 Bugfix (a non-breaking change that resolves an issue)
-- [ ] 🎨 User Interface (UI) updates
-- [ ] ✨ New feature (a non-breaking change that adds new functionality)
-- [ ] ⚠️ Breaking change (a change that alters existing functionality in a way that could cause issues)
-- [ ] 📄 New Documentation (addition of new documentation)
-- [ ] 📄 Documentation Update (modification of existing documentation)
-- [ ] 📄 Documentation Update Required (this change requires updates to related documentation)
-- [ ] 🌍 Internationalization (i18n) improvements
-- [ ] 🔧 Other (please specify):
+- [ ] 🐛 Bugfix ( a non-breaking change that resolves an issue )
+- [ ] 🎨 User Interface ( UI ) updates
+- [ ] ✨ New feature ( a non-breaking change that adds new functionality )
+- [ ] ⚠️ Breaking change ( a change that alters existing functionality in a way that could cause issues )
+- [ ] 📄 New Documentation ( addition of new documentation )
+- [ ] 📄 Documentation Update ( modification of existing documentation )
+- [ ] 📄 Documentation Update Required ( this change requires updates to related documentation )
+- [ ] 🌍 Internationalization ( i18n ) improvements
+- [ ] 🔧 Other ( please specify ):
   - Provide additional details here.
 
 ## 🔗 Related Issues
 
 <!--
 OPTIONAL: Reference related GitHub issues or tasks this PR addresses.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 Use proper issue links or numbers, and only include issues directly related to
 this PR. Remove any irrelevant references.
@@ -102,7 +92,7 @@ Provide your answer below:
 
 <!--
 OPTIONAL: Describe any new or updated dependencies.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 - New Dependencies: List new dependencies and their purposes.
 - Updated Dependencies: Summarize any updates to existing dependencies and why
@@ -119,10 +109,10 @@ Provide your answer below:
 
 ...
 
-## 🌍 Internationalization (i18n)
+## 🌍 Internationalization ( i18n )
 
 <!--
-OPTIONAL: Describe any internationalization (i18n) changes made.
+OPTIONAL: Describe any internationalization ( i18n ) changes made.
 NOTE:     Remove this section if not applicable.
 
 - New languages added or removed.
@@ -138,7 +128,7 @@ Provide your answer below:
 
 <!--
 OPTIONAL: Describe your testing approach and steps taken.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 - New Tests: Outline any unit, integration, or end-to-end tests added.
 - Modified Tests: Explain changes to existing test cases.
@@ -154,7 +144,7 @@ Provide your answer below:
 
 <!--
 OPTIONAL: Mention any relevant performance considerations.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 - Have you analyzed the performance impact? If so, explain your findings.
 - Provide benchmarks or profiling results if applicable.
@@ -168,7 +158,7 @@ Provide your answer below:
 
 <!--
 OPTIONAL: Outline any potential security impact and mitigation.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 Does this change introduce or address any security risks? If yes, describe the
 risks and your mitigation approach.
@@ -182,7 +172,7 @@ Provide your answer below:
 
 <!--
 OPTIONAL: Describe deployment-related details.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 - Pre-deployment Steps: List any necessary tasks to perform before deployment.
 - Impact Assessment: Assess the impact of the change on the system.
@@ -215,18 +205,19 @@ Provide your answer below:
 REQUIRED: Select all options that apply by marking them with an "[x]".
 -->
 
-- [ ] 🔍 My code follows the style guidelines of this project.
+- [ ] 🔍 My code follows the [style guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CODE_STYLE_AND_STANDARDS_GUIDES.md) of this project.
 - [ ] ✅ I ran code linters on the modified files.
 - [ ] 🛠️ I have reviewed and tested my code thoroughly.
-- [ ] 📝 I have commented my code, especially in hard-to-understand areas (e.g., using JSDoc for methods).
+- [ ] 📝 I have commented my code, especially in hard-to-understand areas ( e.g., using JSDoc for methods ).
 - [ ] ⚠️ My changes generate no new warnings.
 - [ ] 🧪 I have added automated tests, if required.
-- [ ] 🤖 My code required automated testing, and I have added the necessary tests (optional task).
+- [ ] 🤖 My code required automated testing, and I have added the necessary tests ( optional task ).
 - [ ] 📄 Documentation updates are included in this PR.
 - [ ] 🔒 I have considered potential security impacts and mitigated risks.
-- [ ] 🌍 I have verified that any internationalization (i18n) changes are correct.
+- [ ] 🌍 I have verified that any internationalization ( i18n ) changes are correct.
 - [ ] 🧰 Dependency updates are listed and explained.
 - [ ] 📚 I have read and understood the [Pull Request Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-requests).
+- [ ] ✍️ I have completed the [Author Self-Review Process](https://github.com/homelab-alpha/shell-script/blob/main/.github/review_process_template.md).
 
 ## 📰 Release Notes
 
@@ -246,7 +237,7 @@ Provide your answer below:
 
 <!--
 OPTIONAL: Provide screenshots for visual changes.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 Please upload the image directly here by pasting it or dragging and dropping.
 Avoid using external image services as the image will be uploaded automatically.
@@ -270,7 +261,7 @@ Please upload screenshots directly here.
 
 <!--
 OPTIONAL: Add any other notes or references useful for reviewers.
-NOTE: Remove this section if not applicable.
+NOTE:     Remove this section if not applicable.
 
 - Design decisions or trade-offs made during development.
 - Alternative solutions considered but not implemented.
