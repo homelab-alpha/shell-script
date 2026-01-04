@@ -1,60 +1,77 @@
 # Security Policy
 
+This document outlines the security policy for the `shell-script` repository.
+
+## Supported Branch and Versions
+
+The following versions of this project are currently supported with security
+updates. Users on unsupported branches or versions are strongly encouraged to
+upgrade to the `main` branch and the `latest` stable release to ensure they
+receive security updates.
+
+| Branch         | Supported | Notes                                                                                                                                      |
+| :------------- | :-------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| Main           | Yes       | This is the primary stable branch and receives all security updates.                                                                       |
+| Dev            | No        | This branch is used for active development and may contain unstable code, therefore it does not receive dedicated security updates.        |
+| Other Branches | No        | Any other branches created (e.g., feature branches, release candidates, personal forks) are not officially supported for security updates. |
+
+| Version      | Supported | Notes                                                                                                                                                          |
+| :----------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Latest       | Yes       | The `latest` version refers to the most recently tagged stable release (e.g., v1.0.0, v1.1.0). Only the most current stable release receives security updates. |
+| Above Latest | No        | Versions newer than the latest official release (e.g., prerelease versions or untagged commits) are not officially supported for security updates.             |
+| Below Latest | No        | Older stable versions are not supported. Please upgrade to the `latest` version to receive security patches.                                                   |
+
 ## Reporting a Vulnerability
 
-At Homelab-Alpha, we prioritize the security and integrity of [Homelab-Alpha's
-website] and [Homelab-Alpha's GitHub repositories]. If you discover any security
-vulnerabilities or issues within our shell-script repository, please promptly
-report them to Homelab-Alpha by [creating a new security report]. Your
-assistance in identifying and resolving potential security risks is greatly
-appreciated.
+We appreciate responsible disclosure of vulnerabilities. If you discover a
+security vulnerability in this project, please follow the guidelines below.
 
-## Supported Versions
+**Report the vulnerability privately:** Please report the vulnerability through
+the **GitHub Security Advisory** feature:
+[https://github.com/homelab-alpha/shell-script/security/advisories/new]. Provide as
+many details as possible, including reproduction steps and the potential impact.
 
-We are committed to providing security updates for the following versions:
+**Give us time to respond:** We aim to respond to your report within **72
+hours** and keep you updated on the progress of our investigation. We kindly ask
+you not to disclose the vulnerability publicly until we have had a chance to
+address it, or for a period of **90 days**, whichever comes first, unless
+otherwise agreed upon.
 
-- The latest stable release
-- The previous stable release (if applicable)
+**Collaboration:** We will work with you to understand and resolve the issue.
+Once the issue is resolved, we will acknowledge your contribution.
 
-To ensure the continued security, we strongly advise utilizing one of these
-supported versions and promptly applying any available security patches and
-updates.
+**Confidentiality**: The information you provide in the GitHub Security Advisory
+will initially remain confidential. However, once the vulnerability is
+addressed, the advisory will be publicly disclosed on GitHub.
 
-## Third-Party Dependencies
+**Access and Visibility**: Until the advisory is published, it will only be
+visible to the maintainers of the repository and invited collaborators.
 
-[Homelab-Alpha's website] and [Homelab-Alpha's GitHub repositories] may utilize
-third-party components and dependencies beyond our direct control. While we
-strive to maintain the integrity and security of these dependencies, we cannot
-guarantee their absolute safety. Users are encouraged to conduct their own
-thorough assessments of any third-party.
+**Credit**: You will be automatically credited as a contributor for identifying
+and reporting the vulnerability. Your contribution will be reflected in the
+MITRE Credit System, which is a standardized system for recognizing individuals
+for their cybersecurity contributions.
 
-## Limitation of Liability
+## General Security Guidelines
 
-By utilizing [Homelab-Alpha's website] and [Homelab-Alpha's GitHub
-repositories], you expressly acknowledge and agree that Homelab-Alpha and its
-contributors shall not be held liable for any damages, losses, or security
-breaches arising from the use of [Homelab-Alpha's website] and [Homelab-Alpha's
-GitHub repositories] or related components. This includes, but is not limited
-to, any direct, indirect, incidental, special, or consequential damages, as well
-as any loss of profits, data, or business opportunities.
+- **Dependencies:** Keep all project dependencies up-to-date to minimize known
+  vulnerabilities. We regularly monitor for and apply dependency updates.
+- **Code Review:** New code is reviewed by team members where possible to
+  identify potential security issues before merging into `main`.
+- **Regular Updates:** The repository is updated regularly to ensure the
+  codebases are current and secure. We strive for frequent updates to
+  incorporate the latest security patches and best practices.
+- **No Sensitive Information:** Avoid committing sensitive information (e.g.,
+  API keys, passwords) directly into the repository. Use environment variables
+  or secure configuration management practices instead.
 
-## Indemnification
+## License
 
-You agree to indemnify and hold harmless Homelab-Alpha and its affiliates,
-directors, officers, employees, agents, and contributors from and against any
-claims, liabilities, damages, losses, costs, or expenses (including reasonable
-attorneys' fees) arising from or related to your use of our [Homelab-Alpha's
-website] and [Homelab-Alpha's GitHub repositories], including but not limited to
-any breaches of security, violations of applicable laws or regulations, or
-infringement of third-party rights.
+This project is licensed under the **Creative Commons
+Attribution–NonCommercial–ShareAlike 4.0 (CC BY-NC-SA 4.0)** license. See the
+[LICENSE] file for more details.
 
-## Security Best Practices
+Thank you for helping to keep this project secure!
 
-Users are advised to adhere to security best practices, including but not
-limited to regular software updates, strong password policies, and secure coding
-practices. Homelab-Alpha recommends following these practices to enhance
-deployment security and minimize the risk of breaches or unauthorized access.
-
-[Homelab-Alpha's website]: https://homelab-alpha.nl
-[Homelab-Alpha's GitHub repositories]: https://github.com/homelab-alpha
-[creating a new security report]: https://github.com/homelab-alpha/shell-script/issues/new?assignees=homelab-alpha&labels=security&projects=&template=security_report.yml
+[https://github.com/homelab-alpha/shell-script/security/advisories/new]: https://github.com/homelab-alpha/shell-script/security/advisories/new
+[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE.md

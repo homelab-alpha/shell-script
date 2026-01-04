@@ -1,32 +1,16 @@
 ---
-name: 🚀 Feature Request
-description: |
-  Propose a new feature or improvement for this repository.
-# title: "[FR]: "
 labels: ["feature request", "P4: negligible"]
-# projects: ["exemple/1", "exemple/2"]
-assignees:
-  - homelab-alpha
 body:
-  - type: markdown
-    attributes:
-      value: |
-        **🚫 Please Avoid Unnecessary Pings**
-
-        We kindly ask all contributors to refrain from pinging maintainers unless absolutely necessary. Pings should be reserved for critical issues or urgent matters that require immediate attention.
-
-        **Why**: Limiting pings to urgent matters helps maintainers focus on and prioritize essential tasks more effectively.
-
   - type: textarea
     id: related-issues
     validations:
       required: true
     attributes:
-      label: 🔍 Have you found any related issues or pull requests?
+      label: 🔍 Have you found any related feature request or pull requests?
       description: |
-        Check if this feature has already been reported. Use the following links for **[ISSUES](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc)** and **[PULL REQUESTS](https://github.com/homelab-alpha/shell-script/pulls?q=is%3Apr+sort%3Acreated-desc+)**. to search for related feature requests, and explain the differences, or indicate if you couldn't find any related issues.
+        Check if this feature has already been reported. Use the following links for **[FEATURE REQUESTS](https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request?discussions_q=category%3A%22Feature+Request%22+sort%3Atop)** and **[PULL REQUESTS](https://github.com/homelab-alpha/shell-script/pulls?q=is%3Apr+sort%3Acreated-desc+)**. to search for related feature requests, and explain the differences, or indicate if you couldn't find any related issues.
       placeholder: |
-        e.g., This is related to #issue-number and/or #pr-number, which also affects the ... system. These issues should not be merged due to ...
+        e.g., This is related to #feature-request-number and/or #pr-number, which also affects the ... system. These issues should not be merged due to ...
 
   - type: textarea
     id: feature-summary
