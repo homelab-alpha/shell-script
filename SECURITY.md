@@ -9,17 +9,17 @@ updates. Users on unsupported branches or versions are strongly encouraged to
 upgrade to the `main` branch and the `latest` stable release to ensure they
 receive security updates.
 
-| Branch         | Supported | Notes                                                                                                                                      |
-| :------------- | :-------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
-| Main           | Yes       | This is the primary stable branch and receives all security updates.                                                                       |
-| Dev            | No        | This branch is used for active development and may contain unstable code, therefore it does not receive dedicated security updates.        |
-| Other Branches | No        | Any other branches created (e.g., feature branches, release candidates, personal forks) are not officially supported for security updates. |
+|     Branch     | Supported | Notes                                                                                                                                      |
+| :------------: | :-------: | :----------------------------------------------------------------------------------------------------------------------------------------- |
+|      Main      |    Yes    | This is the primary stable branch and receives all security updates.                                                                       |
+|      Dev       |    No     | This branch is used for active development and may contain unstable code, therefore it does not receive dedicated security updates.        |
+| Other Branches |    No     | Any other branches created (e.g., feature branches, release candidates, personal forks) are not officially supported for security updates. |
 
-| Version      | Supported | Notes                                                                                                                                                          |
-| :----------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Latest       | Yes       | The `latest` version refers to the most recently tagged stable release (e.g., v1.0.0, v1.1.0). Only the most current stable release receives security updates. |
-| Above Latest | No        | Versions newer than the latest official release (e.g., prerelease versions or untagged commits) are not officially supported for security updates.             |
-| Below Latest | No        | Older stable versions are not supported. Please upgrade to the `latest` version to receive security patches.                                                   |
+|   Version    | Supported | Notes                                                                                                                                                          |
+| :----------: | :-------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|    Latest    |    Yes    | The `latest` version refers to the most recently tagged stable release (e.g., v1.0.0, v1.1.0). Only the most current stable release receives security updates. |
+| Above Latest |    No     | Versions newer than the latest official release (e.g., prerelease versions or untagged commits) are not officially supported for security updates.             |
+| Below Latest |    No     | Older stable versions are not supported. Please upgrade to the `latest` version to receive security patches.                                                   |
 
 ## Reporting a Vulnerability
 
@@ -28,8 +28,9 @@ security vulnerability in this project, please follow the guidelines below.
 
 **Report the vulnerability privately:** Please report the vulnerability through
 the **GitHub Security Advisory** feature:
-[https://github.com/homelab-alpha/shell-script/security/advisories/new]. Provide as
-many details as possible, including reproduction steps and the potential impact.
+[https://github.com/homelab-alpha/shell-script/security/advisories/new]. Provide
+as many details as possible, including reproduction steps and the potential
+impact.
 
 **Give us time to respond:** We aim to respond to your report within **72
 hours** and keep you updated on the progress of our investigation. We kindly ask
