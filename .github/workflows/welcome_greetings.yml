@@ -48,14 +48,14 @@ jobs:
 
             ### 🔍 Before requesting a review, please make sure that:
 
-            - 📝 All relevant documentation is updated
-            - 🧪 All necessary tests are included and passing
-            - ✅ CI/CD workflows complete successfully
+            - 📝 All relevant documentation is updated.
+            - 🧪 All necessary tests are included and passing.
+            - ✅ CI/CD workflows complete successfully.
 
-            💡 **Still working on changes?** Please mark your pull request as **Draft**
-            until it’s ready. Once everything is complete, mark it as **Ready for review**.
+            💡 **Still working on changes?** Please mark your pull request as **Draft** until it’s ready.
+            Once everything is complete, mark it as **Ready for review**.
 
-            If you have any questions about the design or contribution process, feel free to
-            ask them right here in this pull request — unclear documentation is a bug too! 😉
+            If you have any questions about the design or contribution process,
+            feel free to ask them right here in this pull request — unclear documentation is a bug too! 😉
 
             Thank you again for your time and effort. We’re looking forward to reviewing your pull request! 🙌
