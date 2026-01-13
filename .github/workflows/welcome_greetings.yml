@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   greetings:
-    name: Welcome New Contributors
+    name: Welcome Contributors
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
             [Contribution Guidelines]: https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md
 
           pr_message: |
-            ## 👋 Hello, and thank you for your contribution! 🎉
+            ## 👋 Hello there, and thank you for your contribution! 🎉
 
             We appreciate your pull request — your support helps the project grow! 🚀
             Our team will review your submission as soon as possible.
