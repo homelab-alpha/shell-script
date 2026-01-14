@@ -11,7 +11,7 @@ contact_links:
     url: https://github.com/homelab-alpha/shell-script/discussions/categories/feedback
     about: We value your input! Share your thoughts and suggestions to help us improve and enhance your experience with this project.
   - name: 💬 General Discussion
-    url: https://github.com/homelab-alpha/shell-script/discussions/categories/general-discussion
+    url: https://github.com/homelab-alpha/homelab-alpha/discussions/categories/general-discussion
     about: This is the place for all off-topic conversations! Chat about anything and everything let's keep it friendly and fun.
   - name: ❓ Help & Support
     url: https://github.com/homelab-alpha/shell-script/discussions/categories/help-support
