@@ -32,7 +32,6 @@ jobs:
       - name: Super Linter
         uses: super-linter/super-linter@v8.3.2
         env:
-          BASH_SEVERITY: warning
           VALIDATE_BASH: true
           VALIDATE_BASH_EXEC: true
           VALIDATE_CHECKOV: true
@@ -45,5 +44,4 @@ jobs:
           VALIDATE_PRE_COMMIT: true
           VALIDATE_RENOVATE: true
           VALIDATE_YAML: true
-          FIX_ENV: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
