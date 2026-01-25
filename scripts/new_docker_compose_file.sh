@@ -39,7 +39,7 @@ display_message() {
 }
 
 display_message "What is the name of the new Docker container:"
-read container_name
+read -r container_name
 
 # Validate container name
 if [[ ! "$container_name" =~ ^[a-zA-Z0-9_-]+$ ]]; then
