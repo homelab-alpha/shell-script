@@ -6,11 +6,19 @@ MD013:
   line_length: 80,
   code_block_line_length: 120,
   tables: false
+MD024: false
+MD025: false
 MD026:
   punctuation: ".,;:!。，；:"
+MD028: false
 MD029: false
 MD033: false
 MD036: false
-MD041: false
+MD046: false
+MD049: false
+MD050: false
+MD051: false
+MD053: false
+MD060: false
 blank_lines: false
 no-hard-tabs: false
