@@ -1,7 +1,0 @@
----
-enable-secret-scan-all-files: true
-framework:
-  - secrets
-quiet: true
-skip-path:
-summary-position: bottom

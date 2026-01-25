@@ -1,4 +1,0 @@
-[MASTER]
-
-# Use multiple processes to speed up Pylint.
-jobs=0

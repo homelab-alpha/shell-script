@@ -1,6 +1,0 @@
-cache-dir = "/tmp/.ruff_cache"
-
-line-length = 120
-
-[lint]
-ignore = ["E203"]

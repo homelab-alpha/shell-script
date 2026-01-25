@@ -1,4 +1,0 @@
----
-lint:
-  rules:
-    all_default: false
