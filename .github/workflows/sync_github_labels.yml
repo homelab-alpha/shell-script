@@ -1,0 +1,29 @@
+---
+name: Sync GitHub Labels
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout labels config
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          sparse-checkout: |
+            .github/labels.yml
+
+      - name: Sync GitHub labels
+        uses: EndBug/label-sync@v2.3.3
+        with:
+          config-file: .github/labels.yml
+          delete-other-labels: true
+          dry-run: false
+          token: ${{ secrets.GITHUB_TOKEN }}
