@@ -1,0 +1,275 @@
+- name: "a11y"
+  color: "4caf50"
+  description: "Accessibility-related issues or improvements"
+
+- name: "auto-merge"
+  color: "1e8b1e"
+  description: "Automerge only if this label is applied"
+
+- name: "backlog"
+  color: "ffcc00"
+  description: "Issue or PR planned but not yet addressed"
+
+- name: "blocked"
+  color: "d50000"
+  description: "The issue or PR is blocked"
+
+- name: "blocked upstream"
+  color: "d50000"
+  description: "Blocked by upstream dependencies"
+
+- name: "breaking change"
+  color: "f44336"
+  description: "Indicates a change that will break backward compatibility"
+
+- name: "bug"
+  color: "d50000"
+  description: "Something isn't working"
+
+- name: "cannot reproduce"
+  color: "ff5722"
+  description: "Issue couldn't be reproduced"
+
+- name: "ci/cd"
+  color: "00bcd4"
+  description: "Issues related to Continuous Integration/Delivery"
+
+- name: "code quality"
+  color: "607d8b"
+  description: "Issues related to code quality, such as linting or style violations"
+
+- name: "conversation lock"
+  color: "f44336"
+  description: "The conversation has been locked (no further comments allowed)"
+
+- name: "dependencies"
+  color: "8bc34a"
+  description: "Pull requests that update a dependency file"
+
+- name: "deprecated"
+  color: "9e9e9e"
+  description: "Functionality marked as outdated or unsupported"
+
+- name: "dev"
+  color: "ffa500"
+  description: "Updates related to devDependencies (development-only changes)"
+
+- name: "discussion"
+  color: "ff9800"
+  description: "For discussions or brainstorming"
+
+- name: "discussion required"
+  color: "ff5722"
+  description: "For issues or PRs requiring further discussion before action"
+
+- name: "documentation"
+  color: "607d8b"
+  description: "Improvements or additions to documentation"
+
+- name: "duplicate"
+  color: "9e9e9e"
+  description: "This issue or pull request already exists"
+
+- name: "enhancement"
+  color: "00bcd4"
+  description: "New feature or request"
+
+- name: "external"
+  color: "9c27b0"
+  description: "Issues involving third-party tools, services, or external APIs"
+
+- name: "faq"
+  color: "4caf50"
+  description: "Explore Answers to Frequently Asked Questions with Homelab-Alpha"
+
+- name: "feature parity"
+  color: "00bcd4"
+  description: "Ensuring feature consistency across platforms or versions"
+
+- name: "feature request"
+  color: "00bcd4"
+  description: "Request for a new feature"
+
+- name: "fix"
+  color: "4caf50"
+  description: "Represents a fix for a specific issue or bug."
+
+- name: "github-actions"
+  color: "4caf50"
+  description: "Automate, customize, and execute your software development"
+
+- name: "good first issue"
+  color: "2196f3"
+  description: "Good for newcomers"
+
+- name: "help"
+  color: "9c27b0"
+  description: "Extra attention is needed"
+
+- name: "help wanted"
+  color: "ff9800"
+  description: "May need your help to test or answer"
+
+- name: "in progress"
+  color: "ff9800"
+  description: "Work is actively being done"
+
+- name: "in review"
+  color: "3f51b5"
+  description: "Ready for code review"
+
+- name: "integration"
+  color: "009688"
+  description: "Issues related to system integration or third-party services"
+
+- name: "invalid"
+  color: "f44336"
+  description: "This doesn't seem right"
+
+- name: "invalid format"
+  color: "f44336"
+  description: "The issue is not in the correct format"
+
+- name: "localized"
+  color: "ff9800"
+  description: "Localization or translation-related tasks"
+
+- name: "major"
+  color: "d32f2f"
+  description: "Significant changes, often breaking backward compatibility"
+
+- name: "migration"
+  color: "9c27b0"
+  description: "Related to system or data migration"
+
+- name: "minor"
+  color: "4caf50"
+  description: "Small, non-breaking enhancements or features"
+
+- name: "needs design"
+  color: "673ab7"
+  description: "Requires a design before proceeding"
+
+- name: "needs input"
+  color: "ff5722"
+  description: "External input or information is needed"
+
+- name: "needs testing"
+  color: "009688"
+  description: "Requires additional testing"
+
+- name: "P0: critical"
+  color: "d32f2f"
+  description: "Critical issue, needs immediate attention"
+
+- name: "P1: high"
+  color: "f57c00"
+  description: "High priority issue"
+
+- name: "P2: moderate"
+  color: "1976d2"
+  description: "Moderate priority issue"
+
+- name: "P3: low"
+  color: "388e3c"
+  description: "Low priority issue"
+
+- name: "P4: negligible"
+  color: "0288d1"
+  description: "Negligible priority issue"
+
+- name: "patch"
+  color: "2196f3"
+  description: "Bug fixes or minor corrections, no new features"
+
+- name: "performance"
+  color: "ff9800"
+  description: "Related to performance issues or improvements"
+
+- name: "performance regression"
+  color: "f57c00"
+  description: "Issues where performance has decreased in newer versions"
+
+- name: "PR: depends on other"
+  color: "8bc34a"
+  description: "Depends on another PR"
+
+- name: "PR: needs review"
+  color: "3f51b5"
+  description: "PR is ready for review"
+
+- name: "PR: please address review comments"
+  color: "f44336"
+  description: "PR needs changes based on review"
+
+- name: "PR: please resolve merge conflict"
+  color: "e91e63"
+  description: "PR has merge conflicts"
+
+- name: "pull request"
+  color: "2196f3"
+  description: "Issues related to pull requests"
+
+- name: "question"
+  color: "ffeb3b"
+  description: "Further information is requested"
+
+- name: "question-answered"
+  color: "8bc34a"
+  description: "Question has been answered"
+
+- name: "refactor"
+  color: "8e24aa"
+  description: "Code restructuring without changing functionality"
+
+- name: "release"
+  color: "2196f3"
+  description: "Issues related to a release"
+
+- name: "releaseblocker"
+  color: "d32f2f"
+  description: "Blocker for a release"
+
+- name: "revert"
+  color: "607d8b"
+  description: "Proposed change to undo previous work"
+
+- name: "security"
+  color: "d32f2f"
+  description: "Security-related issue or concern"
+
+- name: "security vulnerability"
+  color: "e91e63"
+  description: "Security-related vulnerabilities"
+
+- name: "spam"
+  color: "9e9e9e"
+  description: "Identified as spam"
+
+- name: "stale"
+  color: "9e9e9e"
+  description: "Issue is stale, no activity in a while"
+
+- name: "test failures"
+  color: "f44336"
+  description: "Issues related to failing tests"
+
+- name: "triage"
+  color: "ff5722"
+  description: "Needs further analysis or assessment"
+
+- name: "under development"
+  color: "ffa500"
+  description: "Currently being worked on or in active development"
+
+- name: "user error"
+  color: "8bc34a"
+  description: "Caused by user error, not a bug"
+
+- name: "wontfix"
+  color: "9e9e9e"
+  description: "This will not be worked on"
+
+- name: "YANKED"
+  color: "9e9e9e"
+  description: "Indicates a release or dependency has been withdrawn and should not be used"
