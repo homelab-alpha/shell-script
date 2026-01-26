@@ -98,6 +98,10 @@
   color: "4caf50"
   description: "Automate, customize, and execute your software development"
 
+- name: "go-mod"
+  color: "6A076D"
+  description: "Including its dependencies on other modules"
+
 - name: "good first issue"
   color: "2196f3"
   description: "Good for newcomers"
