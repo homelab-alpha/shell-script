@@ -2,6 +2,12 @@
 name: Sync GitHub Labels
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/labels.yml
+
   workflow_dispatch:
 
 permissions:
@@ -9,19 +15,21 @@ permissions:
   issues: write
 
 jobs:
-  sync-labels:
+  synching:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout labels config
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.2
+
         with:
           fetch-depth: 1
           sparse-checkout: |
             .github/labels.yml
 
-      - name: Sync GitHub labels
+      - name: Synchronize GitHub labels
         uses: EndBug/label-sync@v2.3.3
+
         with:
           config-file: .github/labels.yml
           delete-other-labels: true
