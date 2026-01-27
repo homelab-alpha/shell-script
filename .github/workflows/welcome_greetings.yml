@@ -1,15 +1,16 @@
+---
 name: Welcome Greetings
 
 on:
   issues:
     types:
       - opened
+
   pull_request:
     branches:
       - main
     types:
       - opened
-  workflow_dispatch:
 
 permissions:
   issues: write
@@ -17,14 +18,13 @@ permissions:
 
 jobs:
   greetings:
-    name: Welcome Contributors
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/first-interaction@v3.1.0
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Welcome Contributors
+        uses: actions/first-interaction@v3.1.0
 
+        with:
           issue_message: |
             ## 👋 Hello there, and welcome!
 
@@ -59,3 +59,5 @@ jobs:
             feel free to ask them right here in this pull request — unclear documentation is a bug too! 😉
 
             Thank you again for your time and effort. We’re looking forward to reviewing your pull request! 🙌
+
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
