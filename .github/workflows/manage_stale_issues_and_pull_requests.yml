@@ -1,5 +1,5 @@
 ---
-name: Repository Management
+name: Manage Stale Issues and Pull Requests
 
 on:
   schedule:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   stale:
-    name: Manage Issues and Pull Requests
+    name: Manage issues and pull requests
     runs-on: ubuntu-latest
 
     steps:
