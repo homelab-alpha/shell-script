@@ -37,13 +37,22 @@ jobs:
       - name: Convert new Pull Request to draft
         if: |
           github.event_name == 'pull_request' &&
-          github.event.action == 'opened' &&
-          github.event.pull_request.draft == false
+          github.event.action == 'opened'
 
         run: |
           echo "New Pull Request opened; converting Pull Request to draft…"
-          gh pr ready "$PR_NUMBER" --repo "$REPO" --undo
-          gh pr edit "$PR_NUMBER" --repo "$REPO" --add-label "$LABEL_IN_PROGRESS"
+          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft')
+
+          if [ "$IS_DRAFT" = "false" ]; then
+            echo "Converting PR to draft…"
+            gh pr ready "$PR_NUMBER" --repo "$REPO" --undo
+          else
+            echo "PR already draft; skipping."
+          fi
+
+          echo "Updating labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --add-label "$LABEL_IN_PROGRESS"
 
       - name: Handle changes requested (set PR to draft)
         if: |
