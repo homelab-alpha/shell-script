@@ -106,6 +106,10 @@
   color: "2196f3"
   description: "Good for newcomers"
 
+- name: "has external feedback"
+  color: "2196f3"
+  description: "External review feedback is present on this pull request"
+
 - name: "help"
   color: "9c27b0"
   description: "Extra attention is needed"
