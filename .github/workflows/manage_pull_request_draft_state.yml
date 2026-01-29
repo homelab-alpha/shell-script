@@ -7,6 +7,7 @@ on:
       - opened
       - ready_for_review
       - labeled
+      - closed
 
   pull_request_review:
     types:
@@ -112,3 +113,17 @@ jobs:
             --remove-label "$LABEL_FIX_REQUESTED" \
             --remove-label "$LABEL_IN_PROGRESS" \
             --add-label "$LABEL_NEEDS_REVIEW" || true
+
+      - name: Handle merged Pull Request (cleanup labels)
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+
+        run: |
+          echo "Pull Request merged; cleaning up labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" || true
