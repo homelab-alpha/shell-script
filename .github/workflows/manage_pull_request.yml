@@ -1,5 +1,5 @@
 ---
-name: Manage Pull Request draft state
+name: Manage Pull Requests
 
 on:
   pull_request:
@@ -22,8 +22,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  manage-state:
+  manage:
     runs-on: ubuntu-latest
+
+    if: >-
+      (
+        github.event_name == 'pull_request' &&
+        !endsWith(github.event.pull_request.user.login, '[bot]') &&
+        !contains(fromJSON('["jane-doe","john-doe"]'), github.event.pull_request.user.login)
+      ) ||
+      (
+        github.event_name == 'pull_request_review' &&
+        !endsWith(github.actor, '[bot]') &&
+        !contains(fromJSON('["jane-doe","john-doe"]'), github.actor)
+      )
 
     env:
       GITHUB_TOKEN: ${{ github.token }}
