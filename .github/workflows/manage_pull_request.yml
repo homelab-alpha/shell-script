@@ -1,0 +1,311 @@
+---
+name: Manage Pull Requests
+
+on:
+  pull_request:
+    types:
+      - closed
+      - labeled
+      - opened
+      - ready_for_review
+      - reopened
+
+  pull_request_review:
+    types:
+      - submitted
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  manage:
+    runs-on: ubuntu-latest
+
+    if: >-
+      (
+        github.event_name == 'pull_request' &&
+        !endsWith(github.event.pull_request.user.login, '[bot]') &&
+        !contains(fromJSON('["jane-doe","john-doe"]'), github.event.pull_request.user.login)
+      ) ||
+      (
+        github.event_name == 'pull_request_review' &&
+        !endsWith(github.actor, '[bot]') &&
+        !contains(fromJSON('["jane-doe","john-doe"]'), github.actor)
+      )
+
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      REPO: ${{ github.repository }}
+      LABEL_BACKLOG: "backlog"
+      LABEL_EXTERNAL_FEEDBACK: "external feedback"
+      LABEL_FIX_REQUESTED: "PR: please address review comments"
+      LABEL_IN_PROGRESS: "in progress"
+      LABEL_NEEDS_REVIEW: "PR: needs review"
+      LABEL_P3_LOW: "P3: low"
+      LABEL_REOPEN: "reopen"
+      LABEL_WONTFIX: "wontfix"
+
+    steps:
+      - name: Ensure Pull Request is draft
+        if: |
+          (
+            github.event_name == 'pull_request' &&
+            (
+              github.event.action == 'opened' ||
+              github.event.action == 'reopened' ||
+              (
+                github.event.action == 'labeled' &&
+                github.event.label.name == 'PR: please address review comments'
+              )
+            )
+          ) ||
+          (
+            github.event_name == 'pull_request_review' &&
+            github.event.review.state == 'changes_requested' &&
+            (
+              github.event.review.author_association == 'MEMBER' ||
+              github.event.review.author_association == 'OWNER'
+            )
+          )
+
+        run: |
+          echo "Ensuring Pull Request is in draft state…"
+          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft')
+
+          if [ "$IS_DRAFT" = "false" ]; then
+            echo "Converting PR to draft…"
+            gh pr ready "$PR_NUMBER" --repo "$REPO" --undo
+          else
+            echo "PR already draft; skipping."
+          fi
+
+      - name: Handle new Pull Request
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'opened'
+
+        run: |
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_IN_PROGRESS" || true
+
+      - name: Handle reopened Pull Request
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'reopened'
+
+        run: |
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_IN_PROGRESS" \
+            --add-label "$LABEL_REOPEN" || true
+
+      - name: Handle changes requested
+        if: |
+          (
+            github.event_name == 'pull_request' &&
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'PR: please address review comments'
+          ) ||
+
+          (
+            github.event_name == 'pull_request_review' &&
+            github.event.review.state == 'changes_requested' &&
+            (
+              github.event.review.author_association == 'MEMBER' ||
+              github.event.review.author_association == 'OWNER'
+            )
+          )
+
+        run: |
+          echo "Updating labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_FIX_REQUESTED" \
+            --add-label "$LABEL_IN_PROGRESS" || true
+
+      - name: Handle external review (non-maintainers)
+        if: |
+          github.event_name == 'pull_request_review' &&
+          github.event.review.state == 'changes_requested' &&
+          github.event.review.author_association != 'MEMBER' &&
+          github.event.review.author_association != 'OWNER'
+
+        run: |
+          echo "External reviewer requested changes; adding informational label…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_EXTERNAL_FEEDBACK" || true
+
+      - name: Handle ready for review
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'ready_for_review'
+
+        run: |
+          echo "Pull Request marked ready for review; updating labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_NEEDS_REVIEW" || true
+
+      - name: Handle backlog label
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'backlog'
+
+        run: |
+          echo "PR labeled with 'backlog'; evaluating Pull Request state…"
+
+          echo "Updating labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_BACKLOG" \
+            --add-label "$LABEL_P3_LOW" || true
+
+          echo "Adding backlog message to PR…"
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "
+          ## 🗂️ This PR has been added to the backlog
+
+          This pull request has been labeled as **'backlog'** and will be reviewed and prioritized at a later time.
+
+          ### ⏳ What happens next
+
+          - We’ll revisit this PR when it comes up in the backlog prioritization.
+          - Feel free to follow up with any new information or context as needed.
+
+          💬 If you think this PR should be prioritized sooner, feel free to comment with any updates or feedback.
+
+          Thanks for your patience and for contributing to the project! 🙏
+          "
+
+      - name: Handle wontfix label
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'wontfix'
+
+        run: |
+          echo "PR labeled with 'wontfix'; evaluating Pull Request state…"
+
+          echo "Updating labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --add-label "$LABEL_WONTFIX" || true
+
+          echo "Closing PR and adding 'wontfix' comment: notifying contributor…"
+          gh pr close "$PR_NUMBER" --repo "$REPO" --delete-branch --comment "
+          ## 🚫 This PR has been marked as 'wontfix'
+
+          Unfortunately, this PR will not be pursued any further.
+
+          We truly appreciate your contribution, and we hope to collaborate with you on future improvements! 🙏
+
+          Thanks for understanding!
+          "
+
+      - name: Handle unmerged Pull Request (cleanup labels)
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == false
+
+        run: |
+          echo "Cleaning up all labels for unmerged Pull Request..."
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_REOPEN" \
+            --remove-label "$LABEL_WONTFIX" || true
+
+          echo "Adding unmerged message to PR…"
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "
+          ## ❌ Pull request closed (not merged)
+
+          This pull request has been closed without being merged.
+
+          🧹 To keep things tidy, we’ve removed any workflow and status labels associated with this PR.
+
+          ### 💡 Want to continue?
+
+          - Feel free to reopen this pull request if you plan to continue the work, or
+          - Open a new PR when you’re ready with updated changes or context
+
+          Thanks for the time and effort you put into this contribution — we appreciate it! 🙌
+          "
+
+      - name: Handle merged Pull Request (cleanup labels)
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true
+
+        run: |
+          echo "Pull Request merged; cleaning up labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_REOPEN" \
+            --remove-label "$LABEL_WONTFIX" || true
+
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body "
+            ## ✅ Pull request merged
+
+            Great news — this pull request has been successfully merged! 🎉
+
+            🧹 As part of the cleanup, we’ve removed workflow and status labels that are no longer needed.
+
+            ### 🙌 Thank you for contributing
+
+            Your effort helps keep the project moving forward and improving.
+            We really appreciate the time and care you put into this change!
+
+            Looking forward to your next contribution 🚀
+            "

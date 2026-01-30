@@ -106,6 +106,10 @@
   color: "2196f3"
   description: "Good for newcomers"
 
+- name: "external feedback"
+  color: "2196f3"
+  description: "This pull request has feedback from an external reviewer."
+
 - name: "help"
   color: "9c27b0"
   description: "Extra attention is needed"
@@ -233,6 +237,10 @@
 - name: "releaseblocker"
   color: "d32f2f"
   description: "Blocker for a release"
+
+- name: "reopen"
+  color: "ff5722"
+  description: "Pull requests has been reopened after being closed"
 
 - name: "revert"
   color: "607d8b"
