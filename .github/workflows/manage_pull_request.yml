@@ -41,7 +41,7 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       REPO: ${{ github.repository }}
-      LABEL_EXTERNAL_FEEDBACK: 'has external feedback'
+      LABEL_EXTERNAL_FEEDBACK: 'external feedback'
       LABEL_FIX_REQUESTED: 'PR: please address review comments'
       LABEL_IN_PROGRESS: 'in progress'
       LABEL_NEEDS_REVIEW: 'PR: needs review'
@@ -125,6 +125,20 @@ jobs:
             --remove-label "$LABEL_FIX_REQUESTED" \
             --remove-label "$LABEL_IN_PROGRESS" \
             --add-label "$LABEL_NEEDS_REVIEW" || true
+
+      - name: Handle unmerged Pull Request (cleanup labels)
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == false
+
+        run: |
+          echo "Cleaning up all labels for unmerged Pull Request..."
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" || true
 
       - name: Handle merged Pull Request (cleanup labels)
         if: |
