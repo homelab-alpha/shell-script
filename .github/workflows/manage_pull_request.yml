@@ -4,10 +4,11 @@ name: Manage Pull Requests
 on:
   pull_request:
     types:
+      - closed
+      - labeled
       - opened
       - ready_for_review
-      - labeled
-      - closed
+      - reopened
 
   pull_request_review:
     types:
@@ -45,6 +46,7 @@ jobs:
       LABEL_FIX_REQUESTED: 'PR: please address review comments'
       LABEL_IN_PROGRESS: 'in progress'
       LABEL_NEEDS_REVIEW: 'PR: needs review'
+      LABEL_REOPEN: 'reopen'
 
     steps:
       - name: Convert new Pull Request to draft
@@ -66,6 +68,27 @@ jobs:
           echo "Updating labels…"
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
             --add-label "$LABEL_IN_PROGRESS"
+
+      - name: Convert reopened Pull Request to draft
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'reopened'
+
+        run: |
+          echo "Pull Request reopened; converting Pull Request to draft…"
+          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft')
+
+          if [ "$IS_DRAFT" = "false" ]; then
+            echo "Converting PR to draft…"
+            gh pr ready "$PR_NUMBER" --repo "$REPO" --undo
+          else
+            echo "PR already draft; skipping."
+          fi
+
+          echo "Updating labels…"
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --add-label "$LABEL_IN_PROGRESS" \
+            --add-label "$LABEL_REOPEN"
 
       - name: Handle changes requested (set PR to draft)
         if: |
@@ -101,7 +124,6 @@ jobs:
             --add-label "$LABEL_IN_PROGRESS" \
             --remove-label "$LABEL_NEEDS_REVIEW" || true
 
-
       - name: Handle external review feedback (non-maintainers)
         if: |
           github.event_name == 'pull_request_review' &&
@@ -121,7 +143,6 @@ jobs:
         run: |
           echo "Pull Request marked ready for review; updating labels…"
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
-            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
             --remove-label "$LABEL_FIX_REQUESTED" \
             --remove-label "$LABEL_IN_PROGRESS" \
             --add-label "$LABEL_NEEDS_REVIEW" || true
@@ -135,6 +156,7 @@ jobs:
         run: |
           echo "Cleaning up all labels for unmerged Pull Request..."
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_REOPEN" \
             --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
             --remove-label "$LABEL_FIX_REQUESTED" \
             --remove-label "$LABEL_IN_PROGRESS" \
@@ -149,6 +171,7 @@ jobs:
         run: |
           echo "Pull Request merged; cleaning up labels…"
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_REOPEN" \
             --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
             --remove-label "$LABEL_FIX_REQUESTED" \
             --remove-label "$LABEL_IN_PROGRESS" \
