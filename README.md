@@ -1,6 +1,6 @@
 # Shell Script
 
-[![Super Linter](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml)
+[![Linting](https://github.com/homelab-alpha/shell-script/actions/workflows/linting.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/linting.yml)
 [![Last commit](https://img.shields.io/github/last-commit/homelab-alpha/shell-script?style=flat&logo=github&logoColor=96a1a9&label=Last%20commit&labelColor=313A41&color=3955CD&cacheSeconds=3600)](https://github.com/homelab-alpha/shell-script/commits/main/)
 [![Repo Size](https://img.shields.io/github/repo-size/homelab-alpha/shell-script?style=flat&logo=github&logoColor=96a1a9&label=Repo%20size&labelColor=313A41&color=3955CD&cacheSeconds=3600)](https://github.com/homelab-alpha/shell-script/tree/main?tab=readme-ov-file#shell-script)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-313A41?style=flat&logo=contributorcovenant&logoColor=96a1a9&&labelColor=313A41&color=3955CD)](https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md)
