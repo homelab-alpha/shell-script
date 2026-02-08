@@ -94,6 +94,10 @@
   color: "4caf50"
   description: "Represents a fix for a specific issue or bug."
 
+- name: "followed up"
+  color: "03a9f4"
+  description: "A follow-up comment has been posted and the issue or PR is awaiting a response"
+
 - name: "github-actions"
   color: "4caf50"
   description: "Automate, customize, and execute your software development"
