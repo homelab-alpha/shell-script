@@ -1,0 +1,271 @@
+---
+name: 🕵️ Manage Unreproducible Issues
+
+on:
+  issues:
+    types:
+      - edited
+      - labeled
+      - reopened
+
+  issue_comment:
+    types:
+      - created
+      - edited
+
+  schedule:
+    - cron: "0 3 * * 0"
+
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "Run in test mode (no changes will be made)"
+        required: true
+        default: false
+        type: boolean
+      wait_days:
+        description: "Days to wait before requesting more input"
+        required: true
+        default: 0
+        type: number
+      close_after_days:
+        description: "Days after needs input before closing"
+        required: true
+        default: 7
+        type: number
+
+permissions:
+  issues: write
+
+concurrency:
+  group: unreproducible-${{ github.run_id || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  scan_and_cleanup:
+    name: 🔍 Detect and Handle Unreproducible Issues
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      TEST_MODE: ${{ github.event.inputs.test_mode || 'false' }}
+      WAIT_DAYS: ${{ github.event.inputs.wait_days || '0' }}
+      CLOSE_AFTER_DAYS: ${{ github.event.inputs.close_after_days || '7' }}
+
+      LABEL_CANNOT_REPRODUCE: "cannot reproduce"
+      LABEL_NEEDS_INPUT: "needs input"
+
+      CHECKING_MSG: |
+        ## 🔍 Unable to reproduce this issue
+
+        We haven’t been able to reproduce this issue so far.
+
+        ### 🧪 How you can help
+
+        - Provide **exact reproduction steps**
+        - Include **logs, screenshots, or sample data**
+        - Share your **environment and version**
+
+        ⏳ If we don’t receive additional information within **$CLOSE_AFTER_DAYS days**, this issue may be closed automatically.
+
+        Thanks for helping us investigate! 🙌
+
+      CLOSE_MSG: |
+        ## 🚫 Issue closed due to missing information
+
+        We haven’t received the additional information needed to reproduce this issue,
+        so we’re closing it for now.
+
+        💡 If you can still reproduce this problem, feel free to reopen the issue
+        with clear steps and relevant details — we’ll gladly take another look.
+
+        Thanks for reporting this! 🙌
+
+    steps:
+      - name: 🏁 Initialize environment
+        run: |
+          echo "::notice title=Initialization::🚀 Starting unreproducible issue scan"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: $REPO"
+          echo "Test Mode: $TEST_MODE"
+          echo "::endgroup::"
+
+      - name: 🔍 Scan unreproducible issues
+        id: scan
+        if: |
+          github.event_name == 'schedule' ||
+          github.event_name == 'workflow_dispatch' ||
+          github.event_name == 'labeled'
+        run: |
+          set -e
+
+          echo "::group::🔍 API Query & Configuration"
+          echo "Wait days: $WAIT_DAYS"
+          echo "Close after days: $CLOSE_AFTER_DAYS"
+
+          issues=$(gh search issues \
+            --repo "$REPO" \
+            --state open \
+            --label "$LABEL_CANNOT_REPRODUCE" \
+            --json number,updatedAt,labels,isLocked) || {
+              echo "::error title=Scan failed::❌ Failed to fetch issues from GitHub API"
+              exit 1
+            }
+          echo "::endgroup::"
+
+          now=$(date +%s)
+          WAIT_SECONDS=$(( WAIT_DAYS * 86400 ))
+          CLOSE_SECONDS=$(( CLOSE_AFTER_DAYS * 86400 ))
+
+          needs_input_added=0
+          closed=0
+          skipped=0
+
+          echo "::group::📝 Processing issues"
+          while read -r issue; do
+            [ -z "$issue" ] && continue
+
+            number=$(echo "$issue" | jq -r '.number')
+            updated_at=$(echo "$issue" | jq -r '.updatedAt')
+            locked=$(echo "$issue" | jq -r '.isLocked')
+            has_needs_input=$(echo "$issue" | jq -r '.labels | any(.name == "'"$LABEL_NEEDS_INPUT"'")')
+
+            if [ "$locked" = "true" ]; then
+              echo "::debug::Skipping #$number - Issue is locked"
+              skipped=$((skipped+1))
+              continue
+            fi
+
+            updated=$(date -d "$updated_at" +%s)
+            diff=$(( now - updated ))
+
+            if [ "$has_needs_input" = "false" ]; then
+              if [ "$diff" -ge "$WAIT_SECONDS" ]; then
+                echo "::notice title=Detection::🔍 Requesting more information on issue #$number"
+                if [ "$TEST_MODE" != "true" ]; then
+                  gh issue edit "$number" --repo "$REPO" --add-label "$LABEL_NEEDS_INPUT"
+                  echo -e "$CHECKING_MSG" | envsubst | gh issue comment "$number" --repo "$REPO" --body-file -
+                fi
+                needs_input_added=$((needs_input_added+1))
+              fi
+            else
+              if [ "$diff" -ge "$CLOSE_SECONDS" ]; then
+                echo "::notice title=Cleanup::🗑️ Closing issue #$number"
+                if [ "$TEST_MODE" != "true" ]; then
+                  gh issue close "$number" --repo "$REPO" --comment "$(echo -e "$CLOSE_MSG")"
+                fi
+                closed=$((closed+1))
+              fi
+            fi
+          done < <(echo "$issues" | jq -c '.[]')
+          echo "::endgroup::"
+
+          {
+            echo "needs_input_added=$needs_input_added"
+            echo "closed=$closed"
+            echo "skipped=$skipped"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+          SCAN_STATUS="${{ steps.scan.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🔍 Unreproducible Issues Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+          | Metric | Value | Result |
+          | :--- | :--- | :--- |
+          | ℹ️ Needs input requested | ${{ steps.scan.outputs.needs_input_added || 0 }} | $SCAN_STATUS |
+          | 🗑️ Issues closed | ${{ steps.scan.outputs.closed || 0 }} | $SCAN_STATUS |
+          | ⏭️ Issues skipped | ${{ steps.scan.outputs.skipped || 0 }} | $SCAN_STATUS |
+
+          ### ⚙️ Runtime Configuration
+          - **Test Mode:** $TEST_MODE
+          - **Wait Threshold:** $WAIT_DAYS days
+          - **Close Threshold:** $CLOSE_AFTER_DAYS days
+          - **Target Label:** \`$LABEL_CANNOT_REPRODUCE\`
+
+          ### 🧩 Notes
+          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+          echo "::endgroup::"
+
+  reset_on_activity:
+    name: 🔄 Remove Needs Input on Activity
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]') &&
+      github.event.issue.state == 'open' &&
+      (
+      github.event_name == 'issues' ||
+      github.event_name == 'issue_comment'
+      )
+
+    permissions:
+      issues: write
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+
+      LABEL_CANNOT_REPRODUCE: "cannot reproduce"
+      LABEL_NEEDS_INPUT: "needs input"
+
+    steps:
+      - name: 🔍 Detect activity and update labels
+        id: reset_label
+        run: |
+          echo "::group::🔍 Labels Analysis"
+          labels=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name') || {
+              echo "::error title=Fetch failed::❌ Failed to fetch issue labels for #$ISSUE_NUMBER"
+              exit 1
+            }
+          echo "Current labels: $labels"
+          echo "::endgroup::"
+
+          if echo "$labels" | grep -Fxq "$LABEL_CANNOT_REPRODUCE" && \
+             echo "$labels" | grep -Fxq "$LABEL_NEEDS_INPUT"; then
+            echo "::notice title=Label Update::🧹 Removing '$LABEL_NEEDS_INPUT' from #$ISSUE_NUMBER"
+            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "$LABEL_NEEDS_INPUT" || {
+                echo "::error title=Removal failed::❌ Failed to remove label from #$ISSUE_NUMBER"
+                exit 1
+              }
+            echo "reset_performed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::debug::Criteria not met for label removal"
+            echo "reset_performed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+          RESET_STATUS="${{ steps.reset_label.outputs.reset_performed == 'true' && '🧹 Label Removed' || 'ℹ️ No Action' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🔄 Activity Reset Summary
+
+          ### 📈 Execution Results
+          | Target | Action | Result |
+          | :--- | :--- | :--- |
+          | 🎫 Issue #$ISSUE_NUMBER | Activity Check | $RESET_STATUS |
+
+          ### 🧩 Context
+          - Triggered by: **${{ github.actor }}**
+          - Event: **${{ github.event_name }}**
+          - Status: ✅ Success
+          EOF
+          echo "::endgroup::"

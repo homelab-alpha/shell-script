@@ -1,0 +1,237 @@
+---
+name: 🤖 Issue Automation
+
+on:
+  issues:
+    types:
+      - closed
+      - labeled
+      - opened
+      - reopened
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: issue-${{ github.run_id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  issue-automation:
+    name: ℹ️ Automate issue management
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      ISSUE_NUMBER: ${{ github.event.issue.number }}
+
+      LABEL_BACKLOG: "backlog"
+      LABEL_BUG: "bug"
+      LABEL_DUPLICATE: "duplicate"
+      LABEL_FEATURE_REQUEST: "feature request"
+      LABEL_P0_CRITICAL: "P0: critical"
+      LABEL_P1_HIGH: "P1: high"
+      LABEL_P2_MODERATE: "P2: moderate"
+      LABEL_P3_LOW: "P3: low"
+      LABEL_P4_NEGLEGIBLE: "P4: negligible"
+      LABEL_REOPEN: "reopen"
+      LABEL_SECURITY_VULNERABILITY: "security vulnerability"
+      LABEL_SECURITY: "security"
+      LABEL_WONTFIX: "wontfix"
+
+      NEW_ISSUE_MSG: |
+        ## 👋 Hey there, and welcome!
+
+        Thanks for opening an issue — we're excited to have you involved! 🎉
+        Before we dive into the details, please take a moment to review the following:
+
+        - 📘 **[Code of Conduct]**.
+        - 🛠️ **[Contribution Guidelines]**.
+
+        These resources help us maintain a healthy community and ensure smooth collaboration.
+
+        We truly appreciate your time and effort — thank you for helping improve this project! 🙌
+
+        [Code of Conduct]: https://github.com/homelab-alpha/template/blob/main/CODE_OF_CONDUCT.md
+        [Contribution Guidelines]: https://github.com/homelab-alpha/template/blob/main/CONTRIBUTING.md
+
+      BACKLOG_MSG: |
+        ## 🗂️ This issue has been moved to the backlog
+
+        The issue has been labeled as **'backlog'** and will be reviewed in a future prioritization session.
+
+        ### ⏳ What happens next:
+
+        - We will revisit this issue during the next backlog prioritization process.
+        - If you have new information or context, feel free to update the issue.
+
+        💬 If you believe this issue should be prioritized sooner, please let us know — we’re happy to revisit it!
+
+        Thank you for your patience and contribution! 🙏
+
+      WONTFIX_MSG: |
+        ## 🚫 This issue has been marked as 'wontfix'
+
+        Unfortunately, we won't be pursuing this issue further at this time.
+
+        We truly appreciate your contribution, and we hope to collaborate again in the future! 🙏
+
+        Thank you for your understanding! 💙
+
+    steps:
+      - name: 🏁 Initialize workflow and context
+        run: |
+          echo "::notice title=Workflow started::🚀 Processing issue #$ISSUE_NUMBER"
+          echo "::group::ℹ️ Context"
+          echo "Event: ${{ github.event.action }}"
+          echo "Issue: #$ISSUE_NUMBER"
+          echo "Repository: $REPO"
+          echo "::endgroup::"
+
+      - name: ✉️ Post welcome message to new issues
+        id: welcome_step
+        if: |
+          github.event_name == 'issues' &&
+          github.event.action == 'opened'
+        run: |
+          set -e
+          echo "::notice title=Issue opened::ℹ️ Posting welcome message"
+
+          if ! gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "$NEW_ISSUE_MSG"; then
+            echo "::error title=Comment failed::❌ Unable to post welcome message to issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+
+      - name: 🏷️ Apply reopen label to issue
+        id: reopen_step
+        if: |
+          github.event_name == 'issues' &&
+          github.event.action == 'reopened'
+        run: |
+          set -e
+          echo "::notice title=Issue reopened::ℹ️ Applying reopen label"
+
+          if ! gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "$LABEL_REOPEN"; then
+            echo "::error title=Label failed::❌ Unable to apply reopen label to issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+
+      - name: 🔄 Update backlog labels and notify
+        id: backlog_step
+        if: |
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'backlog'
+        run: |
+          set -e
+          echo "::notice title=Backlog::ℹ️ Updating labels and notifying contributor"
+
+          echo "::group::🧹 Modifying labels"
+          if ! gh issue edit "$ISSUE_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_P0_CRITICAL" \
+            --remove-label "$LABEL_P1_HIGH" \
+            --remove-label "$LABEL_P2_MODERATE" \
+            --remove-label "$LABEL_P4_NEGLEGIBLE" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_BACKLOG" \
+            --add-label "$LABEL_P3_LOW"; then
+            echo "::error title=Label update failed::❌ Unable to update backlog labels for issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+          if ! gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "$BACKLOG_MSG"; then
+            echo "::error title=Comment failed::❌ Unable to notify backlog status for issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+
+      - name: ❌ Close wontfix issue and clean labels
+        id: wontfix_step
+        if: |
+          github.event_name == 'issues' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'wontfix'
+        run: |
+          set -e
+          echo "::notice title=Wontfix::❌ Closing issue"
+
+          echo "::group::🧹 Modifying labels"
+          if ! gh issue edit "$ISSUE_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_P0_CRITICAL" \
+            --remove-label "$LABEL_P1_HIGH" \
+            --remove-label "$LABEL_P2_MODERATE" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_P4_NEGLEGIBLE" \
+            --add-label "$LABEL_WONTFIX"; then
+            echo "::error title=Label update failed::❌ Unable to update labels for issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+          if ! gh issue close "$ISSUE_NUMBER" --repo "$REPO" --reason "not planned" --comment "$WONTFIX_MSG"; then
+            echo "::error title=Close failed::❌ Unable to close issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+
+      - name: 🧹 Remove priority labels on close
+        id: cleanup_step
+        if: |
+          github.event_name == 'issues' &&
+          github.event.action == 'closed'
+        run: |
+          set -e
+          echo "::notice title=Issue closed::🧹 Cleaning up labels"
+
+          echo "::group::🔍 Removal details"
+          if ! gh issue edit "$ISSUE_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_P0_CRITICAL" \
+            --remove-label "$LABEL_P1_HIGH" \
+            --remove-label "$LABEL_P2_MODERATE" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_P4_NEGLEGIBLE"; then
+            echo "::error title=Cleanup failed::❌ Unable to clean up labels for issue #$ISSUE_NUMBER"
+            exit 1
+          fi
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📝 Generating summary report"
+
+          FINAL_STATUS="${{ job.status == 'success' && '✅ Success' || '❌ Failed' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🤖 Issue Automation Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+          | Metric | Detail |
+          | :--- | :--- |
+          | 🎯 **Event Action** | \`${{ github.event.action }}\` |
+          | 🆔 **Issue Target** | #$ISSUE_NUMBER |
+          | 📂 **Repository** | $REPO |
+          | 🚥 **Final Status** | $FINAL_STATUS |
+
+          ### 🧩 Step Outcomes
+          - Welcome Message: ${{ steps.welcome_step.outcome || '⏭️ Skipped' }}
+          - Reopen Label: ${{ steps.reopen_step.outcome || '⏭️ Skipped' }}
+          - Backlog Update: ${{ steps.backlog_step.outcome || '⏭️ Skipped' }}
+          - Wontfix Handling: ${{ steps.wontfix_step.outcome || '⏭️ Skipped' }}
+          - Priority Cleanup: ${{ steps.cleanup_step.outcome || '⏭️ Skipped' }}
+
+          ---
+          *Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*
+          EOF
+
+          echo "::endgroup::"
