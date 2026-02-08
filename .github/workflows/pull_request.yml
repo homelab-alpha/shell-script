@@ -1,0 +1,496 @@
+---
+name: 🤖 Pull Request Automation
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - closed
+      - edited
+      - labeled
+      - opened
+      - ready_for_review
+      - reopened
+      - synchronize
+
+  pull_request_review:
+    types:
+      - submitted
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: pr-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  pr-automation:
+    name: ℹ️ Pull Request Automation
+    runs-on: ubuntu-latest
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      LABEL_BACKLOG: "backlog"
+      LABEL_EXTERNAL_FEEDBACK: "external feedback"
+      LABEL_FIX_REQUESTED: "PR: please address review comments"
+      LABEL_IN_PROGRESS: "in progress"
+      LABEL_NEEDS_REVIEW: "PR: needs review"
+      LABEL_P3_LOW: "P3: low"
+      LABEL_REOPEN: "reopen"
+      LABEL_STALE: "stale"
+      LABEL_WONTFIX: "wontfix"
+
+      NEW_PULL_REQUEST_MSG: |
+        ## 👋 Hey there, and thanks for your contribution! 🎉
+
+        We appreciate your pull request — your support helps the project grow! 🚀
+        Our team will review your submission as soon as possible.
+
+        Before we proceed, please take a moment to check the following:
+
+        - 📘 **[Code of Conduct]**.
+        - 🛠️ **[Contribution Guidelines]**.
+
+        ### 🔍 To help streamline the review, please make sure:
+
+        - 📝 All relevant documentation is up-to-date.
+        - 🧪 All required tests are added and passing.
+        - ✅ CI/CD checks have passed successfully.
+
+        ### 💡 Still working on your changes?
+
+        No worries! This pull request remains in **Draft** until you're ready.
+        Once everything is ready for review, just mark it as **Ready for review**.
+
+        If you have any questions or if anything is unclear, feel free to ask right here — unclear documentation is a bug too! 😉
+
+        Thanks again for your time and effort. We can’t wait to review your changes! 🙌
+
+        [Code of Conduct]: https://github.com/homelab-alpha/template/blob/main/CODE_OF_CONDUCT.md
+        [Contribution Guidelines]: https://github.com/homelab-alpha/template/blob/main/CONTRIBUTING.md
+
+      VALIDATE_PULL_REQUEST_TITLE_MSG: |
+        ## ❌ Pull Request Title Invalid
+
+        The title of this pull request does not follow the [Conventional Commits] format.
+
+        **Please update the title** to follow the format: \<type\>(\<scope\>): \<description\>
+
+        ### Examples:
+
+        - feat(auth): add login functionality
+        - fix(button): correct border-radius
+        - chore(deps): update dependency versions
+
+        Once updated, the title will be validated again.
+
+        [Conventional Commits]: https://www.conventionalcommits.org/en/v1.0.0/
+
+      BACKLOG_MSG: |
+        ## 🗂️ This Pull Request has been added to the backlog
+
+        This pull request has been labeled as **'backlog'** and will be reviewed and prioritized at a later time.
+
+        ### ⏳ What happens next
+
+        - We’ll revisit this Pull Request when it comes up in the backlog prioritization.
+        - Feel free to follow up with any new information or context as needed.
+
+        💬 If you think this Pull Request should be prioritized sooner, feel free to comment with any updates or feedback.
+
+        Thanks for your patience and for contributing to the project! 🙏
+
+      WONTFIX_MSG: |
+        ## 🚫 This Pull Request has been marked as 'wontfix'
+
+        Unfortunately, this Pull Request will not be pursued any further.
+
+        We truly appreciate your contribution, and we hope to collaborate with you on future improvements! 🙏
+
+        Thanks for understanding!
+
+      UNMERGED_PULL_REQUEST_MSG: |
+        ## ❌ Pull request closed (not merged)
+
+        This pull request has been closed without being merged.
+
+        🧹 To keep things tidy, we’ve removed any workflow and status labels associated with this Pull Request.
+
+        ### 💡 Want to continue?
+
+        - Feel free to reopen this pull request if you plan to continue the work, or
+        - Open a new Pull Request when you’re ready with updated changes or context
+
+        Thanks for the time and effort you put into this contribution — we appreciate it! 🙌
+
+      MERGED_PULL_REQUEST_MSG: |
+        ## ✅ Pull request merged
+
+        Great news — this pull request has been successfully merged! 🎉
+
+        🧹 As part of the cleanup, we’ve removed workflow and status labels that are no longer needed.
+
+        ### 🙌 Thank you for contributing
+
+        Your effort helps keep the project moving forward and improving.
+        We really appreciate the time and care you put into this change!
+
+        Looking forward to your next contribution 🚀
+
+    steps:
+      - name: 🏁 Initialize workflow context
+        run: |
+          echo "::notice title=Workflow started::🤖 Automation triggered for PR #$PR_NUMBER"
+          echo "::group::ℹ️ Context Analysis"
+          echo "Event: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "Pull Request: #$PR_NUMBER"
+          echo "Repository: $REPO"
+          echo "Actor: ${{ github.actor }}"
+          echo "::endgroup::"
+
+      - name: 🔍 Check and revert to draft if necessary
+        if: |
+          (
+            github.event_name == 'pull_request' &&
+            (
+              github.event.action == 'opened' ||
+              github.event.action == 'reopened' ||
+              (
+                github.event.action == 'labeled' &&
+                github.event.label.name == 'PR: please address review comments'
+              )
+            )
+          ) ||
+          (
+            github.event_name == 'pull_request_review' &&
+            github.event.review.state == 'changes_requested' &&
+            (
+              github.event.review.author_association == 'MEMBER' ||
+              github.event.review.author_association == 'OWNER'
+            )
+          )
+        run: |
+          set -e
+          echo "::group::🔍 Draft status check"
+
+          IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft') || {
+            echo "::error title=Draft check failed::❌ Unable to retrieve draft status for PR #$PR_NUMBER"
+            exit 1
+          }
+
+          if [ "$IS_DRAFT" = "false" ]; then
+            gh pr ready "$PR_NUMBER" --repo "$REPO" --undo || {
+              echo "::error title=Draft revert failed::❌ Unable to convert PR #$PR_NUMBER back to draft"
+              exit 1
+            }
+            echo "::notice::ℹ️ Pull request reverted to draft"
+            echo "action_taken=Converted to draft" >> "$GITHUB_ENV"
+          else
+            echo "::notice::ℹ️ Pull request already in draft"
+            echo "action_taken=No change (already draft)" >> "$GITHUB_ENV"
+          fi
+          echo "::endgroup::"
+
+      - name: 🛠️ Setup new pull request
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'opened'
+        run: |
+          set -e
+          echo "::group::ℹ️ New PR handling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_IN_PROGRESS" || {
+              echo "::error title=Label update failed::❌ Could not update labels for new PR #$PR_NUMBER"
+              exit 1
+            }
+
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$NEW_PULL_REQUEST_MSG" || {
+             echo "::error title=Comment failed::❌ Could not post welcome comment to PR #$PR_NUMBER"
+             exit 1
+          }
+
+          echo "::notice::✅ New pull request initialized"
+          echo "action_taken=Initialized new PR" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: 🔄 Update reopened pull request
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'reopened'
+        run: |
+          set -e
+          echo "::group::ℹ️ Reopened PR handling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_IN_PROGRESS" \
+            --add-label "$LABEL_REOPEN" || {
+              echo "::error title=Label update failed::❌ Could not update labels for reopened PR #$PR_NUMBER"
+              exit 1
+            }
+
+          echo "::notice::ℹ️ Pull request reopened"
+          echo "action_taken=Processed reopened PR" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: 🔍 Validate pull request title
+        if: |
+          github.event_name == 'pull_request' &&
+          (
+            github.event.action == 'opened' ||
+            github.event.action == 'edited' ||
+            github.event.action == 'synchronize'
+          )
+        run: |
+          set -e
+          echo "::group::🔍 PR title validation"
+
+          PR_TITLE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json title -q '.title') || {
+            echo "::error title=Title fetch failed::❌ Unable to read PR title for #$PR_NUMBER"
+            exit 1
+          }
+
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9\-]+\))?:\ [A-Za-z].* ]]; then
+            echo "::error title=Invalid Pull Request Title::❌ PR #$PR_NUMBER does not follow Conventional Commits format"
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$VALIDATE_PULL_REQUEST_TITLE_MSG"
+            exit 1
+          fi
+
+          echo "::notice::✅ Pull request title is valid"
+          echo "action_taken=Validated PR title" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: ⚠️ Update status to changes requested
+        if: |
+          (
+            (
+              github.event_name == 'pull_request' &&
+              github.event.action == 'labeled' &&
+              github.event.label.name == 'PR: please address review comments'
+            ) ||
+            (
+              github.event_name == 'pull_request_review' &&
+              github.event.review.state == 'changes_requested' &&
+              (
+                github.event.review.author_association == 'MEMBER' ||
+                github.event.review.author_association == 'OWNER'
+              )
+            )
+          )
+        run: |
+          set -e
+          echo "::group::⚠️ Changes requested handling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_STALE" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_FIX_REQUESTED" \
+            --add-label "$LABEL_IN_PROGRESS" || {
+              echo "::error title=Label update failed::❌ Could not update labels for changes requested on PR #$PR_NUMBER"
+              exit 1
+            }
+
+          echo "::notice::⚠️ Changes requested by reviewer"
+          echo "action_taken=Labeled as fix requested" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: 🔍 Label external review feedback
+        if: |
+          github.event_name == 'pull_request_review' &&
+          github.event.review.state == 'changes_requested' &&
+          github.event.review.author_association != 'MEMBER' &&
+          github.event.review.author_association != 'OWNER'
+        run: |
+          set -e
+          echo "::group::🔍 External review handling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_STALE" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_EXTERNAL_FEEDBACK" || {
+              echo "::error title=Label update failed::❌ Could not update labels for external review on PR #$PR_NUMBER"
+              exit 1
+            }
+
+          echo "::notice::ℹ️ External feedback requested"
+          echo "action_taken=Labeled for external feedback" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: ✅ Mark ready for review
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'ready_for_review'
+        run: |
+          set -e
+          echo "::group::✅ Ready for review handling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_STALE" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_NEEDS_REVIEW" || {
+              echo "::error title=Label update failed::❌ Could not update labels for ready status on PR #$PR_NUMBER"
+              exit 1
+            }
+
+          echo "::notice::✅ Pull request ready for review"
+          echo "action_taken=Marked ready for review" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: 🧹 Move to backlog
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'backlog'
+        run: |
+          set -e
+          echo "::group::🧹 Backlog labeling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_STALE" \
+            --remove-label "$LABEL_WONTFIX" \
+            --add-label "$LABEL_BACKLOG" \
+            --add-label "$LABEL_P3_LOW" || {
+              echo "::error title=Label update failed::❌ Could not move PR #$PR_NUMBER to backlog"
+              exit 1
+            }
+
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$BACKLOG_MSG"
+          echo "::notice::ℹ️ Pull request moved to backlog"
+          echo "action_taken=Moved to backlog" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: 🗑️ Delete and perform wontfix actions
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'wontfix'
+        run: |
+          set -e
+          echo "::group::🗑️ Wontfix handling"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_STALE" \
+            --add-label "$LABEL_WONTFIX" || {
+              echo "::error title=Label update failed::❌ Could not update labels for wontfix on PR #$PR_NUMBER"
+              exit 1
+            }
+
+          gh pr close "$PR_NUMBER" --repo "$REPO" --delete-branch --comment "$WONTFIX_MSG" || {
+            echo "::error title=Close failed::❌ Could not close PR #$PR_NUMBER as wontfix"
+            exit 1
+          }
+
+          echo "::notice::❌ Pull request closed as wontfix"
+          echo "action_taken=Closed as wontfix" >> "$GITHUB_ENV"
+          echo "::endgroup::"
+
+      - name: 🧹 Clean up labels on close
+        if: |
+          github.event_name == 'pull_request' &&
+          github.event.action == 'closed'
+        run: |
+          set -e
+          echo "::group::🧹 Final cleanup"
+
+          gh pr edit "$PR_NUMBER" --repo "$REPO" \
+            --remove-label "$LABEL_BACKLOG" \
+            --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
+            --remove-label "$LABEL_FIX_REQUESTED" \
+            --remove-label "$LABEL_IN_PROGRESS" \
+            --remove-label "$LABEL_NEEDS_REVIEW" \
+            --remove-label "$LABEL_P3_LOW" \
+            --remove-label "$LABEL_REOPEN" \
+            --remove-label "$LABEL_STALE" \
+            --remove-label "$LABEL_WONTFIX" || {
+              echo "::error title=Cleanup failed::❌ Could not remove labels on close for PR #$PR_NUMBER"
+              exit 1
+            }
+
+          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$MERGED_PULL_REQUEST_MSG"
+            echo "action_taken=Cleaned up after merge" >> "$GITHUB_ENV"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$UNMERGED_PULL_REQUEST_MSG"
+            echo "action_taken=Cleaned up after unmerged close" >> "$GITHUB_ENV"
+          fi
+
+          echo "::notice::🧹 Cleanup completed"
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+          JOB_STATUS_EMOJI="${{ job.status == 'success' && '✅' || '❌' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🤖 Pull Request Automation Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+          | Metric | Value |
+          | :--- | :--- |
+          | **Status** | $JOB_STATUS_EMOJI ${{ job.status }} |
+          | **Action Taken** | ${action_taken:-No state change required} |
+          | **PR Number** | #$PR_NUMBER |
+
+          ### ⚙️ Runtime Configuration
+          - **Trigger Event:** ${{ github.event_name }}
+          - **Event Action:** ${{ github.event.action }}
+          - **Repository:** $REPO
+
+          ### 🧩 Workflow Details
+          - [View Run Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - [View Pull Request](${{ github.event.pull_request.html_url || format('{0}/{1}/pull/{2}', github.server_url, github.repository, env.PR_NUMBER) }})
+          EOF
+          echo "::endgroup::"
