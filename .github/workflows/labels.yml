@@ -38,7 +38,7 @@ jobs:
       REPO: ${{ github.repository }}
       LABELS_FILE: .github/labels.yml
       DRY_RUN: >-
-        ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'true' }}
+        ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
 
     steps:
       - name: 🏁 Notify start of process
