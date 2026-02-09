@@ -59,9 +59,11 @@ jobs:
               echo "The following variables were loaded:"
               echo "$VARIABLES"
               echo "Environment loaded successfully."
+
             else
               echo "::notice title=No Active Configuration::super_linter.env contains no active variables."
             fi
+
           else
             echo "::warning title=Environment Missing::No .github/super_linter.env file found."
           fi

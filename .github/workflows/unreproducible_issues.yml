@@ -18,8 +18,8 @@ on:
 
   workflow_dispatch:
     inputs:
-      test_mode:
-        description: "Run in test mode (no changes will be made)"
+      dry_run:
+        description: "Run in dry-run mode (no changes will be made)"
         required: true
         default: false
         type: boolean
@@ -53,7 +53,8 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-      TEST_MODE: ${{ github.event.inputs.test_mode || 'false' }}
+
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
       WAIT_DAYS: ${{ github.event.inputs.wait_days || '0' }}
       CLOSE_AFTER_DAYS: ${{ github.event.inputs.close_after_days || '7' }}
 
@@ -92,7 +93,7 @@ jobs:
           echo "::notice title=Initialization::🚀 Starting unreproducible issue scan"
           echo "::group::ℹ️ Execution context"
           echo "Repository: $REPO"
-          echo "Test Mode: $TEST_MODE"
+          echo "Dry Run: $DRY_RUN"
           echo "::endgroup::"
 
       - name: 🔍 Scan unreproducible issues
@@ -116,6 +117,7 @@ jobs:
               echo "::error title=Scan failed::❌ Failed to fetch issues from GitHub API"
               exit 1
             }
+
           echo "::endgroup::"
 
           now=$(date +%s)
@@ -127,6 +129,7 @@ jobs:
           skipped=0
 
           echo "::group::📝 Processing issues"
+
           while read -r issue; do
             [ -z "$issue" ] && continue
 
@@ -137,6 +140,7 @@ jobs:
 
             if [ "$locked" = "true" ]; then
               echo "::debug::Skipping #$number - Issue is locked"
+
               skipped=$((skipped+1))
               continue
             fi
@@ -147,22 +151,28 @@ jobs:
             if [ "$has_needs_input" = "false" ]; then
               if [ "$diff" -ge "$WAIT_SECONDS" ]; then
                 echo "::notice title=Detection::🔍 Requesting more information on issue #$number"
-                if [ "$TEST_MODE" != "true" ]; then
+
+                if [ "$DRY_RUN" != "true" ]; then
                   gh issue edit "$number" --repo "$REPO" --add-label "$LABEL_NEEDS_INPUT"
+
                   echo -e "$CHECKING_MSG" | envsubst | gh issue comment "$number" --repo "$REPO" --body-file -
                 fi
+
                 needs_input_added=$((needs_input_added+1))
               fi
             else
               if [ "$diff" -ge "$CLOSE_SECONDS" ]; then
                 echo "::notice title=Cleanup::🗑️ Closing issue #$number"
-                if [ "$TEST_MODE" != "true" ]; then
+
+                if [ "$DRY_RUN" != "true" ]; then
                   gh issue close "$number" --repo "$REPO" --comment "$(echo -e "$CLOSE_MSG")"
                 fi
+
                 closed=$((closed+1))
               fi
             fi
           done < <(echo "$issues" | jq -c '.[]')
+
           echo "::endgroup::"
 
           {
@@ -175,6 +185,7 @@ jobs:
         if: always()
         run: |
           echo "::group::📊 Generating Summary Report"
+
           SCAN_STATUS="${{ steps.scan.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
@@ -183,6 +194,7 @@ jobs:
           Execution completed at: $(date -u)
 
           ### 📈 Execution Results
+
           | Metric | Value | Result |
           | :--- | :--- | :--- |
           | ℹ️ Needs input requested | ${{ steps.scan.outputs.needs_input_added || 0 }} | $SCAN_STATUS |
@@ -190,14 +202,17 @@ jobs:
           | ⏭️ Issues skipped | ${{ steps.scan.outputs.skipped || 0 }} | $SCAN_STATUS |
 
           ### ⚙️ Runtime Configuration
-          - **Test Mode:** $TEST_MODE
+
+          - **Dry Run:** $DRY_RUN
           - **Wait Threshold:** $WAIT_DAYS days
           - **Close Threshold:** $CLOSE_AFTER_DAYS days
           - **Target Label:** \`$LABEL_CANNOT_REPRODUCE\`
 
           ### 🧩 Notes
+
           - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
+
           echo "::endgroup::"
 
   reset_on_activity:
@@ -229,21 +244,29 @@ jobs:
         id: reset_label
         run: |
           echo "::group::🔍 Labels Analysis"
+
           labels=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name') || {
+
               echo "::error title=Fetch failed::❌ Failed to fetch issue labels for #$ISSUE_NUMBER"
               exit 1
             }
+
           echo "Current labels: $labels"
           echo "::endgroup::"
 
           if echo "$labels" | grep -Fxq "$LABEL_CANNOT_REPRODUCE" && \
              echo "$labels" | grep -Fxq "$LABEL_NEEDS_INPUT"; then
+
             echo "::notice title=Label Update::🧹 Removing '$LABEL_NEEDS_INPUT' from #$ISSUE_NUMBER"
+
             gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "$LABEL_NEEDS_INPUT" || {
+
                 echo "::error title=Removal failed::❌ Failed to remove label from #$ISSUE_NUMBER"
                 exit 1
               }
+
             echo "reset_performed=true" >> "$GITHUB_OUTPUT"
+
           else
             echo "::debug::Criteria not met for label removal"
             echo "reset_performed=false" >> "$GITHUB_OUTPUT"
@@ -253,19 +276,23 @@ jobs:
         if: always()
         run: |
           echo "::group::📊 Generating Summary Report"
+
           RESET_STATUS="${{ steps.reset_label.outputs.reset_performed == 'true' && '🧹 Label Removed' || 'ℹ️ No Action' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🔄 Activity Reset Summary
 
           ### 📈 Execution Results
+
           | Target | Action | Result |
           | :--- | :--- | :--- |
           | 🎫 Issue #$ISSUE_NUMBER | Activity Check | $RESET_STATUS |
 
           ### 🧩 Context
+
           - Triggered by: **${{ github.actor }}**
           - Event: **${{ github.event_name }}**
           - Status: ✅ Success
           EOF
+
           echo "::endgroup::"

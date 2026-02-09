@@ -78,8 +78,8 @@ jobs:
 
         Thanks again for your time and effort. We can’t wait to review your changes! 🙌
 
-        [Code of Conduct]: https://github.com/homelab-alpha/template/blob/main/CODE_OF_CONDUCT.md
-        [Contribution Guidelines]: https://github.com/homelab-alpha/template/blob/main/CONTRIBUTING.md
+        [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
+        [Contribution Guidelines]: https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md
 
       VALIDATE_PULL_REQUEST_TITLE_MSG: |
         ## ❌ Pull Request Title Invalid
@@ -187,21 +187,26 @@ jobs:
           echo "::group::🔍 Draft status check"
 
           IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft') || {
+
             echo "::error title=Draft check failed::❌ Unable to retrieve draft status for PR #$PR_NUMBER"
             exit 1
           }
 
           if [ "$IS_DRAFT" = "false" ]; then
             gh pr ready "$PR_NUMBER" --repo "$REPO" --undo || {
+
               echo "::error title=Draft revert failed::❌ Unable to convert PR #$PR_NUMBER back to draft"
               exit 1
             }
+
             echo "::notice::ℹ️ Pull request reverted to draft"
             echo "action_taken=Converted to draft" >> "$GITHUB_ENV"
+
           else
             echo "::notice::ℹ️ Pull request already in draft"
             echo "action_taken=No change (already draft)" >> "$GITHUB_ENV"
           fi
+
           echo "::endgroup::"
 
       - name: 🛠️ Setup new pull request
@@ -220,13 +225,15 @@ jobs:
             --remove-label "$LABEL_P3_LOW" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_IN_PROGRESS" || {
+
               echo "::error title=Label update failed::❌ Could not update labels for new PR #$PR_NUMBER"
               exit 1
             }
 
           gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$NEW_PULL_REQUEST_MSG" || {
-             echo "::error title=Comment failed::❌ Could not post welcome comment to PR #$PR_NUMBER"
-             exit 1
+
+            echo "::error title=Comment failed::❌ Could not post welcome comment to PR #$PR_NUMBER"
+            exit 1
           }
 
           echo "::notice::✅ New pull request initialized"
@@ -250,6 +257,7 @@ jobs:
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_IN_PROGRESS" \
             --add-label "$LABEL_REOPEN" || {
+
               echo "::error title=Label update failed::❌ Could not update labels for reopened PR #$PR_NUMBER"
               exit 1
             }
@@ -271,12 +279,14 @@ jobs:
           echo "::group::🔍 PR title validation"
 
           PR_TITLE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json title -q '.title') || {
+
             echo "::error title=Title fetch failed::❌ Unable to read PR title for #$PR_NUMBER"
             exit 1
           }
 
           if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9\-]+\))?:\ [A-Za-z].* ]]; then
             echo "::error title=Invalid Pull Request Title::❌ PR #$PR_NUMBER does not follow Conventional Commits format"
+
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$VALIDATE_PULL_REQUEST_TITLE_MSG"
             exit 1
           fi
@@ -315,6 +325,7 @@ jobs:
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_FIX_REQUESTED" \
             --add-label "$LABEL_IN_PROGRESS" || {
+
               echo "::error title=Label update failed::❌ Could not update labels for changes requested on PR #$PR_NUMBER"
               exit 1
             }
@@ -342,6 +353,7 @@ jobs:
             --remove-label "$LABEL_STALE" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_EXTERNAL_FEEDBACK" || {
+
               echo "::error title=Label update failed::❌ Could not update labels for external review on PR #$PR_NUMBER"
               exit 1
             }
@@ -367,6 +379,7 @@ jobs:
             --remove-label "$LABEL_STALE" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_NEEDS_REVIEW" || {
+
               echo "::error title=Label update failed::❌ Could not update labels for ready status on PR #$PR_NUMBER"
               exit 1
             }
@@ -393,11 +406,13 @@ jobs:
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_BACKLOG" \
             --add-label "$LABEL_P3_LOW" || {
+
               echo "::error title=Label update failed::❌ Could not move PR #$PR_NUMBER to backlog"
               exit 1
             }
 
           gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$BACKLOG_MSG"
+
           echo "::notice::ℹ️ Pull request moved to backlog"
           echo "action_taken=Moved to backlog" >> "$GITHUB_ENV"
           echo "::endgroup::"
@@ -420,11 +435,13 @@ jobs:
             --remove-label "$LABEL_P3_LOW" \
             --remove-label "$LABEL_STALE" \
             --add-label "$LABEL_WONTFIX" || {
+
               echo "::error title=Label update failed::❌ Could not update labels for wontfix on PR #$PR_NUMBER"
               exit 1
             }
 
           gh pr close "$PR_NUMBER" --repo "$REPO" --delete-branch --comment "$WONTFIX_MSG" || {
+
             echo "::error title=Close failed::❌ Could not close PR #$PR_NUMBER as wontfix"
             exit 1
           }
@@ -451,15 +468,19 @@ jobs:
             --remove-label "$LABEL_REOPEN" \
             --remove-label "$LABEL_STALE" \
             --remove-label "$LABEL_WONTFIX" || {
+
               echo "::error title=Cleanup failed::❌ Could not remove labels on close for PR #$PR_NUMBER"
               exit 1
             }
 
           if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$MERGED_PULL_REQUEST_MSG"
+
             echo "action_taken=Cleaned up after merge" >> "$GITHUB_ENV"
+
           else
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$UNMERGED_PULL_REQUEST_MSG"
+
             echo "action_taken=Cleaned up after unmerged close" >> "$GITHUB_ENV"
           fi
 
@@ -478,6 +499,7 @@ jobs:
           Execution completed at: $(date -u)
 
           ### 📈 Execution Results
+
           | Metric | Value |
           | :--- | :--- |
           | **Status** | $JOB_STATUS_EMOJI ${{ job.status }} |
@@ -485,12 +507,15 @@ jobs:
           | **PR Number** | #$PR_NUMBER |
 
           ### ⚙️ Runtime Configuration
+
           - **Trigger Event:** ${{ github.event_name }}
           - **Event Action:** ${{ github.event.action }}
           - **Repository:** $REPO
 
           ### 🧩 Workflow Details
+
           - [View Run Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           - [View Pull Request](${{ github.event.pull_request.html_url || format('{0}/{1}/pull/{2}', github.server_url, github.repository, env.PR_NUMBER) }})
           EOF
+
           echo "::endgroup::"

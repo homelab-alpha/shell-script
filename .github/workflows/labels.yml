@@ -36,9 +36,11 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-      LABELS_FILE: .github/labels.yml
+
       DRY_RUN: >-
         ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
+
+      LABELS_FILE: .github/labels.yml
 
     steps:
       - name: 🏁 Notify start of process
@@ -69,7 +71,9 @@ jobs:
           yq -o=json '.' "$LABELS_FILE" | jq 'unique_by(.name)' > /tmp/desired-labels.json
 
           echo "✅ Desired labels loaded:"
+
           cat /tmp/desired-labels.json
+
           echo "::endgroup::"
 
       - name: 🔍 Fetch Existing Repository Labels
@@ -84,7 +88,9 @@ jobs:
           fi
 
           echo "✅ Existing labels fetched:"
+
           cat /tmp/existing-labels.json
+
           echo "::endgroup::"
 
       - name: 🔄 Synchronize Labels
@@ -102,26 +108,34 @@ jobs:
 
             if grep -Fxq "$NAME" /tmp/existing-names.txt; then
               echo "ℹ️ Updating label: $NAME"
+
               if [ "$DRY_RUN" != "true" ]; then
                 if ! gh label edit "$NAME" --repo "$REPO" --color "$COLOR" --description "$DESC"; then
+
                   echo "::error title=Label Update Failed::❌ Failed to update $NAME"
                   exit 1
                 fi
+
               else
                 echo "ℹ️ Dry-run: update skipped"
               fi
+
             else
               echo "ℹ️ Creating label: $NAME"
+
               if [ "$DRY_RUN" != "true" ]; then
                 if ! gh label create "$NAME" --repo "$REPO" --color "$COLOR" --description "$DESC"; then
+
                   echo "::error title=Label Creation Failed::❌ Failed to create $NAME"
                   exit 1
                 fi
+
               else
                 echo "ℹ️ Dry-run: create skipped"
               fi
             fi
           done
+
           echo "::endgroup::"
 
       - name: 🧹 Remove Obsolete Labels
@@ -143,15 +157,18 @@ jobs:
 
             if ! jq -r '.[].name' /tmp/desired-labels.json | grep -Fxq "$LABEL"; then
               echo "🗑️ Label not defined in labels.yml: $LABEL"
+
               if [ "$DRY_RUN" != "true" ]; then
                 if ! gh label delete "$LABEL" --repo "$REPO" --yes; then
                   echo "::warning title=Label Delete Failed::⚠️ Label '$LABEL' may have already been removed"
                 fi
+
               else
                 echo "ℹ️ Dry-run: delete skipped"
               fi
             fi
           done
+
           echo "::endgroup::"
 
       - name: 📊 Generate Job Summary
@@ -182,6 +199,7 @@ jobs:
 
             echo ""
             echo "### 📈 Execution Results"
+            echo ""
             echo "| Task | Result |"
             echo "| :--- | :--- |"
             echo "| ℹ️ Load Config | $LOAD_STATUS |"
@@ -191,6 +209,7 @@ jobs:
 
             echo ""
             echo "### 📊 Metrics"
+            echo ""
             echo "| Metric | Value |"
             echo "| :--- | :--- |"
 
@@ -202,6 +221,7 @@ jobs:
 
             echo ""
             echo "### ⚙️ Runtime Configuration"
+            echo ""
             echo "- **Repository:** $REPO"
             echo "- **Config Path:** $LABELS_FILE"
             echo "- **Triggered By:** ${{ github.actor }}"

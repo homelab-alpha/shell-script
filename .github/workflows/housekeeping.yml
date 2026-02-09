@@ -46,11 +46,12 @@ jobs:
       REPO: ${{ github.repository }}
 
       DRY_RUN: >-
-        ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'true' }}
+        ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
       CACHE_RETENTION_DAYS: >-
         ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cache_retention_days || '7' }}
       WORKFLOW_RETENTION_DAYS: >-
-        ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.workflow_retention_days || '28' }}
+        ${{ github.event_name == 'workflow_dispatch' &&
+         github.event.inputs.workflow_retention_days || '28' }}
 
     steps:
       - name: 🏁 Initialize housekeeping environment
@@ -66,6 +67,7 @@ jobs:
 
           if [ "$DRY_RUN" = "true" ]; then
             echo "::notice title=Mode::ℹ️ Dry run enabled — no deletions will occur"
+
           else
             echo "::warning title=Mode::⚠️ Live mode enabled — deletions will occur"
           fi
@@ -87,6 +89,7 @@ jobs:
           if [ "$CACHE_RETENTION_DAYS" -eq 0 ]; then
             CUTOFF_DATE="$(date -d '-1 minutes' +%s)"
             echo "Minimum retention enforced: 1 minute"
+
           else
             CUTOFF_DATE="$(date -d "-$CACHE_RETENTION_DAYS days" +%s)"
           fi
@@ -105,6 +108,7 @@ jobs:
 
                   if [ "$DRY_RUN" != "true" ]; then
                     if ! gh api -X DELETE "/repos/$REPO/actions/caches/$CACHE_ID"; then
+
                       echo "::error title=Cache deletion failed::❌ Failed to delete Cache ID $CACHE_ID"
                       exit 1
                     fi
@@ -113,6 +117,7 @@ jobs:
                   COUNT="$(cat "$COUNT_FILE")"
                   echo $((COUNT + 1)) > "$COUNT_FILE"
                 fi
+
               done || {
                 echo "::error title=Cache API failure::❌ Failed to process caches"
                 exit 1
@@ -133,6 +138,7 @@ jobs:
           if [ "$WORKFLOW_RETENTION_DAYS" -eq 0 ]; then
             CUTOFF_DATE="$(date -d '-1 minutes' +%s)"
             echo "Minimum retention enforced: 1 minute"
+
           else
             CUTOFF_DATE="$(date -d "-$WORKFLOW_RETENTION_DAYS days" +%s)"
           fi
@@ -151,6 +157,7 @@ jobs:
 
                   if [ "$DRY_RUN" != "true" ]; then
                     if ! gh api -X DELETE "/repos/$REPO/actions/runs/$RUN_ID"; then
+
                       echo "::error title=Workflow deletion failed::❌ Failed to delete Run ID $RUN_ID"
                       exit 1
                     fi
@@ -159,6 +166,7 @@ jobs:
                   COUNT="$(cat "$COUNT_FILE")"
                   echo $((COUNT + 1)) > "$COUNT_FILE"
                 fi
+
               done || {
                 echo "::error title=Workflow API failure::❌ Failed to process runs"
                 exit 1
@@ -182,17 +190,20 @@ jobs:
           Overall Status: $FINAL_STATUS
 
           ### 📈 Execution Results
+
           | Target | Action | Items Processed | Status |
           | :--- | :--- | :--- | :--- |
           | 📦 Caches | Deletion | ${{ steps.cache_cleanup.outputs.count || 0 }} | $CACHE_STATUS |
           | ⚙️ Workflow Runs | Deletion | ${{ steps.run_cleanup.outputs.count || 0 }} | $RUN_STATUS |
 
           ### ⚙️ Runtime Configuration
+
           - **Dry Run Mode:** \`${DRY_RUN}\`
           - **Cache Retention:** ${CACHE_RETENTION_DAYS} days
           - **Workflow Retention:** ${WORKFLOW_RETENTION_DAYS} days
 
           ### 🧩 Context
+
           - **Repository:** $REPO
           - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
