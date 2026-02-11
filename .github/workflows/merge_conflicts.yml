@@ -1,0 +1,119 @@
+---
+name: ⚔️ Detect Merge Conflicts
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+    types:
+      - synchronize
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: conflict-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  detect-conflicts:
+    name: 🔍 Detect merge conflicts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::🔍 Merge conflict detection started"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: ${{ github.repository }}"
+          echo "PR Number: ${{ github.event.pull_request.number || 'N/A' }}"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "::endgroup::"
+
+      - name: 🔍 Check for merge conflicts
+        id: conflict_check
+        uses: eps1lon/actions-label-merge-conflict@v3
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+
+          retryAfter: 20
+          retryMax: 5
+
+          dirtyLabel: "PR: please resolve merge conflict"
+          commentOnDirty: |
+            ## ⚠️ Merge conflicts detected
+
+            This pull request contains merge conflicts that must be resolved before it can be reviewed or merged.
+
+            ### 🔧 How to resolve them
+
+            1. Update your local branch with the latest changes from the target branch (by rebasing or merging, depending on your workflow).
+            2. Open each conflicted file and resolve the conflicts. Look for conflict markers like:
+                ```none
+                Accept Current Change | Accept Incoming Change | Accept Both Changes | Compare Changes
+                <<<<<<< your-branch-name (current changes)
+                This is a example.
+                =======
+                This is a example!
+                >>>>>>> main (incoming changes)
+                ```
+            3. Remove the conflict markers and keep the correct changes.
+            4. Save the files and ensure the project builds and all tests pass.
+            5. Commit the resolved changes.
+            6. Push your branch to update this pull request.
+
+            ⏳ Once the conflicts are resolved, the pull request will automatically update.
+
+            Thanks for taking care of this! 🚀
+
+          removeOnDirtyLabel: ""
+          commentOnClean: |
+            ## ✅ Merge conflicts resolved
+
+            All merge conflicts in this pull request have been successfully resolved. 🎉
+
+            Thanks for the collaboration! 🙌
+
+      - name: 🚨 Handle workflow failure
+        if: failure()
+        run: |
+          echo "::error title=Conflict Check Failed::❌ The conflict detection action encountered a technical error."
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+
+          CHECK_STATUS="${{ steps.conflict_check.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## ⚔️ Merge Conflict Detection Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+
+          | Target | Action | Result |
+          | :--- | :---: | :--- |
+          | 🔀 Pull Request | Conflict Check | $CHECK_STATUS |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Target Branch:** main
+          - **Timeout:** 5 min
+          - **Retry After:** 20 sec
+          - **Retry Max:** 5
+
+          ### 🧩 Notes
+
+          - If "Failed", check logs for API rate limits or permission issues.
+          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
+          echo "::endgroup::"
