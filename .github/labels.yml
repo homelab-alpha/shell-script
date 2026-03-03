@@ -2,6 +2,10 @@
   color: "4caf50"
   description: "Accessibility-related issues or improvements"
 
+- name: "AI slop"
+  color: "ff5722"
+  description: "Authentic, unfiltered AI mess."
+
 - name: "auto-merge"
   color: "1e8b1e"
   description: "Automerge only if this label is applied"
@@ -78,6 +82,10 @@
   color: "9c27b0"
   description: "Issues involving third-party tools, services, or external APIs"
 
+- name: "external feedback"
+  color: "2196f3"
+  description: "This pull request has feedback from an external reviewer."
+
 - name: "faq"
   color: "4caf50"
   description: "Explore Answers to Frequently Asked Questions with Homelab-Alpha"
@@ -109,10 +117,6 @@
 - name: "good first issue"
   color: "2196f3"
   description: "Good for newcomers"
-
-- name: "external feedback"
-  color: "2196f3"
-  description: "This pull request has feedback from an external reviewer."
 
 - name: "help"
   color: "9c27b0"
