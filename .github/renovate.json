@@ -1,31 +1,37 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "dependencyDashboard": true,
+  "platformAutomerge": true,
   "timezone": "Europe/Amsterdam",
-  "schedule": ["* 9-17 * * 1-7"],
+  "schedule": ["* 9-16 * * 1-7"],
+  "automergeSchedule": ["* 9-16 * * 1-5"],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
-  "extends": ["config:recommended", ":automergeMinor", ":automergePatch"],
+  "extends": ["config:recommended", ":automergePatch", ":rebaseStalePrs"],
   "assignees": ["homelab-alpha"],
   "rangeStrategy": "bump",
   "ignoreDeps": [],
   "semanticCommits": "enabled",
   "packageRules": [
     {
+      "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["major"],
       "labels": ["dependencies", "major"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
+      "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["minor"],
       "labels": ["dependencies", "minor"],
       "automerge": false,
       "automergeType": "squash"
     },
     {
+      "matchDepTypes": ["dependencies"],
       "matchUpdateTypes": ["patch"],
       "labels": ["dependencies", "patch"],
-      "automerge": false,
+      "automerge": true,
       "automergeType": "squash"
     },
     {
