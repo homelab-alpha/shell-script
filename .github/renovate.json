@@ -1,59 +1,68 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits", ":rebaseStalePrs"],
   "dependencyDashboard": true,
-  "platformAutomerge": true,
-  "timezone": "Europe/Amsterdam",
-  "schedule": ["* 9-16 * * 1-7"],
-  "automergeSchedule": ["* 9-16 * * 1-5"],
-  "prHourlyLimit": 0,
+  "osvVulnerabilityAlerts": true,
   "prConcurrentLimit": 0,
-  "extends": ["config:recommended", ":automergePatch", ":rebaseStalePrs"],
-  "assignees": ["homelab-alpha"],
+  "prHourlyLimit": 0,
+  "timezone": "Europe/Amsterdam",
+  "schedule": ["after 9am and before 5pm"],
   "rangeStrategy": "bump",
   "ignoreDeps": [],
-  "semanticCommits": "enabled",
+  "ignorePaths": [],
+  "assignees": ["homelab-alpha"],
+  "automergeSchedule": ["after 9am and before 5pm on weekdays"],
+  "automergeType": "squash",
   "packageRules": [
     {
-      "matchDepTypes": ["dependencies"],
-      "matchUpdateTypes": ["major"],
-      "labels": ["dependencies", "major"],
-      "automerge": false,
-      "automergeType": "squash"
+      "description": "Never automerge major/minor",
+      "matchUpdateTypes": ["major", "minor"],
+      "automerge": false
     },
     {
-      "matchDepTypes": ["dependencies"],
-      "matchUpdateTypes": ["minor"],
-      "labels": ["dependencies", "minor"],
-      "automerge": false,
-      "automergeType": "squash"
-    },
-    {
-      "matchDepTypes": ["dependencies"],
+      "description": "Automerge patch updates",
       "matchUpdateTypes": ["patch"],
-      "labels": ["dependencies", "patch"],
       "automerge": true,
-      "automergeType": "squash"
+      "platformAutomerge": true
     },
     {
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["major"],
-      "labels": ["dev", "dependencies", "major"],
-      "automerge": false,
-      "automergeType": "squash"
+      "description": "Keep Node.js on major version 22",
+      "matchPackageNames": ["node", "@types/node"],
+      "matchManagers": ["npm", "nodenv", "dockerfile"],
+      "allowedVersions": "^22.0.0"
     },
     {
-      "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["minor"],
-      "labels": ["dev", "dependencies", "minor"],
-      "automerge": false,
-      "automergeType": "squash"
+      "description": "Label updates based on type and dependencies",
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest",
+        "lockFileMaintenance",
+        "rollback",
+        "bump",
+        "replacement"
+      ],
+      "addLabels": ["{{{updateType}}}", "{{{depName}}}"]
     },
     {
+      "description": "Mark dev dependencies",
       "matchDepTypes": ["devDependencies"],
-      "matchUpdateTypes": ["patch"],
-      "labels": ["dev", "dependencies", "patch"],
-      "automerge": true,
-      "automergeType": "squash"
+      "addLabels": ["dev dependencies"]
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Track Hugo version in GitHub Actions workflows",
+      "customType": "regex",
+      "managerFilePatterns": ["/.github/workflows/.*\\.ya?ml$/"],
+      "matchStrings": ["HUGO_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "hugo",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver",
+      "packageNameTemplate": "gohugoio/hugo"
     }
   ]
 }
