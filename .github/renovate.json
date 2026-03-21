@@ -6,12 +6,12 @@
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "timezone": "Europe/Amsterdam",
-  "schedule": ["after 9am and before 5pm"],
+  "schedule": ["* 9-16 * * 1-7"],
   "rangeStrategy": "bump",
   "ignoreDeps": [],
   "ignorePaths": [],
   "assignees": ["homelab-alpha"],
-  "automergeSchedule": ["after 9am and before 5pm on weekdays"],
+  "automergeSchedule": ["* 9-16 * * 1-5"],
   "automergeType": "squash",
   "packageRules": [
     {
