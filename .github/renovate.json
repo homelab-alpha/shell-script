@@ -28,7 +28,7 @@
     },
     {
       "description": "Prioritize security updates",
-      "matchVulnerabilityAlerts": true,
+      "matchUpdateTypes": ["vulnerability"],
       "addLabels": ["security"],
       "prPriority": 100
     },
