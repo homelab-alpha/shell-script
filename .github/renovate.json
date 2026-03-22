@@ -3,8 +3,8 @@
   "extends": ["config:recommended", ":semanticCommits", ":rebaseStalePrs"],
   "dependencyDashboard": true,
   "osvVulnerabilityAlerts": true,
-  "prConcurrentLimit": 0,
-  "prHourlyLimit": 0,
+  "prConcurrentLimit": 3,
+  "prHourlyLimit": 10,
   "timezone": "Europe/Amsterdam",
   "schedule": ["* 9-16 * * 1-7"],
   "rangeStrategy": "bump",
@@ -20,10 +20,17 @@
       "automerge": false
     },
     {
-      "description": "Automerge patch updates",
-      "matchUpdateTypes": ["patch"],
+      "description": "Automerge non-major updates (patch, pin, digest)",
+      "matchUpdateTypes": ["patch", "pin", "digest"],
       "automerge": true,
-      "platformAutomerge": true
+      "platformAutomerge": true,
+      "addLabels": ["automerge"]
+    },
+    {
+      "description": "Prioritize security updates",
+      "matchVulnerabilityAlerts": true,
+      "addLabels": ["security"],
+      "prPriority": 100
     },
     {
       "description": "Keep Node.js on major version 22",
@@ -32,7 +39,7 @@
       "allowedVersions": "^22.0.0"
     },
     {
-      "description": "Label updates based on type and dependencies",
+      "description": "General labeling for all updates",
       "matchUpdateTypes": [
         "major",
         "minor",
@@ -46,6 +53,11 @@
         "replacement"
       ],
       "addLabels": ["{{{updateType}}}", "{{{depName}}}"]
+    },
+    {
+      "description": "Mark dependencies",
+      "matchDepTypes": ["dependencies"],
+      "addLabels": ["dependencies"]
     },
     {
       "description": "Mark dev dependencies",
