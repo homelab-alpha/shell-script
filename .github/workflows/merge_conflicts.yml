@@ -38,11 +38,11 @@ jobs:
 
       - name: 🔍 Check for merge conflicts
         id: conflict_check
-        uses: eps1lon/actions-label-merge-conflict@v3
+        uses: eps1lon/actions-label-merge-conflict@v3.0.3
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
 
-          retryAfter: 20
+          retryAfter: 60
           retryMax: 5
 
           dirtyLabel: "PR: please resolve merge conflict"
