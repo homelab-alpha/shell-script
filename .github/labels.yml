@@ -1,307 +1,311 @@
 - name: "a11y"
   color: "4caf50"
-  description: "Accessibility-related issues or improvements"
+  description: "Issues or improvements related to accessibility."
 
 - name: "AI slop"
   color: "ff5722"
-  description: "Authentic, unfiltered AI mess."
+  description: "Low-quality or unverified AI-generated content."
 
 - name: "automerge"
   color: "1e8b1e"
-  description: "Automerge only if this label is applied"
+  description: "Automatically merge this pull request if all conditions are met."
 
 - name: "backlog"
   color: "ffcc00"
-  description: "Issue or PR planned but not yet addressed"
+  description: "Planned items that are not yet being actively addressed."
 
 - name: "blocked"
   color: "d50000"
-  description: "The issue or PR is blocked"
+  description: "Work on this issue or pull request is currently stalled."
 
 - name: "blocked upstream"
   color: "d50000"
-  description: "Blocked by upstream dependencies"
+  description: "Stalled due to dependencies on external projects or repositories."
 
 - name: "breaking change"
   color: "f44336"
-  description: "Indicates a change that will break backward compatibility"
+  description: "Indicates a change that breaks backward compatibility."
 
 - name: "bug"
   color: "d50000"
-  description: "Something isn't working"
+  description: "Something is not working as intended."
 
 - name: "cannot reproduce"
   color: "ff5722"
-  description: "Issue couldn't be reproduced"
+  description: "The reported issue could not be replicated by the maintainers."
 
 - name: "ci/cd"
   color: "00bcd4"
-  description: "Issues related to Continuous Integration/Delivery"
+  description: "Issues related to Continuous Integration or Continuous Delivery pipelines."
 
 - name: "code quality"
   color: "607d8b"
-  description: "Issues related to code quality, such as linting or style violations"
+  description: "Related to linting, style violations, or general code standards."
 
 - name: "conversation lock"
   color: "f44336"
-  description: "The conversation has been locked (no further comments allowed)"
+  description: "Discussion is locked; no further comments are permitted."
 
 - name: "dependencies"
   color: "8bc34a"
-  description: "Pull requests that update a dependency file"
+  description: "Pull requests that update project dependency files."
 
 - name: "deprecated"
   color: "9e9e9e"
-  description: "Functionality marked as outdated or unsupported"
+  description: "Functionality that is outdated and no longer supported."
 
-- name: "dev"
+- name: "dev dependencies"
   color: "ffa500"
-  description: "Updates related to devDependencies (development-only changes)"
+  description: "Updates specifically for development-only dependencies."
 
 - name: "discussion"
   color: "ff9800"
-  description: "For discussions or brainstorming"
+  description: "Used for open conversations or brainstorming sessions."
 
 - name: "discussion required"
   color: "ff5722"
-  description: "For issues or PRs requiring further discussion before action"
+  description: "Requires further deliberation before any action is taken."
 
 - name: "documentation"
   color: "607d8b"
-  description: "Improvements or additions to documentation"
+  description: "Improvements or additions to the project documentation."
 
 - name: "duplicate"
   color: "9e9e9e"
-  description: "This issue or pull request already exists"
+  description: "This issue or pull request already exists elsewhere."
 
 - name: "enhancement"
   color: "00bcd4"
-  description: "New feature or request"
+  description: "New features or requests for improvement."
 
 - name: "eslint"
   color: "4b32c3"
-  description: "Linting issues and configuration related to ESLint"
+  description: "Issues and configurations specific to ESLint."
 
 - name: "external"
   color: "9c27b0"
-  description: "Issues involving third-party tools, services, or external APIs"
+  description: "Involves third-party tools, services, or external APIs."
 
 - name: "external feedback"
   color: "2196f3"
-  description: "This pull request has feedback from an external reviewer."
+  description: "This pull request has received feedback from an external reviewer."
 
 - name: "faq"
   color: "4caf50"
-  description: "Explore Answers to Frequently Asked Questions with Homelab-Alpha"
+  description: "Frequently Asked Questions related to Homelab-Alpha."
 
 - name: "feature parity"
   color: "00bcd4"
-  description: "Ensuring feature consistency across platforms or versions"
+  description: "Ensuring consistency across different platforms or versions."
 
 - name: "feature request"
   color: "00bcd4"
-  description: "Request for a new feature"
+  description: "A formal request for a new feature."
 
 - name: "fix"
   color: "4caf50"
-  description: "Represents a fix for a specific issue or bug."
+  description: "A resolution for a specific bug or reported issue."
 
 - name: "followed up"
   color: "03a9f4"
-  description: "A follow-up comment has been posted and the issue or PR is awaiting a response"
+  description: "A follow-up comment was posted; awaiting a further response."
 
 - name: "github-actions"
   color: "4caf50"
-  description: "Automate, customize, and execute your software development"
+  description: "Workflows related to GitHub Actions automation."
 
 - name: "github/codeql-action"
   color: "5319e7"
-  description: "Issues related to GitHub CodeQL analysis and code scanning workflows"
+  description: "Issues related to CodeQL analysis and security scanning."
 
 - name: "go-mod"
   color: "6A076D"
-  description: "Including its dependencies on other modules"
+  description: "Updates to Go modules and their associated dependencies."
 
 - name: "good first issue"
   color: "2196f3"
-  description: "Good for newcomers"
+  description: "Simple tasks suitable for new contributors."
 
 - name: "help"
   color: "9c27b0"
-  description: "Extra attention is needed"
+  description: "This item requires immediate or extra attention."
 
 - name: "help wanted"
   color: "ff9800"
-  description: "May need your help to test or answer"
+  description: "Seeking assistance for testing, feedback, or implementation."
+
+- name: "hugo"
+  color: "ff9800"
+  description: "Changes related to the Hugo static site generator."
 
 - name: "in progress"
   color: "ff9800"
-  description: "Work is actively being done"
+  description: "Work is actively being performed on this item."
 
 - name: "in review"
   color: "3f51b5"
-  description: "Ready for code review"
+  description: "The code is ready for peer review."
 
 - name: "integration"
   color: "009688"
-  description: "Issues related to system integration or third-party services"
+  description: "Issues regarding system integration or external services."
 
 - name: "invalid"
   color: "f44336"
-  description: "This doesn't seem right"
+  description: "This issue or pull request is no longer relevant or applicable."
 
 - name: "invalid format"
   color: "f44336"
-  description: "The issue is not in the correct format"
+  description: "The submission does not follow the required template or format."
 
 - name: "localized"
   color: "ff9800"
-  description: "Localization or translation-related tasks"
+  description: "Tasks related to localization or translation."
 
 - name: "major"
   color: "d32f2f"
-  description: "Significant changes, often breaking backward compatibility"
+  description: "Significant changes that often impact backward compatibility."
 
 - name: "migration"
   color: "9c27b0"
-  description: "Related to system or data migration"
+  description: "Related to data migration or system transitions."
 
 - name: "minor"
   color: "4caf50"
-  description: "Small, non-breaking enhancements or features"
+  description: "Small, non-breaking enhancements or minor fixes."
 
 - name: "needs design"
   color: "673ab7"
-  description: "Requires a design before proceeding"
+  description: "Requires architectural or UI design before implementation."
 
 - name: "needs input"
   color: "ff5722"
-  description: "External input or information is needed"
+  description: "Awaiting information or feedback from external stakeholders."
 
 - name: "needs testing"
   color: "009688"
-  description: "Requires additional testing"
+  description: "Requires additional verification or QA testing."
 
 - name: "node"
   color: "68a063"
-  description: "Issues or changes related to Node.js runtime, tooling, or ecosystem"
+  description: "Related to the Node.js runtime, ecosystem, or tooling."
 
 - name: "P0: critical"
   color: "d32f2f"
-  description: "Critical issue, needs immediate attention"
+  description: "Critical priority; requires immediate attention."
 
 - name: "P1: high"
   color: "f57c00"
-  description: "High priority issue"
+  description: "High priority; should be addressed soon."
 
 - name: "P2: moderate"
   color: "1976d2"
-  description: "Moderate priority issue"
+  description: "Moderate priority; to be addressed in the normal cycle."
 
 - name: "P3: low"
   color: "388e3c"
-  description: "Low priority issue"
+  description: "Low priority; non-urgent improvement or fix."
 
 - name: "P4: negligible"
   color: "0288d1"
-  description: "Negligible priority issue"
+  description: "Minimal impact; address only when resources permit."
 
 - name: "patch"
   color: "2196f3"
-  description: "Bug fixes or minor corrections, no new features"
+  description: "Minor corrections and bug fixes without new features."
 
 - name: "performance"
   color: "ff9800"
-  description: "Related to performance issues or improvements"
+  description: "Issues or improvements related to system performance."
 
 - name: "performance regression"
   color: "f57c00"
-  description: "Issues where performance has decreased in newer versions"
+  description: "Identifies areas where performance has degraded in newer versions."
 
 - name: "PR: depends on other"
   color: "8bc34a"
-  description: "Depends on another PR"
+  description: "This pull request is dependent on the completion of another."
 
 - name: "PR: needs review"
   color: "3f51b5"
-  description: "PR is ready for review"
+  description: "The pull request is pending a formal review."
 
 - name: "PR: please address review comments"
   color: "f44336"
-  description: "PR needs changes based on review"
+  description: "The author needs to update the PR based on reviewer feedback."
 
 - name: "PR: please resolve merge conflict"
   color: "e91e63"
-  description: "PR has merge conflicts"
+  description: "This pull request has conflicts that must be resolved."
 
 - name: "pull request"
   color: "2196f3"
-  description: "Issues related to pull requests"
+  description: "General issues related to the pull request process."
 
 - name: "question"
   color: "ffeb3b"
-  description: "Further information is requested"
+  description: "Further information or clarification is requested."
 
 - name: "question-answered"
   color: "8bc34a"
-  description: "Question has been answered"
+  description: "The query has been successfully addressed."
 
 - name: "refactor"
   color: "8e24aa"
-  description: "Code restructuring without changing functionality"
+  description: "Code changes that improve structure without altering behavior."
 
 - name: "release"
   color: "2196f3"
-  description: "Issues related to a release"
+  description: "Issues or tasks related to a specific version release."
 
 - name: "releaseblocker"
   color: "d32f2f"
-  description: "Blocker for a release"
+  description: "Critical issue that must be resolved before releasing."
 
 - name: "reopen"
   color: "ff5722"
-  description: "Pull requests has been reopened after being closed"
+  description: "The pull request has been reopened for further work."
 
 - name: "revert"
   color: "607d8b"
-  description: "Proposed change to undo previous work"
+  description: "A change proposed to undo a previous commit or action."
 
 - name: "security"
   color: "d32f2f"
-  description: "Security-related issue or concern"
+  description: "Concerns related to security and data protection."
 
 - name: "security vulnerability"
   color: "e91e63"
-  description: "Security-related vulnerabilities"
+  description: "Identified security flaws that require remediation."
 
 - name: "spam"
   color: "9e9e9e"
-  description: "Identified as spam"
+  description: "Unsolicited or irrelevant content."
 
 - name: "stale"
   color: "9e9e9e"
-  description: "Issue is stale, no activity in a while"
+  description: "No activity has been detected on this item for a long period."
 
 - name: "test failures"
   color: "f44336"
-  description: "Issues related to failing tests"
+  description: "Related to failing automated or manual tests."
 
 - name: "triage"
   color: "ff5722"
-  description: "Needs further analysis or assessment"
+  description: "Awaiting initial assessment and categorization."
 
 - name: "under development"
   color: "ffa500"
-  description: "Currently being worked on or in active development"
+  description: "This feature or fix is currently in active development."
 
 - name: "user error"
   color: "8bc34a"
-  description: "Caused by user error, not a bug"
+  description: "Issue caused by incorrect usage rather than a technical bug."
 
 - name: "wontfix"
   color: "9e9e9e"
-  description: "This will not be worked on"
+  description: "This item will not be addressed or implemented."
 
 - name: "YANKED"
   color: "9e9e9e"
-  description: "Indicates a release or dependency has been withdrawn and should not be used"
+  description: "Indicates a version has been withdrawn and should not be used."
