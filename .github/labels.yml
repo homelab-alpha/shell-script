@@ -2,6 +2,14 @@
   color: "4caf50"
   description: "Issues or improvements related to accessibility."
 
+- name: "actions/configure-pages"
+  color: "4caf50"
+  description: "Updates for the GitHub Action to configure Static Web Apps/Pages."
+
+- name: "actions/deploy-pages"
+  color: "4caf50"
+  description: "Updates for the GitHub Action to deploy Static Web Apps/Pages."
+
 - name: "AI slop"
   color: "ff5722"
   description: "Low-quality or unverified AI-generated content."
@@ -66,6 +74,18 @@
   color: "ff5722"
   description: "Requires further deliberation before any action is taken."
 
+- name: "docker.io/nginx"
+  color: "009688"
+  description: "Updates for the NGINX web server Docker image."
+
+- name: "docker.io/portainer/agent"
+  color: "2196f3"
+  description: "Updates for the Portainer agent Docker image."
+
+- name: "docker.io/portainer/portainer-ee"
+  color: "2196f3"
+  description: "Updates for the Portainer Business Edition Docker image."
+
 - name: "documentation"
   color: "607d8b"
   description: "Improvements or additions to the project documentation."
@@ -110,6 +130,26 @@
   color: "03a9f4"
   description: "A follow-up comment was posted; awaiting a further response."
 
+- name: "ghcr.io/alexjustesen/docker-speedtest-tracker"
+  color: "03a9f4"
+  description: "Updates for the Speedtest Tracker Docker image."
+
+- name: "ghcr.io/amir20/dozzle"
+  color: "607d8b"
+  description: "Updates for the Dozzle log viewer Docker image."
+
+- name: "ghcr.io/immich-app/immich-machine-learning"
+  color: "3f51b5"
+  description: "Updates for the Immich machine learning service image."
+
+- name: "ghcr.io/immich-app/immich-server"
+  color: "3f51b5"
+  description: "Updates for the Immich core server Docker image."
+
+- name: "ghcr.io/linuxserver/speedtest-tracker"
+  color: "03a9f4"
+  description: "Updates for the LinuxServer.io Speedtest Tracker image."
+
 - name: "github-actions"
   color: "4caf50"
   description: "Workflows related to GitHub Actions automation."
@@ -118,7 +158,7 @@
   color: "5319e7"
   description: "Issues related to CodeQL analysis and security scanning."
 
-- name: "go-mod"
+- name: "gomod"
   color: "6A076D"
   description: "Updates to Go modules and their associated dependencies."
 
