@@ -86,6 +86,10 @@
   color: "1d76db"
   description: "Updates for the Portainer Business Edition Docker image."
 
+- name: "docker.io/ronivay/xen-orchestra"
+  color: "1d76db"
+  description: "Updates for the Xen Orchestra Docker image."
+
 - name: "documentation"
   color: "0075ca"
   description: "Improvements or additions to the project documentation."
