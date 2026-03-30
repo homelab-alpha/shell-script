@@ -184,7 +184,7 @@ anticipate your contributions!
 
 [all issues]: https://github.com/homelab-alpha/shell-script/issues?q=sort%3Acreated-desc
 [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
-[AI Contribution Policy]: https://github.com/homelab-alpha/shell-script/AI_CONTRIBUTION_POLICY.md
+[AI Contribution Policy]: https://github.com/homelab-alpha/shell-script/blob/main/AI_CONTRIBUTION_POLICY.md
 [Code Style + Standards Guides]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_STYLE_AND_STANDARDS_GUIDES.md
 [Discussions]: https://github.com/homelab-alpha/shell-script/discussions
 [GitHub flow]: https://guides.github.com/introduction/flow
