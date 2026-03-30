@@ -23,6 +23,23 @@ To ensure a welcoming and inclusive environment for everyone, we adhere to a
 [Code of Conduct]. Please read and respect it in all your interactions within
 this project.
 
+### AI Contribution Policy
+
+This project allows the use of AI-assisted development tools (e.g., ChatGPT,
+Copilot, Claude). However, all contributors are **fully responsible** for the
+code they submit.
+
+All AI-generated or AI-assisted contributions must be:
+
+- **Fully understood** by the contributor
+- **Manually reviewed** before submission
+- **Properly tested** to ensure correctness and stability
+
+Submissions that include unverified code, unclear logic, or invalid/hallucinated
+implementations may be rejected.
+
+For full details, please refer to our dedicated [AI Contribution Policy].
+
 ### Visual Aids
 
 When reporting issues, asking for help, or proposing features, **screenshots**
@@ -167,6 +184,7 @@ anticipate your contributions!
 
 [all issues]: https://github.com/homelab-alpha/shell-script/issues?q=sort%3Acreated-desc
 [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
+[AI Contribution Policy]: https://github.com/homelab-alpha/shell-script/blob/main/AI_CONTRIBUTION_POLICY.md
 [Code Style + Standards Guides]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_STYLE_AND_STANDARDS_GUIDES.md
 [Discussions]: https://github.com/homelab-alpha/shell-script/discussions
 [GitHub flow]: https://guides.github.com/introduction/flow
