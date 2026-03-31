@@ -106,6 +106,10 @@
   color: "4b32c3"
   description: "Issues and configurations specific to ESLint."
 
+- name: "express-rate-limit"
+  color: "216ad4"
+  description: "Issues or updates related to Express Rate Limit."
+
 - name: "external"
   color: "5319e7"
   description: "Involves third-party tools, services, or external APIs."
@@ -337,6 +341,10 @@
 - name: "triage"
   color: "fef2c0"
   description: "Awaiting initial assessment and categorization."
+
+- name: "typescript-eslint"
+  color: "4b32c3"
+  description: "Issues or updates related to TypeScript ESLint."
 
 - name: "under development"
   color: "c5def5"
