@@ -142,6 +142,10 @@
   color: "1f6feb"
   description: "Documentation improvements."
 
+- name: "dotenv"
+  color: "1f6feb"
+  description: "Environment variable management tooling."
+
 - name: "duplicate"
   color: "8b949e"
   description: "Duplicate issue or pull request."
@@ -209,6 +213,10 @@
 - name: "ghcr.io/linuxserver/speedtest-tracker"
   color: "1f6feb"
   description: "Docker image updates for Speedtest Tracker (LSIO)."
+
+- name: "ghcr.io/pi-hole/pihole"
+  color: "1f6feb"
+  description: "Docker image updates for Pi-hole."
 
 - name: "github-actions"
   color: "1f6feb"
@@ -373,6 +381,10 @@
 - name: "user error"
   color: "8b949e"
   description: "Issue caused by user misuse."
+
+- name: "vue"
+  color: "1f6feb"
+  description: "Vue.js related work."
 
 - name: "wontfix"
   color: "8b949e"
