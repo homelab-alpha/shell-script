@@ -56,6 +56,7 @@
 - {name: "ghcr.io/pi-hole/pihole", color: "1f6feb", description: "Docker image updates for Pi-hole."}
 - {name: "github-actions", color: "1f6feb", description: "GitHub Actions workflows."}
 - {name: "github/codeql-action", color: "d73a4a", description: "Security scanning with CodeQL."}
+- {name: "go", color: "1f6feb", description: "Go module dependency updates."}
 - {name: "gomod", color: "1f6feb", description: "Go module dependency updates."}
 - {name: "good first issue", color: "2ea44f", description: "Beginner-friendly issue."}
 - {name: "help", color: "d97706", description: "Requires attention or assistance."}
