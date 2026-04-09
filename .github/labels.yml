@@ -1,4 +1,5 @@
 - {name: "@playwright/test", color: "1f6feb", description: "Tooling: Playwright test automation and related updates."}
+- {name: "@vitest/coverage-v8", color: "1f6feb", description: "Tooling: Code coverage support for Vitest using V8."}
 - {name: "@vitest/eslint-plugin", color: "8250df", description: "Tooling: ESLint plugin for Vitest and linting integration."}
 - {name: "AI slop", color: "6e7681", description: "Low-quality, unverified, or non-actionable AI-generated content."}
 - {name: "P0: critical", color: "b60205", description: "Highest priority; requires immediate action."}
