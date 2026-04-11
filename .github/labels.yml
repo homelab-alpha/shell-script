@@ -4,6 +4,7 @@
 - {name: "a11y", color: "8250df", description: "Accessibility improvements and fixes."}
 - {name: "actions/configure-pages", color: "1f6feb", description: "GitHub Actions workflow for configuring Pages."}
 - {name: "actions/deploy-pages", color: "1f6feb", description: "GitHub Actions workflow for deploying Pages."}
+- {name: "actions/upload-pages-artifact", color: "1f6feb", description: "GitHub Actions workflow for uploading Pages artifacts."}
 - {name: "AI slop", color: "6e7681", description: "Low-quality, unverified, or non-actionable AI-generated content."}
 - {name: "automerge", color: "2ea44f", description: "Automatically merge when all conditions pass."}
 - {name: "backlog", color: "8b949e", description: "Planned work not yet started."}
