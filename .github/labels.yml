@@ -1,4 +1,5 @@
 - {name: "@playwright/test", color: "1f6feb", description: "Tooling: Playwright test automation and related updates."}
+- {name: "@vitejs/plugin-vue", color: "1f6feb", description: "Tooling: Vite plugin for Vue support."}
 - {name: "@vitest/coverage-v8", color: "1f6feb", description: "Tooling: Code coverage support for Vitest using V8."}
 - {name: "@vitest/eslint-plugin", color: "8250df", description: "Tooling: ESLint plugin for Vitest and linting integration."}
 - {name: "a11y", color: "8250df", description: "Accessibility improvements and fixes."}
@@ -49,6 +50,7 @@
 - {name: "ghcr.io/pi-hole/pihole", color: "1f6feb", description: "Docker image updates for Pi-hole."}
 - {name: "github-actions", color: "1f6feb", description: "GitHub Actions workflows."}
 - {name: "github/codeql-action", color: "d73a4a", description: "Security scanning with CodeQL."}
+- {name: "globals", color: "1f6feb", description: "Global configuration or environment-wide settings."}
 - {name: "go", color: "1f6feb", description: "Go module dependency updates."}
 - {name: "gomod", color: "1f6feb", description: "Go module dependency updates."}
 - {name: "good first issue", color: "2ea44f", description: "Beginner-friendly issue."}
