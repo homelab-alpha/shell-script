@@ -22,6 +22,7 @@
 - {name: "dev dependencies", color: "1f6feb", description: "Development-only dependency updates."}
 - {name: "discussion required", color: "8250df", description: "Requires further discussion before action."}
 - {name: "discussion", color: "8250df", description: "General discussion or brainstorming."}
+- {name: "docker.io/adguard/adguardhome", color: "1f6feb", description: "Docker image updates for AdGuard Home."}
 - {name: "docker.io/dbeaver/cloudbeaver", color: "1f6feb", description: "Docker image updates for CloudBeaver."}
 - {name: "docker.io/mongo", color: "1f6feb", description: "Docker image updates for MongoDB."}
 - {name: "docker.io/nginx", color: "1f6feb", description: "Docker image updates for nginx."}
