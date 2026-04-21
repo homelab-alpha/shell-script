@@ -1,8 +1,8 @@
 ---
 yaml-files:
-  - '*.yaml'
-  - '*.yml'
-  - '.yamllint'
+  - "*.yaml"
+  - "*.yml"
+  - ".yamllint"
 
 rules:
   anchors: enable
@@ -24,7 +24,8 @@ rules:
   indentation: enable
   key-duplicates: enable
   key-ordering: disable
-  line-length: disable
+  line-length:
+    disable
     # max: 80
     # level: warning
     # allow-non-breakable-inline-mappings: true
