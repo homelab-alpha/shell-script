@@ -1,0 +1,11 @@
+title = "gitleaks config"
+
+# minVersion indicates the minimum Gitleaks version required to use this config.
+# If the running version is older, a warning will be logged and not all
+# config-enabled features are guaranteed to work.
+minVersion = "v8.30.0"
+
+[extend]
+# useDefault will extend the base configuration with the default gitleaks config:
+# https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml
+useDefault = true
