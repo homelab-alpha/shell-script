@@ -17,12 +17,14 @@
 - {
     name: "@vitest/eslint-plugin",
     color: "1f6feb",
-    description: "Dependency: ESLint plugin for Vitest rule enforcement updates.",
+    description:
+      "Dependency: ESLint plugin for Vitest rule enforcement updates.",
   }
 - {
     name: "a11y",
     color: "8250df",
-    description: "Addresses accessibility compliance or usability improvements.",
+    description:
+      "Addresses accessibility compliance or usability improvements.",
   }
 - {
     name: "actions/configure-pages",
@@ -42,7 +44,8 @@
 - {
     name: "actions/upload-pages-artifact",
     color: "1f6feb",
-    description: "Dependency: GitHub Actions upload-pages-artifact action updates.",
+    description:
+      "Dependency: GitHub Actions upload-pages-artifact action updates.",
   }
 - {
     name: "AI slop",
@@ -54,7 +57,8 @@
 - {
     name: "automerge",
     color: "2ea44f",
-    description: "Eligible for automatic merging once all required checks pass.",
+    description:
+      "Eligible for automatic merging once all required checks pass.",
   }
 - {
     name: "backlog",
@@ -73,7 +77,8 @@
 - {
     name: "blocked",
     color: "d73a4a",
-    description: "Cannot proceed until a blocking dependency or issue is resolved.",
+    description:
+      "Cannot proceed until a blocking dependency or issue is resolved.",
   }
 - {
     name: "breaking change",
@@ -85,12 +90,14 @@
 - {
     name: "bug",
     color: "d73a4a",
-    description: "Confirmed defect where behavior does not match the intended design.",
+    description:
+      "Confirmed defect where behavior does not match the intended design.",
   }
 - {
     name: "cannot reproduce",
     color: "8b949e",
-    description: "The reported issue could not be reproduced with the provided information.",
+    description:
+      "The reported issue could not be reproduced with the provided information.",
   }
 - {
     name: "ci/cd",
@@ -138,7 +145,8 @@
 - {
     name: "discussion",
     color: "8250df",
-    description: "Open-ended conversation or brainstorming; no immediate action expected.",
+    description:
+      "Open-ended conversation or brainstorming; no immediate action expected.",
   }
 - {
     name: "docker.io/adguard/adguardhome",
@@ -185,7 +193,8 @@
 - {
     name: "dotenv",
     color: "1f6feb",
-    description: "Dependency: dotenv environment variable management library updates.",
+    description:
+      "Dependency: dotenv environment variable management library updates.",
   }
 - {
     name: "duplicate",
@@ -207,7 +216,13 @@
 - {
     name: "eslint-plugin-playwright",
     color: "1f6feb",
-    description: "Dependency: ESLint plugin for Playwright test linting updates.",
+    description:
+      "Dependency: ESLint plugin for Playwright test linting updates.",
+  }
+- {
+    name: "eslint-plugin-vue",
+    color: "1f6feb",
+    description: "Dependency: ESLint plugin for Vue.js linting rule updates.",
   }
 - {
     name: "express-rate-limit",
@@ -224,12 +239,14 @@
 - {
     name: "external",
     color: "8250df",
-    description: "Involves an external system, service, or third-party integration.",
+    description:
+      "Involves an external system, service, or third-party integration.",
   }
 - {
     name: "faq",
     color: "8250df",
-    description: "Addresses a frequently asked question; candidate for documentation.",
+    description:
+      "Addresses a frequently asked question; candidate for documentation.",
   }
 - {
     name: "feature parity",
@@ -241,7 +258,8 @@
 - {
     name: "feature request",
     color: "8250df",
-    description: "Proposes new functionality not currently present in the project.",
+    description:
+      "Proposes new functionality not currently present in the project.",
   }
 - {
     name: "fix",
@@ -256,7 +274,8 @@
 - {
     name: "ghcr.io/alexjustesen/docker-speedtest-tracker",
     color: "1f6feb",
-    description: "Dependency: Speedtest Tracker (alexjustesen) container image updates.",
+    description:
+      "Dependency: Speedtest Tracker (alexjustesen) container image updates.",
   }
 - {
     name: "ghcr.io/amir20/dozzle",
@@ -281,7 +300,8 @@
 - {
     name: "ghcr.io/linuxserver/speedtest-tracker",
     color: "1f6feb",
-    description: "Dependency: Speedtest Tracker (LinuxServer.io) container image updates.",
+    description:
+      "Dependency: Speedtest Tracker (LinuxServer.io) container image updates.",
   }
 - {
     name: "ghcr.io/linuxserver/unifi-network-application",
@@ -303,7 +323,8 @@
 - {
     name: "github-actions",
     color: "1f6feb",
-    description: "Relates to GitHub Actions workflow files or reusable action definitions.",
+    description:
+      "Relates to GitHub Actions workflow files or reusable action definitions.",
   }
 - {
     name: "github/codeql-action",
@@ -313,7 +334,8 @@
 - {
     name: "globals",
     color: "1f6feb",
-    description: "Dependency: globals package updates for ESLint environment definitions.",
+    description:
+      "Dependency: globals package updates for ESLint environment definitions.",
   }
 - {
     name: "go",
@@ -328,17 +350,20 @@
 - {
     name: "good first issue",
     color: "2ea44f",
-    description: "Well-scoped and low-risk; suitable for first-time contributors.",
+    description:
+      "Well-scoped and low-risk; suitable for first-time contributors.",
   }
 - {
     name: "help wanted",
     color: "2ea44f",
-    description: "Maintainers are actively seeking contributions to resolve this.",
+    description:
+      "Maintainers are actively seeking contributions to resolve this.",
   }
 - {
     name: "help",
     color: "f2cc60",
-    description: "Requires assistance or clarification before it can move forward.",
+    description:
+      "Requires assistance or clarification before it can move forward.",
   }
 - {
     name: "hugo",
@@ -358,17 +383,20 @@
 - {
     name: "integration",
     color: "8250df",
-    description: "Adds or modifies integration with an external tool, API, or service.",
+    description:
+      "Adds or modifies integration with an external tool, API, or service.",
   }
 - {
     name: "invalid format",
     color: "8b949e",
-    description: "Does not follow the required issue or pull request template format.",
+    description:
+      "Does not follow the required issue or pull request template format.",
   }
 - {
     name: "invalid",
     color: "8b949e",
-    description: "Not a valid issue, bug, or request based on current information.",
+    description:
+      "Not a valid issue, bug, or request based on current information.",
   }
 - {
     name: "localized",
@@ -444,7 +472,8 @@
 - {
     name: "P3: low",
     color: "2ea44f",
-    description: "Low priority; non-urgent improvement with minimal user impact.",
+    description:
+      "Low priority; non-urgent improvement with minimal user impact.",
   }
 - {
     name: "P4: negligible",
@@ -482,7 +511,8 @@
 - {
     name: "PR: needs review",
     color: "f2cc60",
-    description: "Ready for review; awaiting feedback from a maintainer or reviewer.",
+    description:
+      "Ready for review; awaiting feedback from a maintainer or reviewer.",
   }
 - {
     name: "PR: please address review comments",
@@ -504,9 +534,16 @@
     description: "Dependency: Prettier code formatter updates.",
   }
 - {
+    name: "prettier-plugin-tailwindcss",
+    color: "1f6feb",
+    description:
+      "Dependency: Prettier plugin for Tailwind CSS class sorting updates.",
+  }
+- {
     name: "pull request",
     color: "f2cc60",
-    description: "General tracking label for pull request lifecycle management.",
+    description:
+      "General tracking label for pull request lifecycle management.",
   }
 - {
     name: "question-answered",
@@ -542,12 +579,14 @@
 - {
     name: "reopen",
     color: "f2cc60",
-    description: "Previously closed; reopened due to new activity or unresolved context.",
+    description:
+      "Previously closed; reopened due to new activity or unresolved context.",
   }
 - {
     name: "revert",
     color: "8b949e",
-    description: "Reverts a previously merged change to restore earlier behavior.",
+    description:
+      "Reverts a previously merged change to restore earlier behavior.",
   }
 - {
     name: "security vulnerability",
@@ -559,7 +598,8 @@
 - {
     name: "security",
     color: "d73a4a",
-    description: "Relates to security hardening, policy compliance, or threat mitigation.",
+    description:
+      "Relates to security hardening, policy compliance, or threat mitigation.",
   }
 - {
     name: "spam",
@@ -590,7 +630,8 @@
 - {
     name: "triage",
     color: "f2cc60",
-    description: "Newly created; pending classification, prioritization, and assignment.",
+    description:
+      "Newly created; pending classification, prioritization, and assignment.",
   }
 - {
     name: "typescript-eslint",
@@ -605,12 +646,14 @@
 - {
     name: "under development",
     color: "f2cc60",
-    description: "Feature or fix is actively being built; not yet ready for review.",
+    description:
+      "Feature or fix is actively being built; not yet ready for review.",
   }
 - {
     name: "user error",
     color: "8b949e",
-    description: "Caused by incorrect usage rather than a defect in the project itself.",
+    description:
+      "Caused by incorrect usage rather than a defect in the project itself.",
   }
 - {
     name: "vite",
@@ -621,6 +664,11 @@
     name: "vue",
     color: "1f6feb",
     description: "Dependency: Vue.js framework updates.",
+  }
+- {
+    name: "vue-router",
+    color: "1f6feb",
+    description: "Dependency: Vue Router official routing library updates.",
   }
 - {
     name: "vue-tsc",
@@ -635,5 +683,6 @@
 - {
     name: "YANKED",
     color: "8b949e",
-    description: "This version has been withdrawn and must not be used in production.",
+    description:
+      "This version has been withdrawn and must not be used in production.",
   }
