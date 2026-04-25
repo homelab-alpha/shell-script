@@ -11,6 +11,7 @@
   "ignoreDeps": [],
   "ignorePaths": [],
   "assignees": ["homelab-alpha"],
+  "reviewers": ["homelab-alpha"],
   "automergeSchedule": ["* 9-16 * * 1-5"],
   "automergeType": "squash",
   "packageRules": [
