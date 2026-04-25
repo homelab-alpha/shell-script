@@ -32,14 +32,14 @@
     description: "Dependency: GitHub Actions configure-pages action updates.",
   }
 - {
-    name: "actions/setup-node",
-    color: "1f6feb",
-    description: "Dependency: GitHub Actions setup-node action updates.",
-  }
-- {
     name: "actions/deploy-pages",
     color: "1f6feb",
     description: "Dependency: GitHub Actions deploy-pages action updates.",
+  }
+- {
+    name: "actions/setup-node",
+    color: "1f6feb",
+    description: "Dependency: GitHub Actions setup-node action updates.",
   }
 - {
     name: "actions/upload-pages-artifact",
@@ -55,6 +55,11 @@
       review.",
   }
 - {
+    name: "approved",
+    color: "2ea44f",
+    description: "Approved and ready to merge.",
+  }
+- {
     name: "automerge",
     color: "2ea44f",
     description:
@@ -68,17 +73,17 @@
       cycle.",
   }
 - {
+    name: "blocked",
+    color: "d73a4a",
+    description:
+      "Cannot proceed until a blocking dependency or issue is resolved.",
+  }
+- {
     name: "blocked upstream",
     color: "d73a4a",
     description:
       "Progress is blocked by an external dependency or upstream issue outside
       this repository.",
-  }
-- {
-    name: "blocked",
-    color: "d73a4a",
-    description:
-      "Cannot proceed until a blocking dependency or issue is resolved.",
   }
 - {
     name: "breaking change",
@@ -114,6 +119,11 @@
       changing behavior.",
   }
 - {
+    name: "contributors",
+    color: "1f6feb",
+    description: "Related to the contributors list or contributors workflow.",
+  }
+- {
     name: "conversation lock",
     color: "8b949e",
     description: "Thread has been locked to prevent further comments.",
@@ -136,17 +146,17 @@
     description: "Updates one or more development-only dependencies.",
   }
 - {
+    name: "discussion",
+    color: "8250df",
+    description:
+      "Open-ended conversation or brainstorming; no immediate action expected.",
+  }
+- {
     name: "discussion required",
     color: "8250df",
     description:
       "Requires broader consensus or team discussion before any action can be
       taken.",
-  }
-- {
-    name: "discussion",
-    color: "8250df",
-    description:
-      "Open-ended conversation or brainstorming; no immediate action expected.",
   }
 - {
     name: "docker.io/adguard/adguardhome",
@@ -230,17 +240,17 @@
     description: "Dependency: express-rate-limit middleware updates.",
   }
 - {
+    name: "external",
+    color: "8250df",
+    description:
+      "Involves an external system, service, or third-party integration.",
+  }
+- {
     name: "external feedback",
     color: "f2cc60",
     description:
       "Awaiting or incorporating feedback from contributors outside the core
       team.",
-  }
-- {
-    name: "external",
-    color: "8250df",
-    description:
-      "Involves an external system, service, or third-party integration.",
   }
 - {
     name: "faq",
@@ -260,6 +270,11 @@
     color: "8250df",
     description:
       "Proposes new functionality not currently present in the project.",
+  }
+- {
+    name: "feedback",
+    color: "f2cc60",
+    description: "General feedback about the project.",
   }
 - {
     name: "fix",
@@ -327,6 +342,11 @@
       "Relates to GitHub Actions workflow files or reusable action definitions.",
   }
 - {
+    name: "github-pages",
+    color: "1f6feb",
+    description: "Related to GitHub Pages deployment.",
+  }
+- {
     name: "github/codeql-action",
     color: "d73a4a",
     description: "Dependency: GitHub CodeQL security analysis action updates.",
@@ -354,16 +374,21 @@
       "Well-scoped and low-risk; suitable for first-time contributors.",
   }
 - {
+    name: "help",
+    color: "f2cc60",
+    description:
+      "Requires assistance or clarification before it can move forward.",
+  }
+- {
     name: "help wanted",
     color: "2ea44f",
     description:
       "Maintainers are actively seeking contributions to resolve this.",
   }
 - {
-    name: "help",
-    color: "f2cc60",
-    description:
-      "Requires assistance or clarification before it can move forward.",
+    name: "housekeeping",
+    color: "8b949e",
+    description: "Maintenance, cleanup, or chore tasks.",
   }
 - {
     name: "hugo",
@@ -387,16 +412,16 @@
       "Adds or modifies integration with an external tool, API, or service.",
   }
 - {
-    name: "invalid format",
-    color: "8b949e",
-    description:
-      "Does not follow the required issue or pull request template format.",
-  }
-- {
     name: "invalid",
     color: "8b949e",
     description:
       "Not a valid issue, bug, or request based on current information.",
+  }
+- {
+    name: "invalid format",
+    color: "8b949e",
+    description:
+      "Does not follow the required issue or pull request template format.",
   }
 - {
     name: "localized",
@@ -437,6 +462,11 @@
       proceed.",
   }
 - {
+    name: "needs more info",
+    color: "f2cc60",
+    description: "Waiting for additional information from the reporter.",
+  }
+- {
     name: "needs testing",
     color: "f2cc60",
     description:
@@ -448,6 +478,7 @@
     color: "1f6feb",
     description: "Dependency: Node.js runtime updates.",
   }
+- { name: "on hold", color: "f2cc60", description: "Blocked or deferred." }
 - {
     name: "P0: critical",
     color: "d73a4a",
@@ -488,18 +519,18 @@
     description: "Small, backward-compatible bug fix with no new features.",
   }
 - {
-    name: "performance regression",
-    color: "d97706",
-    description:
-      "Introduces a measurable degradation in performance compared to a previous
-      version.",
-  }
-- {
     name: "performance",
     color: "d97706",
     description:
       "Improves speed, memory usage, or resource efficiency without changing
       behavior.",
+  }
+- {
+    name: "performance regression",
+    color: "d97706",
+    description:
+      "Introduces a measurable degradation in performance compared to a previous
+      version.",
   }
 - {
     name: "PR: depends on other",
@@ -546,16 +577,21 @@
       "General tracking label for pull request lifecycle management.",
   }
 - {
-    name: "question-answered",
-    color: "2ea44f",
-    description: "The question has been answered; no further action required.",
-  }
-- {
     name: "question",
     color: "8250df",
     description:
       "Asks for clarification or guidance; not yet confirmed as a bug or
       feature.",
+  }
+- {
+    name: "question-answered",
+    color: "2ea44f",
+    description: "The question has been answered; no further action required.",
+  }
+- {
+    name: "ready for review",
+    color: "f2cc60",
+    description: "Ready for maintainer review.",
   }
 - {
     name: "refactor",
@@ -577,11 +613,17 @@
     description: "Must be resolved before the next release can be published.",
   }
 - {
+    name: "renovate",
+    color: "1f6feb",
+    description: "Automated dependency update by Renovate.",
+  }
+- {
     name: "reopen",
     color: "f2cc60",
     description:
       "Previously closed; reopened due to new activity or unresolved context.",
   }
+- { name: "resolved", color: "2ea44f", description: "Issue has been resolved." }
 - {
     name: "revert",
     color: "8b949e",
@@ -589,17 +631,47 @@
       "Reverts a previously merged change to restore earlier behavior.",
   }
 - {
-    name: "security vulnerability",
-    color: "d73a4a",
-    description:
-      "Confirmed or suspected security vulnerability; handle with restricted
-      visibility.",
+    name: "scope: config",
+    color: "c5def5",
+    description: "Affects configuration files or tooling setup.",
+  }
+- {
+    name: "scope: docs",
+    color: "c5def5",
+    description: "Affects the docs directory.",
+  }
+- {
+    name: "scope: examples",
+    color: "c5def5",
+    description: "Affects the examples directory.",
+  }
+- {
+    name: "scope: scripts",
+    color: "c5def5",
+    description: "Affects the scripts directory.",
+  }
+- {
+    name: "scope: tests",
+    color: "c5def5",
+    description: "Affects the tests directory.",
+  }
+- {
+    name: "scope: workflows",
+    color: "c5def5",
+    description: "Affects GitHub Actions workflows.",
   }
 - {
     name: "security",
     color: "d73a4a",
     description:
       "Relates to security hardening, policy compliance, or threat mitigation.",
+  }
+- {
+    name: "security vulnerability",
+    color: "d73a4a",
+    description:
+      "Confirmed or suspected security vulnerability; handle with restricted
+      visibility.",
   }
 - {
     name: "spam",
@@ -634,14 +706,14 @@
       "Newly created; pending classification, prioritization, and assignment.",
   }
 - {
-    name: "typescript-eslint",
-    color: "1f6feb",
-    description: "Dependency: typescript-eslint parser and plugin updates.",
-  }
-- {
     name: "typescript",
     color: "1f6feb",
     description: "Dependency: TypeScript compiler or type definition updates.",
+  }
+- {
+    name: "typescript-eslint",
+    color: "1f6feb",
+    description: "Dependency: typescript-eslint parser and plugin updates.",
   }
 - {
     name: "under development",
