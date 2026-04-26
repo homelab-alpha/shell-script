@@ -6,7 +6,7 @@
   "prConcurrentLimit": 3,
   "prHourlyLimit": 10,
   "timezone": "Europe/Amsterdam",
-  "schedule": ["* 9-16 * * 1-7"],
+  "schedule": ["* 9-16 * * 1-5"],
   "rangeStrategy": "bump",
   "ignoreDeps": [],
   "ignorePaths": [],
