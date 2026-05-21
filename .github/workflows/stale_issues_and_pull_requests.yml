@@ -59,7 +59,7 @@ jobs:
 
       - name: 🔍 Process stale issues
         id: stale-issues
-        uses: actions/stale@v10.2.0
+        uses: actions/stale@v10.3.0
         with:
           stale-issue-message: |
             ## 👋 Just checking in
@@ -112,7 +112,7 @@ jobs:
 
       - name: 🔍 Process stale pull requests
         id: stale-prs
-        uses: actions/stale@v10.2.0
+        uses: actions/stale@v10.3.0
         with:
           stale-pr-message: |
             ## 👋 Just checking in
