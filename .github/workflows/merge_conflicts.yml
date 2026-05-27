@@ -38,7 +38,7 @@ jobs:
 
       - name: 🔍 Check for merge conflicts
         id: conflict_check
-        uses: eps1lon/actions-label-merge-conflict@v3.0.3
+        uses: eps1lon/actions-label-merge-conflict@v3.1.0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
 
