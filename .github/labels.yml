@@ -25,9 +25,19 @@
     description: "Addresses accessibility compliance or usability improvements.",
   }
 - {
+    name: "actions/checkout",
+    color: "1f6feb",
+    description: "Dependency: GitHub Actions checkout action updates.",
+  }
+- {
     name: "actions/configure-pages",
     color: "1f6feb",
     description: "Dependency: GitHub Actions configure-pages action updates.",
+  }
+- {
+    name: "actions/dependency-review-action",
+    color: "1f6feb",
+    description: "Dependency: GitHub Actions dependency review action updates.",
   }
 - {
     name: "actions/deploy-pages",
@@ -40,6 +50,11 @@
     description: "Dependency: GitHub Actions setup-node action updates.",
   }
 - {
+    name: "actions/stale",
+    color: "1f6feb",
+    description: "Dependency: GitHub Actions stale management action updates.",
+  }
+- {
     name: "actions/upload-pages-artifact",
     color: "1f6feb",
     description: "Dependency: GitHub Actions upload-pages-artifact action updates.",
@@ -47,9 +62,7 @@
 - {
     name: "AI slop",
     color: "8b949e",
-    description:
-      "Content is low-quality, unverified, or AI-generated without meaningful
-      review.",
+    description: "Content is low-quality, unverified, or AI-generated without meaningful review.",
   }
 - {
     name: "approved",
@@ -64,9 +77,7 @@
 - {
     name: "backlog",
     color: "8b949e",
-    description:
-      "Acknowledged but deferred; will be revisited in a future prioritization
-      cycle.",
+    description: "Acknowledged but deferred; will be revisited in a future prioritization cycle.",
   }
 - {
     name: "blocked",
@@ -76,16 +87,12 @@
 - {
     name: "blocked upstream",
     color: "d73a4a",
-    description:
-      "Progress is blocked by an external dependency or upstream issue outside
-      this repository.",
+    description: "Progress is blocked by an external dependency or upstream issue outside this repository.",
   }
 - {
     name: "breaking change",
     color: "d97706",
-    description:
-      "Introduces a change that is incompatible with the current public
-      interface or behavior.",
+    description: "Introduces a change that is incompatible with the current public interface or behavior.",
   }
 - {
     name: "bug",
@@ -100,16 +107,12 @@
 - {
     name: "ci/cd",
     color: "1f6feb",
-    description:
-      "Relates to continuous integration, delivery, or deployment pipeline
-      configuration.",
+    description: "Relates to continuous integration, delivery, or deployment pipeline configuration.",
   }
 - {
     name: "code quality",
     color: "8250df",
-    description:
-      "Improves code style, linting rules, or long-term maintainability without
-      changing behavior.",
+    description: "Improves code style, linting rules, or long-term maintainability without changing behavior.",
   }
 - {
     name: "contributors",
@@ -129,9 +132,7 @@
 - {
     name: "deprecated",
     color: "8b949e",
-    description:
-      "Marks functionality that is outdated and scheduled for removal in a
-      future release.",
+    description: "Marks functionality that is outdated and scheduled for removal in a future release.",
   }
 - {
     name: "dev dependencies",
@@ -146,9 +147,7 @@
 - {
     name: "discussion required",
     color: "8250df",
-    description:
-      "Requires broader consensus or team discussion before any action can be
-      taken.",
+    description: "Requires broader consensus or team discussion before any action can be taken.",
   }
 - {
     name: "docker.io/adguard/adguardhome",
@@ -159,6 +158,11 @@
     name: "docker.io/dbeaver/cloudbeaver",
     color: "1f6feb",
     description: "Dependency: CloudBeaver Docker image updates.",
+  }
+- {
+    name: "docker.io/mariadb",
+    color: "1f6feb",
+    description: "Dependency: MariaDB Docker image updates.",
   }
 - {
     name: "docker.io/mongo",
@@ -188,9 +192,7 @@
 - {
     name: "documentation",
     color: "8250df",
-    description:
-      "Adds, corrects, or improves project documentation without changing code
-      behavior.",
+    description: "Adds, corrects, or improves project documentation without changing code behavior.",
   }
 - {
     name: "dotenv",
@@ -205,9 +207,12 @@
 - {
     name: "enhancement",
     color: "8250df",
-    description:
-      "Improves an existing feature or user experience without introducing
-      breaking changes.",
+    description: "Improves an existing feature or user experience without introducing breaking changes.",
+  }
+- {
+    name: "eps1lon/actions-label-merge-conflict",
+    color: "1f6feb",
+    description: "Dependency: GitHub Actions label merge conflict action updates.",
   }
 - {
     name: "eslint",
@@ -237,9 +242,7 @@
 - {
     name: "external feedback",
     color: "f2cc60",
-    description:
-      "Awaiting or incorporating feedback from contributors outside the core
-      team.",
+    description: "Awaiting or incorporating feedback from contributors outside the core team.",
   }
 - {
     name: "faq",
@@ -249,9 +252,7 @@
 - {
     name: "feature parity",
     color: "8250df",
-    description:
-      "Brings a missing capability in line with a comparable platform or
-      version.",
+    description: "Brings a missing capability in line with a comparable platform or version.",
   }
 - {
     name: "feature request",
@@ -306,9 +307,7 @@
 - {
     name: "ghcr.io/linuxserver/unifi-network-application",
     color: "1f6feb",
-    description:
-      "Dependency: UniFi Network Application (LinuxServer.io) container image
-      updates.",
+    description: "Dependency: UniFi Network Application (LinuxServer.io) container image updates.",
   }
 - {
     name: "ghcr.io/netdata/netdata",
@@ -408,16 +407,12 @@
 - {
     name: "major",
     color: "d97706",
-    description:
-      "Significant change with broad impact; requires careful review before
-      merging.",
+    description: "Significant change with broad impact; requires careful review before merging.",
   }
 - {
     name: "migration",
     color: "8250df",
-    description:
-      "Involves migrating data, infrastructure, or code to a new structure or
-      platform.",
+    description: "Involves migrating data, infrastructure, or code to a new structure or platform.",
   }
 - {
     name: "minor",
@@ -427,16 +422,12 @@
 - {
     name: "needs design",
     color: "f2cc60",
-    description:
-      "Requires a design decision or visual specification before implementation
-      can begin.",
+    description: "Requires a design decision or visual specification before implementation can begin.",
   }
 - {
     name: "needs input",
     color: "f2cc60",
-    description:
-      "Waiting for additional information from the reporter or author to
-      proceed.",
+    description: "Waiting for additional information from the reporter or author to proceed.",
   }
 - {
     name: "needs more info",
@@ -446,9 +437,7 @@
 - {
     name: "needs testing",
     color: "f2cc60",
-    description:
-      "Requires manual testing or QA validation before it can be closed or
-      merged.",
+    description: "Requires manual testing or QA validation before it can be closed or merged.",
   }
 - {
     name: "node",
@@ -459,23 +448,17 @@
 - {
     name: "P0: critical",
     color: "d73a4a",
-    description:
-      "Highest priority; blocks core functionality and requires immediate
-      action.",
+    description: "Highest priority; blocks core functionality and requires immediate action.",
   }
 - {
     name: "P1: high",
     color: "d73a4a",
-    description:
-      "High priority; significantly impacts users and should be addressed as
-      soon as possible.",
+    description: "High priority; significantly impacts users and should be addressed as soon as possible.",
   }
 - {
     name: "P2: moderate",
     color: "f2cc60",
-    description:
-      "Moderate priority; scheduled for a near-term milestone under normal
-      conditions.",
+    description: "Moderate priority; scheduled for a near-term milestone under normal conditions.",
   }
 - {
     name: "P3: low",
@@ -485,9 +468,7 @@
 - {
     name: "P4: negligible",
     color: "8b949e",
-    description:
-      "Negligible impact; may be addressed opportunistically with no set
-      timeline.",
+    description: "Negligible impact; may be addressed opportunistically with no set timeline.",
   }
 - {
     name: "patch",
@@ -497,23 +478,17 @@
 - {
     name: "performance",
     color: "d97706",
-    description:
-      "Improves speed, memory usage, or resource efficiency without changing
-      behavior.",
+    description: "Improves speed, memory usage, or resource efficiency without changing behavior.",
   }
 - {
     name: "performance regression",
     color: "d97706",
-    description:
-      "Introduces a measurable degradation in performance compared to a previous
-      version.",
+    description: "Introduces a measurable degradation in performance compared to a previous version.",
   }
 - {
     name: "PR: depends on other",
     color: "f2cc60",
-    description:
-      "Cannot be merged until one or more other pull requests are completed
-      first.",
+    description: "Cannot be merged until one or more other pull requests are completed first.",
   }
 - {
     name: "PR: needs review",
@@ -523,16 +498,12 @@
 - {
     name: "PR: please address review comments",
     color: "f2cc60",
-    description:
-      "Reviewer has requested changes; author must address all comments before
-      re-requesting review.",
+    description: "Reviewer has requested changes; author must address all comments before re-requesting review.",
   }
 - {
     name: "PR: please resolve merge conflict",
     color: "f2cc60",
-    description:
-      "Contains unresolved merge conflicts that must be fixed before this can be
-      merged.",
+    description: "Contains unresolved merge conflicts that must be fixed before this can be merged.",
   }
 - {
     name: "prettier",
@@ -552,9 +523,7 @@
 - {
     name: "question",
     color: "8250df",
-    description:
-      "Asks for clarification or guidance; not yet confirmed as a bug or
-      feature.",
+    description: "Asks for clarification or guidance; not yet confirmed as a bug or feature.",
   }
 - {
     name: "question-answered",
@@ -569,16 +538,12 @@
 - {
     name: "refactor",
     color: "8250df",
-    description:
-      "Restructures existing code without changing external behavior or adding
-      features.",
+    description: "Restructures existing code without changing external behavior or adding features.",
   }
 - {
     name: "release",
     color: "1f6feb",
-    description:
-      "Relates to versioning, release preparation, or the release management
-      workflow.",
+    description: "Relates to versioning, release preparation, or the release management workflow.",
   }
 - {
     name: "releaseblocker",
@@ -639,23 +604,17 @@
 - {
     name: "security vulnerability",
     color: "d73a4a",
-    description:
-      "Confirmed or suspected security vulnerability; handle with restricted
-      visibility.",
+    description: "Confirmed or suspected security vulnerability; handle with restricted visibility.",
   }
 - {
     name: "spam",
     color: "8b949e",
-    description:
-      "Irrelevant, promotional, or malicious content; will be closed without
-      action.",
+    description: "Irrelevant, promotional, or malicious content; will be closed without action.",
   }
 - {
     name: "stale",
     color: "8b949e",
-    description:
-      "Has had no activity for an extended period and may be closed if no
-      response is received.",
+    description: "Has had no activity for an extended period and may be closed if no response is received.",
   }
 - {
     name: "super-linter/super-linter",
@@ -665,9 +624,7 @@
 - {
     name: "test failures",
     color: "d73a4a",
-    description:
-      "One or more automated tests are currently failing and must be fixed
-      before merging.",
+    description: "One or more automated tests are currently failing and must be fixed before merging.",
   }
 - {
     name: "triage",
