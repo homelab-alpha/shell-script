@@ -160,6 +160,11 @@
     description: "Dependency: CloudBeaver Docker image updates.",
   }
 - {
+    name: "docker.io/haproxytech/haproxy-ubuntu",
+    color: "1f6feb",
+    description: "Dependency: HAProxy Ubuntu Docker image updates.",
+  }
+- {
     name: "docker.io/mariadb",
     color: "1f6feb",
     description: "Dependency: MariaDB Docker image updates.",
@@ -298,6 +303,11 @@
     name: "ghcr.io/jellyfin/jellyfin",
     color: "1f6feb",
     description: "Dependency: Jellyfin container image updates.",
+  }
+- {
+    name: "ghcr.io/lyqht/mini-qr",
+    color: "1f6feb",
+    description: "Dependency: Mini QR container image updates.",
   }
 - {
     name: "ghcr.io/linuxserver/speedtest-tracker",
