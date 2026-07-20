@@ -52,7 +52,7 @@ jobs:
           echo "::endgroup::"
 
       - name: 📦 Download Labels Configuration
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           sparse-checkout: .github/labels.yml
 
