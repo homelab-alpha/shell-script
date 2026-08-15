@@ -190,6 +190,11 @@
     description: "Dependency: Portainer EE Docker image updates.",
   }
 - {
+    name: "docker.io/valkey/valkey",
+    color: "1f6feb",
+    description: "Dependency: Valkey Docker image updates.",
+  }
+- {
     name: "docker.io/ronivay/xen-orchestra",
     color: "1f6feb",
     description: "Dependency: Xen Orchestra Docker image updates.",
@@ -303,6 +308,11 @@
     name: "ghcr.io/jellyfin/jellyfin",
     color: "1f6feb",
     description: "Dependency: Jellyfin container image updates.",
+  }
+- {
+    name: "ghcr.io/louislam/uptime-kuma",
+    color: "1f6feb",
+    description: "Dependency: Uptime Kuma container image updates.",
   }
 - {
     name: "ghcr.io/lyqht/mini-qr",
