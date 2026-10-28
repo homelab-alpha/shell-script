@@ -2,8 +2,8 @@
 
 # Filename: install_latest_jetbrains_mono.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-05-09T10:21:54+02:00
-# Version: 1.1.2
+# Date: 2026-10-28T12:10:35+01:00
+# Version: 1.1.3
 
 # Description: This script fetches the latest version of JetBrains Mono from the
 # official GitHub repository, downloads it, installs it to the system-wide fonts
@@ -25,7 +25,7 @@ log() {
 # Function to log error messages with timestamp.
 log_error() {
   local TIMESTAMP
-  TIMESTAMP=$(date +"%b %b %d, %Y %H:%M:%S")
+  TIMESTAMP=$(date +"%b %d, %Y %H:%M:%S")
   echo "$TIMESTAMP [ERROR] - $1" | tee -a "$LOG_FILE"
 }
 
