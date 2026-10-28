@@ -2,8 +2,8 @@
 
 # Filename: install_latest_hugo.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-05-09T10:21:45+02:00
-# Version: 1.1.2
+# Date: 2026-10-28T12:10:35+01:00
+# Version: 1.1.3
 
 # Description: This script fetches the latest version of Hugo from the official
 # GitHub repository, downloads it, installs it to /usr/local/hugo-extended, and
@@ -35,7 +35,7 @@ log "Script execution started."
 
 # Checking if Hugo is already installed, and log the current version if present
 log "Checking current installed version of Hugo (if available)..."
-if command -v sass &>/dev/null; then
+if command -v hugo &>/dev/null; then
   log "Hugo version: $(hugo version)"
 else
   log "Hugo is not currently installed."

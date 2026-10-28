@@ -2,8 +2,8 @@
 
 # Filename: cronjob_template.sh
 # Author: GJS (homelab-aplha)
-# Date: 2024-12-07T12:10:17+01:00
-# Version: 1.0.1
+# Date: 2026-10-28T12:10:35+01:00
+# Version: 1.0.2
 
 # Description: This script is a cronjob template and sends a ping to a
 # monitoring server for system health check.
@@ -122,7 +122,7 @@ log_file="$log_dir/cronjob_template_cron.log"
 monitoring_server_url="<insert_url>"
 
 # Name of the Certificate Authority you want to use for this script
-cert_name="<insert_cert.crt"
+cert_name="<insert_cert.crt>"
 
 # DO NOT EDIT: Certificate Authority Path for curl, this will break the script
 cert_file=""
