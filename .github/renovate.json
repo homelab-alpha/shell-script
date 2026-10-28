@@ -13,7 +13,11 @@
   "assignees": ["homelab-alpha"],
   "reviewers": ["homelab-alpha"],
   "automergeSchedule": [],
-  "automergeType": "squash",
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  },
   "packageRules": [
     {
       "description": "Never automerge major/minor",
@@ -26,12 +30,6 @@
       "automerge": true,
       "platformAutomerge": true,
       "addLabels": ["automerge"]
-    },
-    {
-      "description": "Prioritize security updates",
-      "matchUpdateTypes": ["vulnerability"],
-      "addLabels": ["security"],
-      "prPriority": 100
     },
     {
       "description": "Keep Node.js on major version 22",
