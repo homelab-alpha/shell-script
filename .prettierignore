@@ -1,0 +1,81 @@
+# Prettier Ignore (Blocklist)
+
+# --- Build Artifacts ---
+build/
+coverage/
+dist/
+out/
+
+# --- Dependencies ---
+node_modules/
+
+# --- Lock Files ---
+composer.lock
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# --- IDEs and Editors ---
+.idea/
+.vscode/
+*.iml
+*.iws
+*.sublime-project
+*.sublime-workspace
+
+# --- Logs ---
+*.binlog
+*.err
+*.log
+CHANGELOG.md
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Node.js ---
+.eslintcache
+
+# --- System Files ---
+.DS_Store
+.LSOverride
+Desktop.ini
+Thumbs.db
+
+# --- Temporary Files ---
+*.bak
+*.swp
+*.tmp
+temp*/
+TEMP*/
+
+# --- Version Control ---
+**/.git
+**/.hg
+**/.svn
+
+# --- .github ---
+.github/DISCUSSION_TEMPLATE/
+.github/ISSUE_TEMPLATE/bug_report.yml
+.github/ISSUE_TEMPLATE/security_report.yml
+# .github/workflows/
+.github/CODEOWNERS
+.github/pull_request_template.md
+.github/super_linter.env
+
+# --- Environment & Config ---
+.env
+.env.*
+.env.example
+CNAME
+go.mod
+LICENSE
+NOTICE
+
+# --- Directories ---
+playwright-report/
+public/
+resources/
+test-results/
+
+# --- Generated Files ---
+CONTRIBUTORS.md

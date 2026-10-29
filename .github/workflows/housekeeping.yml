@@ -44,18 +44,17 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-
       DRY_RUN: >-
         ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
       CACHE_RETENTION_DAYS: >-
         ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.cache_retention_days || '7' }}
       WORKFLOW_RETENTION_DAYS: >-
-        ${{ github.event_name == 'workflow_dispatch' &&
-         github.event.inputs.workflow_retention_days || '28' }}
+        ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.workflow_retention_days || '28' }}
 
     steps:
       - name: 🏁 Initialize housekeeping environment
         id: init
+        shell: bash
         run: |
           set -Eeuo pipefail
 
@@ -67,7 +66,6 @@ jobs:
 
           if [ "$DRY_RUN" = "true" ]; then
             echo "::notice title=Mode::ℹ️ Dry run enabled — no deletions will occur"
-
           else
             echo "::warning title=Mode::⚠️ Live mode enabled — deletions will occur"
           fi
@@ -78,6 +76,7 @@ jobs:
 
       - name: 🗑️ Remove old Actions caches
         id: cache_cleanup
+        shell: bash
         run: |
           set -Eeuo pipefail
 
@@ -89,7 +88,6 @@ jobs:
           if [ "$CACHE_RETENTION_DAYS" -eq 0 ]; then
             CUTOFF_DATE="$(date -d '-1 minutes' +%s)"
             echo "Minimum retention enforced: 1 minute"
-
           else
             CUTOFF_DATE="$(date -d "-$CACHE_RETENTION_DAYS days" +%s)"
           fi
@@ -108,10 +106,11 @@ jobs:
 
                   if [ "$DRY_RUN" != "true" ]; then
                     if ! gh api -X DELETE "/repos/$REPO/actions/caches/$CACHE_ID"; then
-
                       echo "::error title=Cache deletion failed::❌ Failed to delete Cache ID $CACHE_ID"
                       exit 1
                     fi
+                  else
+                    echo "::notice title=Dry-run::ℹ️ Would delete Cache ID $CACHE_ID"
                   fi
 
                   COUNT="$(cat "$COUNT_FILE")"
@@ -127,6 +126,7 @@ jobs:
 
       - name: 🗑️ Remove old workflow runs
         id: run_cleanup
+        shell: bash
         run: |
           set -Eeuo pipefail
 
@@ -138,7 +138,6 @@ jobs:
           if [ "$WORKFLOW_RETENTION_DAYS" -eq 0 ]; then
             CUTOFF_DATE="$(date -d '-1 minutes' +%s)"
             echo "Minimum retention enforced: 1 minute"
-
           else
             CUTOFF_DATE="$(date -d "-$WORKFLOW_RETENTION_DAYS days" +%s)"
           fi
@@ -157,10 +156,11 @@ jobs:
 
                   if [ "$DRY_RUN" != "true" ]; then
                     if ! gh api -X DELETE "/repos/$REPO/actions/runs/$RUN_ID"; then
-
                       echo "::error title=Workflow deletion failed::❌ Failed to delete Run ID $RUN_ID"
                       exit 1
                     fi
+                  else
+                    echo "::notice title=Dry-run::ℹ️ Would delete Run ID $RUN_ID"
                   fi
 
                   COUNT="$(cat "$COUNT_FILE")"
@@ -176,12 +176,40 @@ jobs:
 
       - name: 📊 Generate housekeeping summary
         if: always()
+        shell: bash
+        env:
+          CACHE_OUTCOME: ${{ steps.cache_cleanup.outcome }}
+          RUN_OUTCOME: ${{ steps.run_cleanup.outcome }}
+          CACHE_COUNT: ${{ steps.cache_cleanup.outputs.count }}
+          RUN_COUNT: ${{ steps.run_cleanup.outputs.count }}
+          SERVER_URL: ${{ github.server_url }}
+          REPO_FULL: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
+          set -Eeuo pipefail
+
           echo "::group::📊 Generating Summary Report"
 
-          CACHE_STATUS="${{ steps.cache_cleanup.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
-          RUN_STATUS="${{ steps.run_cleanup.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
-          FINAL_STATUS="${{ (steps.cache_cleanup.outcome == 'success' && steps.run_cleanup.outcome == 'success') && '✅ Completed' || '⚠️ Partial Failure' }}"
+          if [ "$CACHE_OUTCOME" = "success" ]; then
+            CACHE_STATUS="✅ Success"
+          else
+            CACHE_STATUS="❌ Failed"
+          fi
+
+          if [ "$RUN_OUTCOME" = "success" ]; then
+            RUN_STATUS="✅ Success"
+          else
+            RUN_STATUS="❌ Failed"
+          fi
+
+          if [ "$CACHE_OUTCOME" = "success" ] && [ "$RUN_OUTCOME" = "success" ]; then
+            FINAL_STATUS="✅ Completed"
+          else
+            FINAL_STATUS="⚠️ Partial Failure"
+          fi
+
+          CACHE_PROCESSED="${CACHE_COUNT:-0}"
+          RUN_PROCESSED="${RUN_COUNT:-0}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🧹 Housekeeping Summary
@@ -191,10 +219,10 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Target | Action | Items Processed | Status |
-          | :--- | :--- | :--- | :--- |
-          | 📦 Caches | Deletion | ${{ steps.cache_cleanup.outputs.count || 0 }} | $CACHE_STATUS |
-          | ⚙️ Workflow Runs | Deletion | ${{ steps.run_cleanup.outputs.count || 0 }} | $RUN_STATUS |
+          | Target           | Action   | Items Processed  | Status        |
+          | :--------------- | :------- | :--------------- | :------------ |
+          | 📦 Caches        | Deletion | $CACHE_PROCESSED | $CACHE_STATUS |
+          | ⚙️ Workflow Runs | Deletion | $RUN_PROCESSED   | $RUN_STATUS   |
 
           ### ⚙️ Runtime Configuration
 
@@ -205,7 +233,7 @@ jobs:
           ### 🧩 Context
 
           - **Repository:** $REPO
-          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - **Workflow Run:** [View Details]($SERVER_URL/$REPO_FULL/actions/runs/$RUN_ID)
           EOF
 
           echo "::endgroup::"

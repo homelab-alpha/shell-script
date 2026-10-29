@@ -1,0 +1,86 @@
+---
+labels: ["announcement", "P4: negligible"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📣 Announcements
+
+        This category is reserved for official announcements from the **shell-script** maintainers.
+        Here you will find important updates, release notes, breaking changes, and other project-wide communications.
+
+        > [!NOTE]
+        >
+        > Announcements are posted exclusively by project maintainers.
+        > If you have a question or want to share feedback, please use one of the following channels:
+        >
+        > - [❓ Help & Support](https://github.com/homelab-alpha/shell-script/discussions/categories/help-support)
+        > - [🙏 Q&A](https://github.com/homelab-alpha/shell-script/discussions/categories/q-a)
+        > - [✨ Feature Requests](https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request)
+        > - [🎯 Feedback](https://github.com/homelab-alpha/shell-script/discussions/categories/feedback)
+
+  - type: textarea
+    id: announcement-title
+    validations:
+      required: true
+    attributes:
+      label: 📌 Announcement Title
+      description: >
+        Provide a clear and concise title that summarizes the announcement.
+      placeholder: |
+        e.g., v1.2.0 Released — New export feature and breaking API changes
+
+  - type: dropdown
+    id: announcement-type
+    validations:
+      required: true
+    attributes:
+      label: 🗂️ Type
+      description: >
+        Select the type of announcement. This helps readers quickly understand the nature and urgency of the update.
+      options:
+        - "🚀 Release         — new version or milestone"
+        - "⚠️ Breaking Change — incompatible changes requiring action"
+        - "🔒 Security        — security-related update or advisory"
+        - "📢 General         — project news, policy changes, or updates"
+        - "🗓️ Maintenance     — scheduled downtime, migrations, or housekeeping"
+        - "🏁 End of Life     — deprecation or end-of-support notice"
+
+  - type: textarea
+    id: announcement-details
+    validations:
+      required: true
+    attributes:
+      label: 📝 Details
+      description: >
+        Provide a detailed description of the announcement. Include relevant context, links, and any actions required from users.
+      placeholder: |
+        Describe the announcement in detail. Include what changed, why it matters, and what users need to do (if anything).
+
+  - type: textarea
+    id: action-required
+    validations:
+      required: false
+    attributes:
+      label: ✅ Action Required
+      description: >
+        If users need to take specific steps in response to this announcement, list them here.
+      placeholder: |
+        e.g.,
+        - Update your configuration file to include the new `timeout` field.
+        - Run `npm install` to pull in the latest dependencies.
+        - Review the migration guide before upgrading.
+
+  - type: textarea
+    id: additional-resources
+    validations:
+      required: false
+    attributes:
+      label: 🔗 Additional Resources
+      description: >
+        Link to any related resources such as release notes, migration guides, changelogs, or documentation updates.
+      placeholder: |
+        e.g.,
+        - [Release Notes](https://github.com/homelab-alpha/shell-script/releases/tag/v1.2.0)
+        - [Migration Guide](https://github.com/homelab-alpha/shell-script/blob/main/docs/migration-v1.2.md)
+        - [Changelog](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md)

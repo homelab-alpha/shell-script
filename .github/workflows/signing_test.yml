@@ -1,0 +1,262 @@
+---
+name: 🔏 Test Signing Verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (do not push changes)"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: signing-test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-signing:
+    name: 🔏 Test API-based commit and tag signing
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::🔏 API signing test initiated"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: $REPO"
+          echo "Dry run:    $DRY_RUN"
+          echo "Runner OS:  ${{ runner.os }}"
+          echo "::endgroup::"
+
+      - name: 📥 Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: 🔏 Validate API signing prerequisites
+        run: |
+          source scripts/setup_gpg.sh --api
+
+      - name: 📝 Create test commit via Contents API PUT
+        if: github.event.inputs.dry_run == 'false'
+        id: test_commit
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📝 Creating test commit via Contents API PUT"
+
+          TEST_BRANCH="test/signing-$(date +%s)"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          BASE_SHA=$(gh api "repos/$REPO/git/ref/heads/${{ github.ref_name }}" \
+            --jq '.object.sha')
+
+          gh api --method POST "repos/$REPO/git/refs" \
+            -f ref="refs/heads/$TEST_BRANCH" \
+            -f sha="$BASE_SHA"
+
+          TEST_CONTENT=$(echo "Signing test at $TIMESTAMP" | base64 --wrap=0)
+
+          COMMIT_RESPONSE=$(gh api --method PUT "repos/$REPO/contents/.signing-test" \
+            -f message="test(signing): verify API signing [skip ci]" \
+            -f content="$TEST_CONTENT" \
+            -f branch="$TEST_BRANCH")
+
+          COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.commit.sha')
+
+          {
+            echo "commit_sha=$COMMIT_SHA"
+            echo "test_branch=$TEST_BRANCH"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "::notice title=Test commit created::🔏 Commit ${COMMIT_SHA:0:7} created on $TEST_BRANCH via Contents API PUT"
+          echo "::endgroup::"
+
+      - name: 🔍 Verify commit signature via API
+        if: github.event.inputs.dry_run == 'false'
+        id: verify_commit
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔍 Verifying commit signature"
+
+          COMMIT_SHA="${{ steps.test_commit.outputs.commit_sha }}"
+
+          VERIFICATION=$(gh api "repos/$REPO/commits/$COMMIT_SHA" \
+            --jq '[(.commit.verification.verified | tostring), .commit.verification.reason] | @tsv')
+
+          VERIFIED=$(echo "$VERIFICATION" | cut -f1)
+          REASON=$(echo "$VERIFICATION" | cut -f2)
+
+          {
+            echo "commit_verified=$VERIFIED"
+            echo "commit_reason=$REASON"
+          } >> "$GITHUB_OUTPUT"
+
+          if [[ "$VERIFIED" == "true" ]]; then
+            echo "::notice title=Commit verified::✅ Commit ${COMMIT_SHA:0:7} is verified (reason: $REASON)"
+          else
+            echo "::error title=Commit not verified::❌ Commit ${COMMIT_SHA:0:7} is NOT verified (reason: $REASON)"
+          fi
+
+          echo "::endgroup::"
+
+      - name: 🏷️ Create test release and tag via gh release create
+        if: github.event.inputs.dry_run == 'false'
+        id: test_tag
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🏷️ Creating release and tag via gh release create"
+
+          TEST_TAG="test-signing-$(date +%s)"
+          TEST_BRANCH="${{ steps.test_commit.outputs.test_branch }}"
+
+          gh release create "$TEST_TAG" \
+            --repo "$REPO" \
+            --target "$TEST_BRANCH" \
+            --title "🔏 Signing Test $TEST_TAG" \
+            --notes "Automated signing test — this release will be deleted." \
+            --prerelease \
+            --latest=false
+
+          echo "test_tag=$TEST_TAG" >> "$GITHUB_OUTPUT"
+
+          echo "::notice title=Release created::🔏 Release $TEST_TAG created via gh release create"
+          echo "::endgroup::"
+
+      - name: 🔍 Verify tag via underlying commit
+        if: github.event.inputs.dry_run == 'false'
+        id: verify_tag
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔍 Verifying tag via underlying commit"
+
+          TEST_TAG="${{ steps.test_tag.outputs.test_tag }}"
+
+          REF_DATA=$(gh api "repos/$REPO/git/ref/tags/$TEST_TAG" \
+            --jq '[.object.type, .object.sha] | @tsv')
+
+          OBJ_TYPE=$(echo "$REF_DATA" | cut -f1)
+          OBJ_SHA=$(echo "$REF_DATA" | cut -f2)
+
+          echo "Tag type: $OBJ_TYPE"
+
+          if [[ "$OBJ_TYPE" == "tag" ]]; then
+            COMMIT_SHA=$(gh api "repos/$REPO/git/tags/$OBJ_SHA" --jq '.object.sha')
+            TAG_TYPE_LABEL="annotated"
+          else
+            COMMIT_SHA="$OBJ_SHA"
+            TAG_TYPE_LABEL="lightweight"
+          fi
+
+          echo "Underlying commit: ${COMMIT_SHA:0:7}"
+
+          COMMIT_VERIFY=$(gh api "repos/$REPO/commits/$COMMIT_SHA" \
+            --jq '[(.commit.verification.verified | tostring), (.commit.verification.reason // "unknown")] | @tsv')
+
+          VERIFIED=$(echo "$COMMIT_VERIFY" | cut -f1)
+          REASON=$(echo "$COMMIT_VERIFY" | cut -f2)
+
+          {
+            echo "tag_verified=$VERIFIED"
+            echo "tag_type=$TAG_TYPE_LABEL"
+            echo "tag_commit_sha=${COMMIT_SHA:0:7}"
+          } >> "$GITHUB_OUTPUT"
+
+          if [[ "$VERIFIED" == "true" ]]; then
+            echo "::notice title=Tag verified::✅ Tag $TEST_TAG ($TAG_TYPE_LABEL → ${COMMIT_SHA:0:7}) points to verified commit (reason: $REASON)"
+          else
+            echo "::error title=Tag not verified::❌ Tag $TEST_TAG ($TAG_TYPE_LABEL → ${COMMIT_SHA:0:7}) points to unverified commit (reason: $REASON)"
+          fi
+
+          echo "::endgroup::"
+
+      - name: 🧹 Cleanup test objects
+        if: github.event.inputs.dry_run == 'false'
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🧹 Cleaning up test release, tag, and branch"
+
+          TEST_TAG="${{ steps.test_tag.outputs.test_tag }}"
+          TEST_BRANCH="${{ steps.test_commit.outputs.test_branch }}"
+
+          gh release delete "$TEST_TAG" --repo "$REPO" --yes 2>/dev/null || true
+
+          gh api --method DELETE "repos/$REPO/git/refs/tags/$TEST_TAG" 2>/dev/null || true
+
+          gh api --method DELETE "repos/$REPO/git/refs/heads/$TEST_BRANCH" 2>/dev/null || true
+
+          echo "::notice title=Cleanup complete::🧹 Test release, tag, and branch removed"
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📊 Generating Summary Report"
+
+          if [[ "$DRY_RUN" == "true" ]]; then
+            COMMIT_STATUS="⏭️ Skipped (dry run)"
+            TAG_STATUS="⏭️ Skipped (dry run)"
+          else
+            COMMIT_VERIFIED="${{ steps.verify_commit.outputs.commit_verified || 'N/A' }}"
+            TAG_VERIFIED="${{ steps.verify_tag.outputs.tag_verified || 'N/A' }}"
+            TAG_TYPE="${{ steps.verify_tag.outputs.tag_type || 'N/A' }}"
+            COMMIT_REASON="${{ steps.verify_commit.outputs.commit_reason || 'unknown' }}"
+            TAG_COMMIT="${{ steps.verify_tag.outputs.tag_commit_sha || 'N/A' }}"
+
+            if [[ "$COMMIT_VERIFIED" == "true" ]]; then
+              COMMIT_STATUS="✅ Verified ($COMMIT_REASON)"
+            else
+              COMMIT_STATUS="❌ Not verified ($COMMIT_REASON)"
+            fi
+
+            if [[ "$TAG_VERIFIED" == "true" ]]; then
+              TAG_STATUS="✅ Verified ($TAG_TYPE → $TAG_COMMIT)"
+            else
+              TAG_STATUS="❌ Not verified ($TAG_TYPE → $TAG_COMMIT)"
+            fi
+          fi
+
+          OVERALL="${{ job.status == 'success' && '✅' || '❌' }}"
+
+          cat << EOF >> "$GITHUB_STEP_SUMMARY"
+          ## ${OVERALL} Signing Test Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Test Results
+
+          | API Method        | Object | Status         |
+          | :---------------- | :----- | :------------- |
+          | Contents API PUT  | Commit | $COMMIT_STATUS |
+          | gh release create | Tag    | $TAG_STATUS    |
+
+          ### ⚙️ Configuration
+
+          - **Dry Run:** \`$DRY_RUN\`
+          - **Commit SHA:** \`${{ steps.test_commit.outputs.commit_sha || 'N/A' }}\`
+          - **Test Tag:** \`${{ steps.test_tag.outputs.test_tag || 'N/A' }}\`
+          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+          ### 🧩 How It Works
+
+          - Commits via Contents API **PUT** are automatically signed by GitHub.
+          - \`gh release create\` creates a **lightweight tag** pointing to the target commit.
+          - The tag inherits the **"Verified" badge** from the underlying commit's signature.
+          - Verification checks the **commit**, not the tag object itself.
+          EOF
+
+          echo "::endgroup::"

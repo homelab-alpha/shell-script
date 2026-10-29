@@ -1,0 +1,625 @@
+---
+name: 🚀 Release Manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_type:
+        description: "Which part of the version should be increased?"
+        required: true
+        type: choice
+        default: testing
+        options:
+          - testing
+          - patch
+          - minor
+          - major
+      release_type:
+        description: "Release type (suffix)"
+        required: true
+        type: choice
+        default: alpha
+        options:
+          - alpha
+          - beta
+          - final
+      post_announcement:
+        description: "Post announcement to GitHub Discussions"
+        required: true
+        type: boolean
+        default: true
+      dry_run:
+        description: "Simulation (do not push changes)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  discussions: write
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: 📦 Execute Release Process
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      BUMP_TYPE: ${{ inputs.bump_type }}
+      RELEASE_TYPE: ${{ inputs.release_type }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      POST_ANNOUNCEMENT: ${{ inputs.post_announcement }}
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::🚀 Starting release process for $REPO"
+          echo "::group::ℹ️ Execution Parameters"
+          echo "Bump Type:         $BUMP_TYPE"
+          echo "Release Type:      $RELEASE_TYPE"
+          echo "Dry Run:           $DRY_RUN"
+          echo "Post Announcement: $POST_ANNOUNCEMENT"
+          echo "::endgroup::"
+
+      - name: 🏗️ Checkout source code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: 🔢 Calculate new version
+        id: versioning
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔄 Version calculation"
+
+          LAST_TAG=$(git tag --sort=-version:refname \
+            | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true)
+          [[ -z "$LAST_TAG" ]] && LAST_TAG="v0.0.0"
+
+          echo "Current tag: $LAST_TAG"
+
+          if [[ "$LAST_TAG" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)(-([a-zA-Z]+)\.([0-9]+))?$ ]]; then
+            MAJOR="${BASH_REMATCH[1]}"
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            STAGE_NUM="${BASH_REMATCH[6]:-0}"
+          else
+            echo "::warning title=Tag Format::⚠️ Tag $LAST_TAG is non-standard. Resetting to v0.0.0 logic."
+            MAJOR=0; MINOR=0; PATCH=0; STAGE_NUM=0
+          fi
+
+          case "$BUMP_TYPE" in
+            major)   MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0; STAGE_NUM=0 ;;
+            minor)   MINOR=$((MINOR + 1)); PATCH=0; STAGE_NUM=0 ;;
+            patch)   PATCH=$((PATCH + 1)); STAGE_NUM=0 ;;
+            testing) STAGE_NUM=$((STAGE_NUM + 1)) ;;
+            *)
+              echo "::error title=Invalid Bump Type::❌ Unknown bump type: $BUMP_TYPE"
+              exit 1
+              ;;
+          esac
+
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          if [[ "$RELEASE_TYPE" != "final" ]]; then
+            [[ "$STAGE_NUM" -eq 0 ]] && STAGE_NUM=1
+            NEW_VERSION="${NEW_VERSION}-${RELEASE_TYPE}.${STAGE_NUM}"
+          fi
+
+          {
+            echo "new_tag=${NEW_VERSION}"
+            echo "old_tag=${LAST_TAG}"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "::notice title=Version Computed::🔢 Target: ${NEW_VERSION} (from ${LAST_TAG})"
+          echo "::endgroup::"
+
+      - name: 🔎 Check that the release can start
+        if: inputs.dry_run == false
+        id: preflight
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔎 Preflight checks"
+
+          BRANCH="chore/changelog-${NEW_TAG}"
+
+          if git rev-parse --verify --quiet "refs/tags/${NEW_TAG}" >/dev/null; then
+            echo "::error title=Tag exists::❌ The tag ${NEW_TAG} already exists"
+            exit 1
+          fi
+
+          OPEN_PRS=$(gh api "repos/${REPO}/pulls?state=open&head=${REPO%%/*}:${BRANCH}" \
+            --jq 'length')
+          if [[ "$OPEN_PRS" != "0" ]]; then
+            echo "::error title=Changelog pull request open::❌ A pull request from ${BRANCH} is still open. Merge or close it, then run the workflow again."
+            exit 1
+          fi
+
+          echo "::notice title=Preflight::✅ ${NEW_TAG} can be released"
+          echo "::endgroup::"
+
+      - name: 📝 Generate release notes
+        id: release_notes
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📝 Creating release notes"
+
+          OLD_TAG="${{ steps.versioning.outputs.old_tag }}"
+          NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
+
+          if git rev-parse --verify "$OLD_TAG" >/dev/null 2>&1; then
+            COMMITS=$(git log "${OLD_TAG}..HEAD" \
+              --pretty=format:"%s|%H|%ae" 2>/dev/null || true)
+          else
+            COMMITS=$(git log HEAD \
+              --pretty=format:"%s|%H|%ae" 2>/dev/null || true)
+          fi
+
+          {
+            echo "## ${NEW_TAG} ($(date +'%Y-%m-%d'))"
+            echo ""
+          } | tee release_notes.md changelog_entry.tmp > /dev/null
+
+          write_section() {
+            local icon="$1"
+            local title="$2"
+            local regex="$3"
+            local matched_file="$RUNNER_TEMP/matched_$$.txt"
+            local unmatched_file="$RUNNER_TEMP/unmatched_$$.txt"
+
+            true > "$matched_file"
+            true > "$unmatched_file"
+
+            while IFS='|' read -r subject hash email; do
+              [[ -z "$subject" ]] && continue
+              if echo "$subject" | grep -Eiq "$regex"; then
+                echo "${subject}|${hash}|${email}" >> "$matched_file"
+              else
+                echo "${subject}|${hash}|${email}" >> "$unmatched_file"
+              fi
+            done < "$RUNNER_TEMP/remaining_$$.txt"
+
+            mv "$unmatched_file" "$RUNNER_TEMP/remaining_$$.txt"
+
+            if [[ -s "$matched_file" ]]; then
+              {
+                echo "### ${icon} ${title}"
+                echo ""
+              } | tee -a release_notes.md changelog_entry.tmp > /dev/null
+
+              while IFS='|' read -r subject hash email; do
+                [[ -z "$subject" ]] && continue
+                SHORT_HASH="${hash:0:7}"
+                CLEAN_SUBJECT=$(echo "$subject" | sed -E 's/ \(#[0-9]+\)//')
+
+                GH_USER=$(gh api "repos/${REPO}/commits/${hash}" \
+                  --jq '.author.login // ""' 2>/dev/null || true)
+
+                PR_NUM=$(echo "$subject" | grep -oP '\(#\K[0-9]+(?=\))' || true)
+
+                if [[ -n "$PR_NUM" && -n "$GH_USER" ]]; then
+                  echo "- ${subject} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash})) by [@${GH_USER}](https://github.com/${GH_USER})" \
+                    >> release_notes.md
+                else
+                  echo "- ${subject} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash}))" \
+                    >> release_notes.md
+                fi
+
+                echo "- ${CLEAN_SUBJECT} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash}))" \
+                  >> changelog_entry.tmp
+
+              done < "$matched_file"
+
+              printf "\n" | tee -a release_notes.md changelog_entry.tmp > /dev/null
+            fi
+
+            rm -f "$matched_file"
+          }
+
+          echo "$COMMITS" > "$RUNNER_TEMP/remaining_$$.txt"
+
+          write_section "🚀" "Breaking Changes"  "^(\* )?.*(\!):|BREAKING CHANGE:"
+          write_section "✨" "Features"          "^(\* )?feat(\([^)]+\))?:"
+          write_section "🐛" "Fixes"             "^(\* )?fix(\([^)]+\))?:"
+          write_section "🧹" "Chores"            "^(\* )?chore(\([^)]+\))?:"
+          write_section "🛠️" "Refactors"         "^(\* )?refactor(\([^)]+\))?:"
+          write_section "🔄" "Reverts"           "^(\* )?revert(\([^)]+\))?:"
+          write_section "🔒" "Security"          "^(\* )?fix\(security\)!?:"
+          write_section "🧰" "Maintenance"       "^(\* )?(build|ci|test)(\([^)]+\))?:"
+          write_section "📝" "Documentation"     "^(\* )?docs(\([^)]+\))?:"
+          write_section "🗑️" "Removals"          "^(\* )?(\* \(rm\))(\([^)]+\))?:"
+
+          if [[ -s "$RUNNER_TEMP/remaining_$$.txt" ]]; then
+            LEFTOVER=$(grep -v '^\s*$' "$RUNNER_TEMP/remaining_$$.txt" || true)
+            if [[ -n "$LEFTOVER" ]]; then
+              {
+                echo "### 🔍 Other"
+                echo ""
+              } | tee -a release_notes.md changelog_entry.tmp > /dev/null
+
+              while IFS='|' read -r subject hash email; do
+                [[ -z "$subject" ]] && continue
+                SHORT_HASH="${hash:0:7}"
+                echo "- ${subject} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash}))" \
+                  | tee -a release_notes.md changelog_entry.tmp > /dev/null
+              done <<< "$LEFTOVER"
+
+              printf "\n" | tee -a release_notes.md changelog_entry.tmp > /dev/null
+            fi
+          fi
+
+          rm -f "$RUNNER_TEMP/remaining_$$.txt"
+
+          if git rev-parse --verify "$OLD_TAG" >/dev/null 2>&1; then
+            echo "##### Full Diff: https://github.com/${REPO}/compare/${OLD_TAG}...${NEW_TAG}" \
+              >> release_notes.md
+          fi
+
+          echo "::notice title=Release Notes::📝 Release notes generated for ${NEW_TAG}"
+          echo "::endgroup::"
+
+      - name: 📖 Update CHANGELOG file
+        id: changelog
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📖 Updating CHANGELOG.md"
+
+          python3 - <<'PY'
+          import datetime
+          import os
+          import pathlib
+          import re
+
+          tag = os.environ["NEW_TAG"]
+          version = tag[1:] if tag.startswith("v") else tag
+          today = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+
+          changelog = pathlib.Path("CHANGELOG.md")
+          text = changelog.read_text(encoding="utf-8") if changelog.exists() else ""
+          if not text.strip():
+              text = "# Changelog\n\nAll notable changes to this project will be documented in this file.\n"
+          lines = text.splitlines()
+
+          # Split the file into the part above [Unreleased], the [Unreleased] text, and the older versions.
+          start = next((i for i, l in enumerate(lines) if re.fullmatch(r"## \[Unreleased\]\s*", l, re.I)), None)
+          if start is None:
+              first = next((i for i, l in enumerate(lines) if l.startswith("## ")), len(lines))
+              head, unreleased, rest = lines[:first], [], lines[first:]
+          else:
+              end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+              head, unreleased, rest = lines[:start], lines[start + 1:end], lines[end:]
+
+          # The text written by the maintainer in [Unreleased] wins; the commit list is the fallback.
+          curated = "\n".join(unreleased).strip("\n")
+          generated = pathlib.Path("changelog_entry.tmp").read_text(encoding="utf-8").splitlines()
+          if curated.strip():
+              source, body = "the [Unreleased] text", curated
+          else:
+              source, body = "the commit list", "\n".join(generated[1:]).strip("\n")
+          if not body.strip():
+              source, body = "a placeholder", "- No notable changes."
+
+          if curated.strip():
+              notes = pathlib.Path("release_notes.md")
+              diff = [l for l in notes.read_text(encoding="utf-8").splitlines() if l.startswith("##### Full Diff")]
+              parts = [f"## {tag} ({today})", "", body, ""] + diff
+              notes.write_text("\n".join(parts).rstrip("\n") + "\n", encoding="utf-8")
+
+          head_text = "\n".join(head).rstrip("\n")
+          tail_text = "\n".join(rest).strip("\n")
+          out = (head_text + "\n\n" if head_text else "")
+          out += "## [Unreleased]\n\n"
+          out += f"## [{version}] - {today}\n\n{body}\n"
+          if tail_text:
+              out += "\n" + tail_text + "\n"
+          changelog.write_text(out, encoding="utf-8")
+          print(f"::notice title=Changelog source::📖 Release notes and changelog for {tag} use {source}")
+          PY
+
+          if [[ ! -f CHANGELOG.md ]]; then
+            echo "::error title=Changelog Error::❌ Failed to generate CHANGELOG.md"
+            exit 1
+          fi
+
+          echo "::notice title=Changelog Updated::📖 CHANGELOG.md updated successfully"
+          echo "::endgroup::"
+
+      - name: 💾 Create pull request for CHANGELOG.md changes
+        if: inputs.dry_run == false
+        id: changelog_pr
+        # The release does not depend on this pull request, so a failure here must not stop the release.
+        continue-on-error: true
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+          BASE_BRANCH: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::💾 Creating pull request for CHANGELOG.md"
+
+          BRANCH="chore/changelog-${NEW_TAG}"
+
+          SHA=$(gh api "repos/${REPO}/contents/CHANGELOG.md?ref=${BASE_BRANCH}" \
+            --jq '.sha' 2>/dev/null || true)
+          CONTENT=$(base64 --wrap=0 < CHANGELOG.md)
+          BASE_SHA=$(gh api "repos/${REPO}/git/ref/heads/${BASE_BRANCH}" \
+            --jq '.object.sha')
+
+          # A failed earlier run can leave the branch behind: start again from the base branch.
+          if gh api "repos/${REPO}/git/ref/heads/${BRANCH}" >/dev/null 2>&1; then
+            echo "::warning title=Branch exists::⚠️ ${BRANCH} is left over from an earlier run; resetting it to ${BASE_SHA:0:7}"
+            gh api --method PATCH "/repos/${REPO}/git/refs/heads/${BRANCH}" \
+              -f sha="${BASE_SHA}" -F force=true >/dev/null
+          else
+            gh api --method POST "/repos/${REPO}/git/refs" \
+              -f ref="refs/heads/${BRANCH}" \
+              -f sha="${BASE_SHA}" >/dev/null
+          fi
+
+          COMMIT_RESPONSE=$(gh api --method PUT "/repos/${REPO}/contents/CHANGELOG.md" \
+            -f message="chore(release): ${NEW_TAG}" \
+            -f content="${CONTENT}" \
+            -f sha="${SHA}" \
+            -f branch="${BRANCH}")
+
+          COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.commit.sha')
+          echo "::notice title=Commit created::🔏 Commit ${COMMIT_SHA:0:7} created by github-actions[bot] at $(date -u)"
+
+          VERIFIED=$(gh api "repos/${REPO}/commits/${COMMIT_SHA}" \
+            --jq '.commit.verification.verified' 2>/dev/null || echo "false")
+
+          if [[ "$VERIFIED" != "true" ]]; then
+            echo "::warning title=Signature Warning::⚠️ Commit ${COMMIT_SHA:0:7} is not verified"
+          else
+            echo "::notice title=Signature Verified::🔏 Commit ${COMMIT_SHA:0:7} is verified"
+          fi
+
+          PR_BODY="## 📋 Changelog update
+
+          This pull request updates \`CHANGELOG.md\` for release **${NEW_TAG}**.
+
+          Automatically generated by the [Release Manager](${RUN_URL}) workflow.
+
+          > [!IMPORTANT]
+          >
+          > Merge this pull request **after** the release has been published."
+
+          if ! PR_RESPONSE=$(gh api --method POST "/repos/${REPO}/pulls" \
+            -f title="chore(release): ${NEW_TAG}" \
+            -f head="${BRANCH}" \
+            -f base="${BASE_BRANCH}" \
+            -f body="${PR_BODY}" 2>&1); then
+            echo "$PR_RESPONSE"
+            echo "::error title=Pull request failed::❌ The changelog pull request could not be created, but the release continues. Check that Settings, Actions, General, Workflow permissions allows GitHub Actions to create pull requests. The changelog commit is on ${BRANCH}: open the pull request from there."
+            exit 1
+          fi
+
+          PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url')
+
+          echo "::notice title=PR Created::✅ Pull request created: ${PR_URL}"
+          echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 🚀 Create GitHub release
+        if: inputs.dry_run == false
+        id: push_step
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::💾 Publishing release"
+
+          NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
+
+          PRERELEASE_FLAG=""
+          LATEST_FLAG="--latest"
+          case "$RELEASE_TYPE" in
+            alpha|beta|dev) PRERELEASE_FLAG="--prerelease"; LATEST_FLAG="--latest=false" ;;
+            final)          LATEST_FLAG="--latest" ;;
+          esac
+
+          gh release create "$NEW_TAG" \
+            --target "${{ github.ref_name }}" \
+            --title "$NEW_TAG" \
+            --notes-file release_notes.md \
+            $PRERELEASE_FLAG \
+            $LATEST_FLAG
+
+          echo "::notice title=Release Created::✅ ${NEW_TAG} published successfully"
+          echo "::endgroup::"
+
+      - name: 📣 Post announcement to GitHub Discussions
+        if: >-
+          inputs.dry_run == false && inputs.post_announcement == true && steps.push_step.outcome == 'success'
+        id: announcement
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📣 Posting announcement to GitHub Discussions"
+
+          NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
+          RELEASE_URL="https://github.com/${REPO}/releases/tag/${NEW_TAG}"
+
+          REPO_ID=$(gh api graphql \
+            -f query='query($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) { id }
+            }' \
+            -f owner="${REPO%%/*}" \
+            -f name="${REPO##*/}" \
+            --jq ".data.repository.id")
+
+          if [[ -z "$REPO_ID" ]]; then
+            echo "::error title=GraphQL Error::❌ Could not resolve repository node ID"
+            exit 1
+          fi
+
+          CATEGORY_ID=$(gh api graphql \
+            -f query='query($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                discussionCategories(first: 25) {
+                  nodes { id name }
+                }
+              }
+            }' \
+            -f owner="${REPO%%/*}" \
+            -f name="${REPO##*/}" \
+            --jq '.data.repository.discussionCategories.nodes[]
+                  | select(.name == "Announcements") | .id')
+
+          if [[ -z "$CATEGORY_ID" ]]; then
+            echo "::error title=Category Not Found::❌ Could not find the Announcements discussion category"
+            exit 1
+          fi
+
+          RELEASE_NOTES_BODY=$(cat release_notes.md)
+
+          ANNOUNCEMENT_TITLE="🚀 Release ${NEW_TAG}"
+
+          ANNOUNCEMENT_BODY="## 📣 ${NEW_TAG} has been released!
+
+          We are happy to announce the release of **${NEW_TAG}**.
+
+          ${RELEASE_NOTES_BODY}
+
+          ---
+
+          📦 **[View the full release on GitHub](${RELEASE_URL})**
+
+          Thank you to everyone who contributed to this release! 🙏"
+
+          ESCAPED_BODY=$(printf '%s' "$ANNOUNCEMENT_BODY" \
+            | sed 's/\\/\\\\/g; s/"/\\"/g; s/$/\\n/' \
+            | tr -d '\n')
+
+          DISCUSSION_URL=$(gh api graphql \
+            -f query="mutation {
+              createDiscussion(input: {
+                repositoryId: \"${REPO_ID}\",
+                categoryId: \"${CATEGORY_ID}\",
+                title: \"${ANNOUNCEMENT_TITLE}\",
+                body: \"${ESCAPED_BODY}\"
+              }) {
+                discussion { url }
+              }
+            }" \
+            --jq '.data.createDiscussion.discussion.url')
+
+          if [[ -z "$DISCUSSION_URL" ]]; then
+            echo "::error title=Discussion Error::❌ Failed to create announcement discussion"
+            exit 1
+          fi
+
+          echo "discussion_url=${DISCUSSION_URL}" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Announcement Posted::📣 Discussion created at ${DISCUSSION_URL}"
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📊 Generating Summary Report"
+
+          VER_STATUS="${{ steps.versioning.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+          LOG_STATUS="${{ steps.changelog.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+
+          if [[ "$DRY_RUN" == "true" ]]; then
+            PR_STATUS="⏭️ Skipped (dry run)"
+            REL_STATUS="⏭️ Skipped (dry run)"
+          else
+            if [[ "${{ steps.changelog_pr.outcome }}" == "success" ]]; then
+              PR_STATUS="✅ Success"
+            else
+              PR_STATUS="❌ Failed"
+            fi
+
+            if [[ "${{ steps.push_step.outcome }}" == "success" ]]; then
+              REL_STATUS="✅ Success"
+            else
+              REL_STATUS="❌ Failed"
+            fi
+          fi
+
+          if [[ "${{ steps.announcement.outcome }}" == "success" ]]; then
+            ANN_STATUS="✅ Success"
+          elif [[ "${{ steps.announcement.outcome }}" == "skipped" ]]; then
+            ANN_STATUS="⏭️ Skipped"
+          else
+            ANN_STATUS="❌ Failed"
+          fi
+
+          OVERALL_ICON="${{ job.status == 'success' && steps.changelog_pr.outcome != 'failure' && '✅' || '❌' }}"
+
+          DISCUSSION_URL="${{ steps.announcement.outputs.discussion_url || '' }}"
+          ANN_LINK=""
+          if [[ -n "$DISCUSSION_URL" ]]; then
+            ANN_LINK=" — [View Discussion](${DISCUSSION_URL})"
+          fi
+
+          PR_URL="${{ steps.changelog_pr.outputs.pr_url || '' }}"
+          PR_LINK=""
+          if [[ -n "$PR_URL" ]]; then
+            PR_LINK=" — [View PR](${PR_URL})"
+          fi
+
+          OLD_TAG="${{ steps.versioning.outputs.old_tag || 'N/A' }}"
+          NEW_TAG="${{ steps.versioning.outputs.new_tag || 'N/A' }}"
+          EXEC_TIME="$(date -u)"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          PR_NOTE=""
+          if [[ "${{ steps.changelog_pr.outcome }}" == "failure" ]]; then
+            PR_NOTE="- **Changelog pull request failed.** The release was still published. Check that Settings, Actions, General, Workflow permissions allows GitHub Actions to create pull requests, then open the pull request from the \`chore/changelog-${NEW_TAG}\` branch."
+          fi
+
+          cat >> "$GITHUB_STEP_SUMMARY" << EOF
+          ## ${OVERALL_ICON} Release Process Summary
+
+          Execution completed at: ${EXEC_TIME}
+
+          ### 📈 Pipeline Results
+
+          | Phase            |          Status          | Action              |
+          | :--------------- | :----------------------: | :------------------ |
+          | 🔢 Versioning    |      ${VER_STATUS}       | Calculate New Tag   |
+          | 📖 Documentation |      ${LOG_STATUS}       | Generate Changelog  |
+          | 💾 Pull Request  | ${PR_STATUS}${PR_LINK}   | Create Changelog PR |
+          | 🚀 Distribution  |      ${REL_STATUS}       | GH CLI Release      |
+          | 📣 Announcement  | ${ANN_STATUS}${ANN_LINK} | Post to Discussions |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Current Tag:** \`${OLD_TAG}\`
+          - **Target Tag:** \`${NEW_TAG}\`
+          - **Bump Mode:** \`${BUMP_TYPE}\`
+          - **Release Type:** \`${RELEASE_TYPE}\`
+          - **Dry Run:** \`${DRY_RUN}\`
+          - **Post Announcement:** \`${POST_ANNOUNCEMENT}\`
+
+          ### 🧩 Notes
+
+          - **Repository:** ${REPO}
+          - **Workflow Run:** [View Details](${RUN_URL})
+          ${PR_NOTE}
+          EOF
+
+          echo "::endgroup::"

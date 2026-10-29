@@ -1,0 +1,467 @@
+---
+name: 🎯 Milestone Manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to perform"
+        required: true
+        type: choice
+        default: create
+        options:
+          - create
+          - close
+          - delete
+      milestone_title:
+        description: >
+          Milestone title — used as both the GitHub milestone title and the ROADMAP.md heading (e.g. 'v1.0.0 — First
+          Stable Release')
+        required: true
+        type: string
+        default: ""
+      milestone_description:
+        description: "Short description / goal for this milestone"
+        required: false
+        type: string
+        default: ""
+      milestone_due_date:
+        description: "Due date (YYYY-MM-DD, leave empty for none)"
+        required: false
+        type: string
+        default: ""
+      roadmap_version:
+        description: >
+          Version tag used to locate or create the milestone block in ROADMAP.md (e.g. 'v1.0.0'). Required for action =
+          create.
+        required: false
+        type: string
+        default: ""
+      dry_run:
+        description: "Simulation — preview actions without making changes"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: milestone-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  milestone-manager:
+    name: 🎯 Execute Milestone Action
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      ACTION: ${{ github.event.inputs.action }}
+      MILESTONE_TITLE: ${{ github.event.inputs.milestone_title }}
+      MILESTONE_DESC: ${{ github.event.inputs.milestone_description }}
+      MILESTONE_DUE: ${{ github.event.inputs.milestone_due_date }}
+      ROADMAP_VERSION: ${{ github.event.inputs.roadmap_version }}
+      DRY_RUN: ${{ github.event.inputs.dry_run }}
+
+    steps:
+      - name: 🏁 Initialize workflow context
+        run: |
+          echo "::notice title=Workflow started::🎯 Milestone Manager — action: ${ACTION}"
+          echo "::group::ℹ️ Execution context"
+          echo "Action         : ${ACTION}"
+          echo "Milestone title: ${MILESTONE_TITLE}"
+          echo "Roadmap version: ${ROADMAP_VERSION}"
+          echo "Due date       : ${MILESTONE_DUE:-none}"
+          echo "Dry run        : ${DRY_RUN}"
+          echo "Repository     : ${REPO}"
+          echo "::endgroup::"
+
+      - name: 🏗️ Checkout repository source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Validate inputs
+        id: validate
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔍 Input validation"
+
+          ERRORS=0
+
+          if [[ -z "${MILESTONE_TITLE}" ]]; then
+            echo "::error title=Missing input::❌ milestone_title is required"
+            ERRORS=$((ERRORS + 1))
+          fi
+
+          if [[ "${ACTION}" == "create" && -z "${ROADMAP_VERSION}" ]]; then
+            echo "::error title=Missing input::❌ roadmap_version is required for action 'create'"
+            ERRORS=$((ERRORS + 1))
+          fi
+
+          if [[ -n "${MILESTONE_DUE}" ]]; then
+            if ! date -d "${MILESTONE_DUE}" "+%Y-%m-%dT00:00:00Z" &>/dev/null; then
+              echo "::error title=Invalid date::❌ milestone_due_date must be YYYY-MM-DD (got: ${MILESTONE_DUE})"
+              ERRORS=$((ERRORS + 1))
+            fi
+          fi
+
+          if [[ "${ERRORS}" -gt 0 ]]; then
+            echo "::error title=Validation failed::❌ ${ERRORS} input error(s) found. Aborting."
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          echo "::notice title=Validation::✅ All inputs are valid"
+          echo "::endgroup::"
+
+      - name: ✨ Create GitHub milestone
+        id: create
+        if: env.ACTION == 'create'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::✨ Creating GitHub milestone"
+
+          DUE_FIELD=""
+          if [[ -n "${MILESTONE_DUE}" ]]; then
+            DUE_FIELD="\"due_on\": \"$(date -d "${MILESTONE_DUE}" "+%Y-%m-%dT00:00:00Z")\","
+          fi
+
+          PAYLOAD=$(printf '{
+            "title": "%s",
+            "description": "%s",
+            %s
+            "state": "open"
+          }' "${MILESTONE_TITLE}" "${MILESTONE_DESC}" "${DUE_FIELD}")
+
+          EXISTING_NUMBER=$(gh api "repos/${REPO}/milestones?state=all&per_page=100" \
+            --jq ".[] | select(.title == \"${MILESTONE_TITLE}\") | .number" \
+            2>/dev/null || true)
+
+          if [[ -n "${EXISTING_NUMBER}" ]]; then
+            echo "::warning title=Duplicate::⚠️ Milestone '${MILESTONE_TITLE}' already exists (#${EXISTING_NUMBER}). Skipping create."
+            MILESTONE_NUMBER="${EXISTING_NUMBER}"
+            MILESTONE_URL="https://github.com/${REPO}/milestone/${EXISTING_NUMBER}"
+          else
+            if [[ "${DRY_RUN}" != "true" ]]; then
+              RESPONSE=$(echo "${PAYLOAD}" | gh api "repos/${REPO}/milestones" \
+                --method POST \
+                --input -)
+              MILESTONE_NUMBER=$(echo "${RESPONSE}" | jq -r '.number')
+              MILESTONE_URL=$(echo "${RESPONSE}" | jq -r '.html_url')
+              echo "::notice title=Created::✅ Milestone #${MILESTONE_NUMBER} — ${MILESTONE_TITLE}"
+              echo "::notice title=Audit::🔏 Milestone #${MILESTONE_NUMBER} created by github-actions[bot] at $(date -u)"
+            else
+              echo "::notice title=Dry-run::ℹ️ Would create milestone: ${MILESTONE_TITLE}"
+              MILESTONE_NUMBER="DRY_RUN"
+              MILESTONE_URL="DRY_RUN"
+            fi
+          fi
+
+          {
+            echo "milestone_number=${MILESTONE_NUMBER}"
+            echo "milestone_url=${MILESTONE_URL}"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "::endgroup::"
+
+      - name: 📝 Update ROADMAP.md with milestone section
+        id: roadmap
+        if: env.ACTION == 'create'
+        shell: bash
+        env:
+          PY_ROADMAP_PATH: "ROADMAP.md"
+          PY_VERSION: ${{ github.event.inputs.roadmap_version }}
+          PY_TITLE: ${{ github.event.inputs.milestone_title }}
+          PY_DESC: ${{ github.event.inputs.milestone_description }}
+          PY_DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📝 Updating ROADMAP.md"
+
+          python3 << 'PYEOF'
+          import logging
+          import os
+          import re
+          import sys
+
+          logging.basicConfig(
+              level=logging.INFO,
+              format="%(levelname)s: %(message)s",
+          )
+          logger = logging.getLogger(__name__)
+
+
+          def gh_annotation(level: str, title: str, message: str) -> None:
+              """Emit a GitHub Actions annotation if running in CI."""
+              if os.getenv("GITHUB_ACTIONS") == "true":
+                  print(f"::{level} title={title}::{message}")
+
+
+          roadmap_path = os.environ["PY_ROADMAP_PATH"]
+          version      = os.environ["PY_VERSION"]
+          title        = os.environ["PY_TITLE"]
+          description  = os.environ.get("PY_DESC", "")
+          dry_run      = os.environ["PY_DRY_RUN"].lower() == "true"
+
+          try:
+              with open(roadmap_path, encoding="utf-8") as fh:
+                  content = fh.read()
+          except FileNotFoundError:
+              logger.error("File not found: %s", roadmap_path)
+              gh_annotation("error", "Missing file", f"❌ {roadmap_path} not found")
+              raise SystemExit(1)
+
+          if re.search(rf"^###\s+{re.escape(version)}", content, re.MULTILINE):
+              logger.warning("Section '%s' already exists in %s", version, roadmap_path)
+              gh_annotation("warning", "Section exists", f"⚠️ ROADMAP.md already has a heading for '{version}'. Skipping.")
+              sys.exit(0)
+
+          goal = description if description else "Describe the goal for this milestone here."
+
+          new_section = (
+              f"\n### {title}\n"
+              f"\n**Goal:** {goal}\n"
+              f"\n- [ ] Placeholder task 1\n"
+              f"- [ ] Placeholder task 2\n"
+          )
+
+          marker = "\n## Backlog"
+          idx = content.find(marker)
+
+          if idx != -1:
+              updated = content[:idx] + new_section + content[idx:]
+          else:
+              updated = content.rstrip("\n") + "\n" + new_section
+
+          if dry_run:
+              logger.info("Dry-run: would add section '%s' to %s", version, roadmap_path)
+              gh_annotation("notice", "Dry-run", f"ℹ️ Would add section '{version}' to ROADMAP.md")
+          else:
+              with open(roadmap_path, "w", encoding="utf-8") as fh:
+                  fh.write(updated)
+              logger.info("Section '%s' added to %s", version, roadmap_path)
+              gh_annotation("notice", "ROADMAP", f"✅ Section '{version}' added to ROADMAP.md")
+          PYEOF
+
+          echo "::endgroup::"
+
+      - name: 🔒 Close milestone
+        id: close
+        if: env.ACTION == 'close'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔒 Closing milestone"
+
+          MILESTONE_NUMBER=$(gh api "repos/${REPO}/milestones?state=open&per_page=100" \
+            --jq ".[] | select(.title == \"${MILESTONE_TITLE}\") | .number" \
+            2>/dev/null || true)
+
+          if [[ -z "${MILESTONE_NUMBER}" ]]; then
+            echo "::error title=Not found::❌ No open milestone found with title '${MILESTONE_TITLE}'"
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          if [[ "${DRY_RUN}" != "true" ]]; then
+            gh api "repos/${REPO}/milestones/${MILESTONE_NUMBER}" \
+              --method PATCH \
+              --field state=closed
+            echo "::notice title=Closed::🔒 Milestone #${MILESTONE_NUMBER} closed"
+            echo "::notice title=Audit::🔏 Milestone #${MILESTONE_NUMBER} closed by github-actions[bot] at $(date -u)"
+          else
+            echo "::notice title=Dry-run::ℹ️ Would close milestone #${MILESTONE_NUMBER}"
+          fi
+
+          echo "milestone_number=${MILESTONE_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 🗑️ Delete milestone
+        id: delete
+        if: env.ACTION == 'delete'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🗑️ Deleting milestone"
+
+          MILESTONE_NUMBER=$(gh api "repos/${REPO}/milestones?state=all&per_page=100" \
+            --jq ".[] | select(.title == \"${MILESTONE_TITLE}\") | .number" \
+            2>/dev/null || true)
+
+          if [[ -z "${MILESTONE_NUMBER}" ]]; then
+            echo "::error title=Not found::❌ No milestone found with title '${MILESTONE_TITLE}'"
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          if [[ "${DRY_RUN}" != "true" ]]; then
+            gh api "repos/${REPO}/milestones/${MILESTONE_NUMBER}" \
+              --method DELETE
+            echo "::notice title=Deleted::🗑️ Milestone #${MILESTONE_NUMBER} deleted"
+            echo "::notice title=Audit::🔏 Milestone #${MILESTONE_NUMBER} deleted by github-actions[bot] at $(date -u)"
+          else
+            echo "::notice title=Dry-run::ℹ️ Would delete milestone #${MILESTONE_NUMBER}"
+          fi
+
+          echo "milestone_number=${MILESTONE_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 💾 Create pull request for ROADMAP.md changes
+        id: commit
+        if: env.ACTION == 'create' && env.DRY_RUN != 'true'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::💾 Creating pull request for ROADMAP.md"
+
+          if git diff --quiet ROADMAP.md; then
+            echo "::notice title=No changes::ℹ️ ROADMAP.md is already up to date — nothing to commit."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          BRANCH="docs/roadmap-${ROADMAP_VERSION}-milestone"
+          SHA=$(gh api "repos/${REPO}/contents/ROADMAP.md" --jq '.sha' 2>/dev/null || true)
+          CONTENT=$(base64 --wrap=0 < ROADMAP.md)
+          BASE_SHA=$(gh api "repos/${REPO}/git/ref/heads/${{ github.ref_name }}" --jq '.object.sha')
+
+          # Delete branch if it already exists
+          gh api --method DELETE "repos/${REPO}/git/refs/heads/${BRANCH}" 2>/dev/null || true
+
+          gh api --method POST "/repos/${REPO}/git/refs" \
+            -f ref="refs/heads/${BRANCH}" \
+            -f sha="${BASE_SHA}"
+
+          COMMIT_RESPONSE=$(gh api --method PUT "/repos/${REPO}/contents/ROADMAP.md" \
+            -f message="docs(roadmap): add ${ROADMAP_VERSION} milestone section" \
+            -f content="${CONTENT}" \
+            -f sha="${SHA}" \
+            -f branch="${BRANCH}")
+
+          COMMIT_SHA=$(echo "${COMMIT_RESPONSE}" | jq -r '.commit.sha')
+          echo "::notice title=Audit::🔏 Commit ${COMMIT_SHA:0:7} created by github-actions[bot] at $(date -u)"
+
+          PR_BODY="## 📝 Roadmap update
+
+          This pull request adds the **${ROADMAP_VERSION}** milestone section to \`ROADMAP.md\`.
+
+          Automatically generated by the [Milestone Manager](${{ github.server_url }}/${REPO}/actions/runs/${{ github.run_id }}) workflow.
+
+          > [!IMPORTANT]
+          >
+          > Merge this pull request **after** the milestone has been published."
+
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list \
+            --repo "${REPO}" \
+            --head "${BRANCH}" \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || true)
+
+          if [[ -n "${EXISTING_PR}" ]]; then
+            echo "::notice title=PR exists::ℹ️ Existing PR #${EXISTING_PR} updated with new commit."
+            PR_URL=$(gh pr view "${EXISTING_PR}" --repo "${REPO}" --json url --jq '.url')
+          else
+            PR_RESPONSE=$(gh api --method POST "/repos/${REPO}/pulls" \
+              -f title="docs(roadmap): add ${ROADMAP_VERSION} milestone section" \
+              -f head="${BRANCH}" \
+              -f base="${{ github.ref_name }}" \
+              -f body="${PR_BODY}")
+
+            PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url')
+            echo "::notice title=PR Created::✅ Pull request created: ${PR_URL}"
+            echo "::notice title=Audit::🔏 PR created by github-actions[bot] at $(date -u)"
+          fi
+
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+          echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📊 Generating Summary Report"
+
+          OVERALL_ICON="${{ job.status == 'success' && '✅' || '❌' }}"
+
+          resolve() {
+            local outcome="$1"
+            case "${outcome}" in
+              success) echo "✅ Success" ;;
+              failure) echo "❌ Failed"  ;;
+              skipped) echo "⏭️ Skipped" ;;
+              *)       echo "⏭️ Skipped" ;;
+            esac
+          }
+
+          CREATE_STATUS=$(resolve "${{ steps.create.outcome }}")
+          ROADMAP_STATUS=$(resolve "${{ steps.roadmap.outcome }}")
+          CLOSE_STATUS=$(resolve  "${{ steps.close.outcome }}")
+          DELETE_STATUS=$(resolve "${{ steps.delete.outcome }}")
+          COMMIT_STATUS=$(resolve "${{ steps.commit.outcome }}")
+
+          MILESTONE_NUM="${{ steps.create.outputs.milestone_number
+            || steps.close.outputs.milestone_number
+            || steps.delete.outputs.milestone_number
+            || 'N/A' }}"
+
+          MILESTONE_LINK="${{ steps.create.outputs.milestone_url || '' }}"
+          LINK_TEXT=""
+          if [[ -n "${MILESTONE_LINK}" && "${MILESTONE_LINK}" != "DRY_RUN" ]]; then
+            LINK_TEXT=" — [View Milestone](${MILESTONE_LINK})"
+          fi
+
+          PR_URL="${{ steps.commit.outputs.pr_url || '' }}"
+          PR_LINK="N/A"
+          if [[ -n "${PR_URL}" ]]; then
+            PR_LINK="[View PR](${PR_URL})"
+          fi
+
+          cat >> "$GITHUB_STEP_SUMMARY" << SUMMARY_EOF
+          ## ${OVERALL_ICON} Milestone Manager Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Pipeline Results
+
+          | Phase               | Result            |
+          | :------------------ | :---------------- |
+          | ✨ Create milestone | ${CREATE_STATUS}  |
+          | 📝 Update ROADMAP   | ${ROADMAP_STATUS} |
+          | 💾 Create PR        | ${COMMIT_STATUS}  |
+          | 🔒 Close milestone  | ${CLOSE_STATUS}   |
+          | 🗑️ Delete milestone | ${DELETE_STATUS}  |
+
+          ### 📊 Milestone Details
+
+          | Key           | Value                               |
+          | :------------ | :---------------------------------- |
+          | **Milestone** | ${MILESTONE_TITLE:-N/A}${LINK_TEXT} |
+          | **Number**    | #${MILESTONE_NUM}                   |
+          | **Version**   | ${ROADMAP_VERSION:-N/A}             |
+          | **Due date**  | ${MILESTONE_DUE:-none}              |
+          | **PR**        | ${PR_LINK}                          |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Action:** \`${ACTION}\`
+          - **Dry Run:** \`${DRY_RUN}\`
+          - **Repository:** ${REPO}
+          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          SUMMARY_EOF
+
+          echo "::endgroup::"

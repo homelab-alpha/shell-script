@@ -1,2 +1,70 @@
-# Code owners for 'shell-script' directory
+# CODEOWNERS
+#
+# This file defines code ownership for the repository. GitHub automatically
+# requests a review from the relevant owner(s) whenever a pull request
+# modifies files that match a pattern below.
+#
+# Syntax: <pattern> <owner> [<owner> ...]
+# Patterns follow the same rules as .gitignore. More specific patterns take
+# precedence over less specific ones.
+#
+# Documentation:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners
+# Default fallback for any file not explicitly covered below
 * @homelab-alpha
+
+# Infrastructure, CI/CD, and Repository Config
+# Management of GitHub-specific automation and repo settings
+/.claude/                             @homelab-alpha
+/.editorconfig                        @homelab-alpha
+/.github/CODEOWNERS                   @homelab-alpha
+/.github/DISCUSSION_TEMPLATE/         @homelab-alpha
+/.github/ISSUE_TEMPLATE/              @homelab-alpha
+/.github/labels.yml                   @homelab-alpha
+/.github/linters/                     @homelab-alpha
+/.github/renovate.json                @homelab-alpha
+/.github/super_linter.env             @homelab-alpha
+/.github/workflows/                   @homelab-alpha
+/.gitignore                           @homelab-alpha
+/.npmrc                               @homelab-alpha
+/.pre-commit-config.yaml              @homelab-alpha
+/.prettierignore                      @homelab-alpha
+/.prettierrc                          @homelab-alpha
+/package-lock.json                    @homelab-alpha
+/package.json                         @homelab-alpha
+
+# Security and Compliance
+# Crucial files for repository security, licensing, and conduct
+/.gitleaksignore                      @homelab-alpha
+/CODE_OF_CONDUCT.md                   @homelab-alpha
+/LICENSE                              @homelab-alpha
+/NOTICE                               @homelab-alpha
+/SECURITY.md                          @homelab-alpha
+/TERMS_OF_SERVICE.md                  @homelab-alpha
+
+# Documentation, Policies, and Project Management
+# Technical docs, standards, and community guidelines
+/.github/policies/                    @homelab-alpha
+/.github/pull_request_template.md     @homelab-alpha
+/CHANGELOG.md                         @homelab-alpha
+/CODE_STYLE_AND_STANDARDS_GUIDES.md   @homelab-alpha
+/CONTRIBUTING.md                      @homelab-alpha
+/CONTRIBUTORS.md                      @homelab-alpha
+/GOVERNANCE.md                        @homelab-alpha
+/MAINTAINERS.md                       @homelab-alpha
+/README.md                            @homelab-alpha
+/ROADMAP.md                           @homelab-alpha
+/SUPPORT.md                           @homelab-alpha
+
+# Core Logic, Data, and Automation
+# Ownership for the engine, storage schemas, and scripts
+/scripts/                             @homelab-alpha
+/scripts/setup_gpg.sh                 @homelab-alpha
+/scripts/verify_signatures.sh         @homelab-alpha
+
+# Repository Content
+# Ownership for the main content of the repository
+/develop/                             @homelab-alpha
+/functions/                           @homelab-alpha

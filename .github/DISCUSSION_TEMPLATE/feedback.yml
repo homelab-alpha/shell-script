@@ -1,0 +1,105 @@
+---
+labels: ["feedback", "P4: negligible"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Feedback
+
+        Thank you for taking the time to share your feedback!
+        Your input helps us improve **shell-script** and make it better for everyone.
+
+        > [!TIP]
+        >
+        > Before submitting, consider checking the following resources — your feedback may already have been shared or addressed:
+        >
+        > - [README](https://github.com/homelab-alpha/shell-script/blob/main/README.md)
+        > - [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md)
+        > - [Existing Discussions](https://github.com/homelab-alpha/shell-script/discussions)
+        > - [Existing Issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc)
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if this feedback has already been shared
+      description: >
+        To avoid duplicate discussions, please search existing issues and discussions before submitting.
+      options:
+        - label: >
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and [discussions](https://github.com/homelab-alpha/shell-script/discussions) and found no similar feedback.
+          required: true
+
+  - type: dropdown
+    id: feedback-category
+    validations:
+      required: true
+    attributes:
+      label: 🗂️ Category
+      description: >
+        Select the category that best describes your feedback. This helps us route it to the right people.
+      options:
+        - "General experience"
+        - "Documentation"
+        - "Performance"
+        - "Usability"
+        - "Design or aesthetics"
+        - "Developer experience"
+        - "Other"
+
+  - type: dropdown
+    id: feedback-sentiment
+    validations:
+      required: true
+    attributes:
+      label: 🌡️ Overall Sentiment
+      description: >
+        How would you describe your overall experience with this aspect of the project?
+      options:
+        - "😊 Positive — this works well and I appreciate it"
+        - "😐 Neutral  — this is fine but could be improved"
+        - "😕 Negative — this is frustrating or unclear"
+
+  - type: textarea
+    id: feedback-description
+    validations:
+      required: true
+    attributes:
+      label: 💬 Your Feedback
+      description: >
+        Share your thoughts in as much detail as you like. What are you reacting to? What could be better? What is working well?
+      placeholder: |
+        Describe your feedback here. The more specific you are, the more actionable your input will be for the maintainers.
+
+  - type: textarea
+    id: suggested-improvement
+    validations:
+      required: false
+    attributes:
+      label: 💡 Suggested Improvement
+      description: >
+        If you have a concrete idea for how to address the feedback, share it here. This field is optional — a well-described observation is
+        enough.
+      placeholder: |
+        e.g., The installation section in the README could include a troubleshooting subsection for common setup errors.
+
+  - type: textarea
+    id: additional-context
+    validations:
+      required: false
+    attributes:
+      label: 📋 Additional Context
+      description: >
+        Add any other context, screenshots, references, or examples that might help us understand or evaluate your feedback.
+      placeholder: |
+        e.g., I noticed this while using version X on platform Y. Here is a screenshot showing the behavior I am referring to.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 🙋 Would You Like to Help Address This Feedback?
+      description: >
+        If you are interested in contributing a fix or improvement yourself, let us know! Check out the
+        [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) to get started.
+      options:
+        - label: I would like to help address this feedback.
+          required: false

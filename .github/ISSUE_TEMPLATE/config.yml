@@ -6,22 +6,34 @@ contact_links:
     about: Stay up to date with important updates, releases, and news directly from the maintainers.
   - name: ✨ Feature Request
     url: https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request
-    about: Got an idea for a new feature or an improvement? Share it here! We’d love to hear your suggestions to make this project even better.
+    about:
+      Got an idea for a new feature or an improvement? Share it here! We'd love to hear your suggestions to make this
+      project even better.
   - name: 🎯 Feedback
     url: https://github.com/homelab-alpha/shell-script/discussions/categories/feedback
-    about: We value your input! Share your thoughts and suggestions to help us improve and enhance your experience with this project.
+    about:
+      We value your input! Share your thoughts and suggestions to help us improve and enhance your experience with this
+      project.
   - name: 💬 General Discussion
     url: https://github.com/homelab-alpha/homelab-alpha/discussions/categories/general-discussion
-    about: This is the place for all off-topic conversations! Chat about anything and everything let's keep it friendly and fun.
+    about:
+      This is the place for all off-topic conversations! Chat about anything and everything let's keep it friendly and
+      fun.
   - name: ❓ Help & Support
     url: https://github.com/homelab-alpha/shell-script/discussions/categories/help-support
-    about: Have a question or need assistance with this repository? Post it here! Whether it's about setup, usage, or troubleshooting, the community and maintainers are here to help.
+    about:
+      Have a question or need assistance with this repository? Post it here! Whether it's about setup, usage, or
+      troubleshooting, the community and maintainers are here to help.
   - name: 💡 Ideas
     url: https://github.com/homelab-alpha/homelab-alpha/discussions/categories/ideas
-    about: This is the playground for new ideas. If you have a concept, improvement, or wild thought worth exploring, drop it here and let’s talk about it.
+    about:
+      This is the playground for new ideas. If you have a concept, improvement, or wild thought worth exploring, drop it
+      here and let's talk about it.
   - name: 🗳️ Polls
     url: https://github.com/homelab-alpha/homelab-alpha/discussions/categories/polls
     about: Have a question you want the community to weigh in on? Create a poll and get everyone's opinion!
   - name: 🙏 Q&A
     url: https://github.com/homelab-alpha/shell-script/discussions/categories/q-a
-    about: Got a question? Post it here and get answers from the community. Whether it's about the project or related topics, we’re all here to help!
+    about:
+      Got a question? Post it here and get answers from the community. Whether it's about the project or related topics,
+      we're all here to help!

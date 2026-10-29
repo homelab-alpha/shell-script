@@ -1,78 +1,107 @@
 # Security Policy
 
-This document outlines the security policy for the `shell-script` repository.
+This document describes the security policy for the **shell-script** repository,
+including supported versions, the vulnerability reporting process, and general
+security practices.
 
-## Supported Branch and Versions
+<details>
+  <summary>Table of Contents (click to expand)</summary>
+  <p>
 
-The following versions of this project are currently supported with security
-updates. Users on unsupported branches or versions are strongly encouraged to
-upgrade to the `main` branch and the `latest` stable release to ensure they
-receive security updates.
+1. [Security Policy](#security-policy)
+   1. [Supported Versions](#supported-versions)
+   2. [Reporting a Vulnerability](#reporting-a-vulnerability)
+      1. [What to Include](#what-to-include)
+      2. [What to Expect](#what-to-expect)
+   3. [Disclosure Policy](#disclosure-policy)
+   4. [General Security Guidelines](#general-security-guidelines)
 
-|     Branch     | Supported | Notes                                                                                                                                      |
-| :------------: | :-------: | :----------------------------------------------------------------------------------------------------------------------------------------- |
-|      Main      |    Yes    | This is the primary stable branch and receives all security updates.                                                                       |
-|      Dev       |    No     | This branch is used for active development and may contain unstable code, therefore it does not receive dedicated security updates.        |
-| Other Branches |    No     | Any other branches created (e.g., feature branches, release candidates, personal forks) are not officially supported for security updates. |
+  </p>
+</details>
 
-|   Version    | Supported | Notes                                                                                                                                                          |
-| :----------: | :-------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-|    Latest    |    Yes    | The `latest` version refers to the most recently tagged stable release (e.g., v1.0.0, v1.1.0). Only the most current stable release receives security updates. |
-| Above Latest |    No     | Versions newer than the latest official release (e.g., prerelease versions or untagged commits) are not officially supported for security updates.             |
-| Below Latest |    No     | Older stable versions are not supported. Please upgrade to the `latest` version to receive security patches.                                                   |
+## Supported Versions
+
+Only the following branch and version receive active security updates. Users on
+unsupported branches or older versions are strongly encouraged to upgrade.
+
+| Branch         | Supported | Notes                                                                                  |
+| :------------- | :-------- | :------------------------------------------------------------------------------------- |
+| `main`         | ✅ Yes    | Primary stable branch. Receives all security updates.                                  |
+| `dev`          | ❌ No     | Active development branch. May contain unstable code; no dedicated security updates.   |
+| Other branches | ❌ No     | Feature branches, release candidates, and personal forks are not officially supported. |
+
+| Version       | Supported | Notes                                                                                     |
+| :------------ | :-------- | :---------------------------------------------------------------------------------------- |
+| Latest stable | ✅ Yes    | The most recently tagged stable release (e.g., `v1.0.0`). Only this version is supported. |
+| Prereleases   | ❌ No     | Alpha, beta, and dev releases are not supported for security updates.                     |
+| Older stable  | ❌ No     | Previous stable versions are not supported. Please upgrade to the latest release.         |
 
 ## Reporting a Vulnerability
 
-We appreciate responsible disclosure of vulnerabilities. If you discover a
-security vulnerability in this project, please follow the guidelines below.
+> [!WARNING]
+>
+> **Do not** report security vulnerabilities through public GitHub issues, pull
+> requests, or discussions. Public disclosure before a fix is available puts all
+> users at risk.
 
-**Report the vulnerability privately:** Please report the vulnerability through
-the **GitHub Security Advisory** feature:
-[https://github.com/homelab-alpha/shell-script/security/advisories/new]. Provide
-as many details as possible, including reproduction steps and the potential
-impact.
+Please report vulnerabilities **privately** using the GitHub Security Advisory:
 
-**Give us time to respond:** We aim to respond to your report within **72
-hours** and keep you updated on the progress of our investigation. We kindly ask
-you not to disclose the vulnerability publicly until we have had a chance to
-address it, or for a period of **90 days**, whichever comes first, unless
-otherwise agreed upon.
+[➡️ Create a New Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new)
 
-**Collaboration:** We will work with you to understand and resolve the issue.
-Once the issue is resolved, we will acknowledge your contribution.
+After submitting the advisory, notify the maintainers by
+[opening a Security Issue](https://github.com/homelab-alpha/shell-script/issues/new?template=security_report.yml)
+and pasting only the advisory URL — **do not include any vulnerability details
+in the public issue**.
 
-**Confidentiality**: The information you provide in the GitHub Security Advisory
-will initially remain confidential. However, once the vulnerability is
-addressed, the advisory will be publicly disclosed on GitHub.
+### What to Include
 
-**Access and Visibility**: Until the advisory is published, it will only be
-visible to the maintainers of the repository and invited collaborators.
+A good vulnerability report includes:
 
-**Credit**: You will be automatically credited as a contributor for identifying
-and reporting the vulnerability. Your contribution will be reflected in the
-MITRE Credit System, which is a standardized system for recognizing individuals
-for their cybersecurity contributions.
+- A clear description of the vulnerability and its potential impact.
+- Step-by-step reproduction instructions.
+- The affected version(s) or branch(es).
+- Any relevant logs, stack traces, or proof-of-concept code.
+- Suggested remediation steps, if known.
+
+### What to Expect
+
+- **Initial response**: Within **72 hours** of receiving your report.
+- **Progress updates**: We will keep you informed as we investigate and develop
+  a fix.
+- **Coordinated disclosure**: We ask that you do not disclose the vulnerability
+  publicly until we have released a fix, or for a maximum of **90 days** from
+  the date of your report — whichever comes first — unless we mutually agree on
+  a different timeline.
+
+## Disclosure Policy
+
+- Advisory details remain **confidential** until a fix is released.
+- Once resolved, the advisory will be **publicly disclosed on GitHub**.
+- The advisory will only be visible to repository maintainers and invited
+  collaborators until publication.
+- Reporters are **automatically credited** in the published advisory and in the
+  MITRE Credit System.
 
 ## General Security Guidelines
 
-- **Dependencies:** Keep all project dependencies up-to-date to minimize known
-  vulnerabilities. We regularly monitor for and apply dependency updates.
-- **Code Review:** New code is reviewed by team members where possible to
-  identify potential security issues before merging into `main`.
-- **Regular Updates:** The repository is updated regularly to ensure the
-  codebases are current and secure. We strive for frequent updates to
-  incorporate the latest security patches and best practices.
-- **No Sensitive Information:** Avoid committing sensitive information (e.g.,
-  API keys, passwords) directly into the repository. Use environment variables
-  or secure configuration management practices instead.
+- **Dependencies**: All dependencies are monitored and updated automatically by
+  [Renovate](https://docs.renovatebot.com/). OSV vulnerability alerts are
+  enabled.
+- **Secret Detection**: [Gitleaks](https://github.com/gitleaks/gitleaks) runs on
+  every push to detect accidentally committed secrets. False positives can be
+  allowlisted in [.gitleaksignore](./.gitleaksignore).
+- **Code Review**: All changes to `main` are reviewed by a maintainer before
+  merging to catch potential security issues early.
+- **Infrastructure Scanning**: [Checkov](https://www.checkov.io/) scans GitHub
+  Actions workflows and configuration files for misconfigurations.
+- **No Sensitive Data in Code**: Never commit API keys, passwords, tokens, or
+  any sensitive credentials. Use environment variables or a secrets manager.
+- **Dependency Review**: The
+  [Dependency Review workflow](./.github/workflows/dependency_review.yml) scans
+  new dependencies introduced in pull requests for known CVEs and denied
+  licenses.
 
-## License
+---
 
-This project is licensed under the **Creative Commons
-Attribution–NonCommercial–ShareAlike 4.0 (CC BY-NC-SA 4.0)** license. See the
-[LICENSE] file for more details.
-
-Thank you for helping to keep this project secure!
-
-[https://github.com/homelab-alpha/shell-script/security/advisories/new]: https://github.com/homelab-alpha/shell-script/security/advisories/new
-[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE.md
+Thank you for helping keep shell-script secure. Responsible disclosure makes the
+project safer for everyone. 🙏

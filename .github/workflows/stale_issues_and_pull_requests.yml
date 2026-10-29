@@ -3,7 +3,7 @@ name: 🕵️ Manage Stale Issues and Pull Requests
 
 on:
   schedule:
-    - cron: "00 03 * * *"
+    - cron: "0 3 * * *"
 
   workflow_dispatch:
     inputs:
@@ -18,7 +18,7 @@ on:
         default: 3
         type: number
       days_before_stale_pull_request:
-        description: "Days of inactivity before marking an pull request as stale"
+        description: "Days of inactivity before marking a pull request as stale"
         required: true
         default: 25
         type: number
@@ -32,16 +32,22 @@ permissions:
   issues: write
   pull-requests: write
 
+concurrency:
+  group: stale-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  stale:
-    name: 🧹 Manage issues and pull requests
+  cleanup:
+    name: 🔍 Process stale items
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     if: |
       github.event.sender.type != 'Bot' &&
       !contains(github.actor, '[bot]')
 
     env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       DAYS_BEFORE_STALE_ISSUES: ${{ github.event.inputs.days_before_stale_issue || '11' }}
       DAYS_BEFORE_CLOSE_ISSUES: ${{ github.event.inputs.days_before_close_issue || '3' }}
       DAYS_BEFORE_STALE_PRS: ${{ github.event.inputs.days_before_stale_pull_request || '25' }}
@@ -50,25 +56,31 @@ jobs:
     steps:
       - name: 🏁 Notify start of process
         run: |
+          set -Eeuo pipefail
+
           echo "::notice title=Workflow started::🔍 Stale processing started"
           echo "::group::ℹ️ Execution context"
           echo "Repository: ${{ github.repository }}"
           echo "Workflow ref: ${{ github.ref }}"
           echo "Runner OS: ${{ runner.os }}"
+          echo "Issue stale threshold: $DAYS_BEFORE_STALE_ISSUES days"
+          echo "Issue close grace: $DAYS_BEFORE_CLOSE_ISSUES days"
+          echo "PR stale threshold: $DAYS_BEFORE_STALE_PRS days"
+          echo "PR close grace: $DAYS_BEFORE_CLOSE_PRS days"
           echo "::endgroup::"
 
       - name: 🔍 Process stale issues
-        id: stale-issues
-        uses: actions/stale@v11.0.0
+        id: process_issues
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
         with:
           stale-issue-message: |
             ## 👋 Just checking in
 
-            This issue has been inactive for **${{ env.DAYS_BEFORE_STALE_ISSUES }} days**, so we’re giving it a gentle nudge 🕰️
+            This issue has been inactive for **${{ env.DAYS_BEFORE_STALE_ISSUES }} days**, so we're giving it a gentle nudge 🕰️
 
             ### ⏳ What happens next?
 
-            - If there’s no activity within **${{ env.DAYS_BEFORE_CLOSE_ISSUES }} days**, this issue will be closed automatically.
+            - If there's no activity within **${{ env.DAYS_BEFORE_CLOSE_ISSUES }} days**, this issue will be closed automatically.
             - Any comment or update will remove the **stale** label.
 
             Thanks for helping keep the project tidy! 🙌
@@ -111,18 +123,18 @@ jobs:
           operations-per-run: 1000
 
       - name: 🔍 Process stale pull requests
-        id: stale-prs
-        uses: actions/stale@v11.0.0
+        id: process_prs
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
         with:
           stale-pr-message: |
             ## 👋 Just checking in
 
-            This pull request has been inactive for **${{ env.DAYS_BEFORE_STALE_PRS }} days**, so we’re giving it a gentle nudge 🕰️
-            No worries — we just want to check whether it’s still in progress. 😊
+            This pull request has been inactive for **${{ env.DAYS_BEFORE_STALE_PRS }} days**, so we're giving it a gentle nudge 🕰️
+            No worries — we just want to check whether it's still in progress. 😊
 
             ### ⏳ What happens next?
 
-            - If there’s no activity within **${{ env.DAYS_BEFORE_CLOSE_PRS }} days**, this pull request will be closed automatically.
+            - If there's no activity within **${{ env.DAYS_BEFORE_CLOSE_PRS }} days**, this pull request will be closed automatically.
             - Any new commit, review, or comment will remove the **stale** label.
 
             Thanks again for your contribution — we appreciate the effort! 🚀
@@ -135,7 +147,7 @@ jobs:
             ### 💡 Still relevant?
 
             - Feel free to reopen the pull request, or
-            - Open a new one when you’re ready.
+            - Open a new one when you're ready.
 
             Thanks for taking the time to contribute — we hope to see you again! 🙌
 
@@ -159,37 +171,42 @@ jobs:
       - name: 🚨 Log execution failure
         if: failure()
         run: |
+          set -Eeuo pipefail
+
           echo "::error title=Stale Management Failed::❌ The stale processing job encountered an error while updating issues or PRs. Check logs for API rate limits or permission issues."
 
       - name: 📊 Generate job summary
         if: always()
         run: |
+          set -Eeuo pipefail
+
           echo "::group::📊 Generating Summary Report"
 
-          ISSUE_RESULT="${{ steps.stale-issues.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
-          PR_RESULT="${{ steps.stale-prs.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+          ISSUE_STATUS="${{ steps.process_issues.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+          PR_STATUS="${{ steps.process_prs.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
-          {
-            echo "## 🕵️ Stale Management Summary"
-            echo ""
-            echo "Execution completed at: $(date -u)"
-            echo ""
-            echo "### 📈 Execution Results"
-            echo ""
-            echo "| Target | Action | Result |"
-            echo "| :--- | :--- | :--- |"
-            echo "| 🎫 Issues | Processed | $ISSUE_RESULT |"
-            echo "| 🏗️ Pull Requests | Processed | $PR_RESULT |"
-            echo ""
-            echo "### ⚙️ Runtime Configuration"
-            echo ""
-            echo "- **Issue Stale Threshold:** ${{ env.DAYS_BEFORE_STALE_ISSUES }} days"
-            echo "- **PR Stale Threshold:** ${{ env.DAYS_BEFORE_STALE_PRS }} days"
-            echo "- **Close Grace Period:** ${{ env.DAYS_BEFORE_CLOSE_ISSUES }} days"
-            echo ""
-            echo "### 🧩 Notes"
-            echo ""
-            echo "- Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-          } >> "$GITHUB_STEP_SUMMARY"
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🕵️ Stale Management Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+
+          | Target           | Action    | Result        |
+          | :--------------- | :-------- | :------------ |
+          | 🎫 Issues        | Processed | $ISSUE_STATUS |
+          | 🏗️ Pull Requests | Processed | $PR_STATUS    |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Issue Stale Threshold:** ${{ env.DAYS_BEFORE_STALE_ISSUES }} days
+          - **PR Stale Threshold:** ${{ env.DAYS_BEFORE_STALE_PRS }} days
+          - **Issue Close Grace Period:** ${{ env.DAYS_BEFORE_CLOSE_ISSUES }} days
+          - **PR Close Grace Period:** ${{ env.DAYS_BEFORE_CLOSE_PRS }} days
+
+          ### 🧩 Notes
+
+          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
 
           echo "::endgroup::"

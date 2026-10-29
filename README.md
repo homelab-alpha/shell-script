@@ -175,5 +175,5 @@ See the [LICENSE] file for more details.
 [security report]: https://github.com/homelab-alpha/shell-script/issues/new?assignees=homelab-alpha&labels=security&projects=&template=security_report.yml
 [give feedback]: https://github.com/homelab-alpha/shell-script/discussions/categories/feedback
 [feature request]: https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request
-[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE.md
+[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE
 [contributing]: CONTRIBUTING.md

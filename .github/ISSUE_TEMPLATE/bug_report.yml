@@ -1,19 +1,45 @@
 ---
 name: 🐛 Bug Report
-description: Encounter a bug or issue with this project? Report it here, and we'll investigate and resolve it as soon as possible!
-labels: ["bug", "P2: moderate"]
+description: >
+  Encountered a bug or issue with this project? Report it here, and we'll investigate and resolve it as soon as
+  possible!
+labels: ["bug", "P2: moderate", "triage"]
 assignees:
-  - homelab-alpha
+  - "homelab-alpha"
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Bug Report
+
+        Thank you for taking the time to report a bug!
+        Please fill in as much detail as possible to help us investigate and resolve the issue quickly.
+
+        > [!IMPORTANT]
+        >
+        > If you believe this bug has **security implications**, do **not** file it here.
+        > Instead, follow our [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) and submit a private[GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+
   - type: checkboxes
     id: duplicate-check
     attributes:
       label: ⚠️ Please check if this bug has already been reported
       description: |
-        To avoid duplicate reports, please search for existing issues before submitting a new one. You can find the list of current issues **[HERE](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20)**.
+        To avoid duplicate reports, please search for existing issues before submitting a new one. You can find the list of current issues **[HERE](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc)**.
       options:
         - label: |
-            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20) and found no similar reports.
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and found no similar reports.
+          required: true
+
+  - type: checkboxes
+    id: contribution-guidelines
+    attributes:
+      label: 📖 Contribution Guidelines Acknowledgement
+      description: |
+        Please make sure you have reviewed the [Contribution Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) before reporting a bug.
+      options:
+        - label: |
+            I have read and understand the [Contribution Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md).
           required: true
 
   - type: checkboxes
@@ -34,9 +60,9 @@ body:
     attributes:
       label: 🐛 Bug Description
       description: |
-        Provide a detailed explanation of the bug. Include steps to reproduce, expected behavior, and actual behavior.
+        Provide a clear and concise explanation of the bug. What is happening, and why do you consider it a bug?
       placeholder: |
-        Describe the bug in detail.
+        Describe the bug in detail. Include what you were doing when the bug occurred and any relevant context.
 
   - type: textarea
     id: steps-to-reproduce
@@ -45,13 +71,12 @@ body:
     attributes:
       label: 🧩 Steps to Reproduce
       description: |
-        Provide a step-by-step guide to reproduce the bug. Include specific details to help us replicate the issue.
+        Provide a step-by-step guide to reproduce the bug. Be as specific as possible to help us replicate the issue.
       placeholder: |
-        1. Open the app.
-        2. Navigate to the settings page.
-        3. Click on the 'Save' button.
-        4. Observe the error message.
-        5. ...
+        1. ...
+        2. ...
+        3. ...
+        4. Observe that ...
 
   - type: textarea
     id: expected-behavior
@@ -60,7 +85,7 @@ body:
     attributes:
       label: ✔️ Expected Behavior
       description: |
-        Describe what you expected to happen.
+        Describe what you expected to happen when following the steps above.
       placeholder: |
         What should have happened instead?
 
@@ -71,9 +96,22 @@ body:
     attributes:
       label: ❌ Actual Behavior
       description: |
-        Describe what actually happened.
+        Describe what actually happened. How does this differ from what you expected?
       placeholder: |
         What happened instead?
+
+  - type: dropdown
+    id: regression
+    validations:
+      required: true
+    attributes:
+      label: 📉 Is This a Regression?
+      description: |
+        Did this work correctly in a previous version? If yes, please include the last known working version in the additional context below.
+      options:
+        - "Yes — this worked in a previous version"
+        - "No — this has never worked as far as I know"
+        - "Unknown — I am not sure"
 
   - type: textarea
     id: logs-or-errors
@@ -82,8 +120,8 @@ body:
     attributes:
       label: 📜 Logs or Error Messages
       description: |
-        Share any logs or error messages related to your issue, if available.
-      render: bash session
+        Share any relevant logs or error messages. Sensitive information such as tokens or passwords must be redacted before sharing.
+      render: shell
       placeholder: |
         Paste logs or error messages here. This will be automatically formatted into code, so no need for backticks.
 
@@ -95,9 +133,10 @@ body:
       label: ⚙️ Relevant Configuration Files
       description: |
         Attach any relevant configuration files or code snippets that might help diagnose the issue.
-      render: bash session
+        Sensitive information such as tokens or passwords must be redacted before sharing.
+      render: shell
       placeholder: |
-        Paste or upload your configuration files/code snippets here. This will be automatically formatted into code, so no need for backticks.
+        Paste or upload your configuration files or code snippets here. This will be automatically formatted into code, so no need for backticks.
 
   - type: input
     id: software-version
@@ -106,7 +145,7 @@ body:
     attributes:
       label: 📦 Software Version
       description: |
-        Specify the version of the software you are using. Avoid using vague terms like 'latest' or 'current'.
+        Specify the version of the software you are using. Avoid using vague terms like "latest" or "current".
       placeholder: |
         e.g., 1.10.0
 
@@ -128,17 +167,43 @@ body:
     attributes:
       label: 🖥️ Environment Setup
       description: |
-        Provide detailed information about your setup to help us understand your environment better:
-          - **Dependencies and Versions**: List all dependencies and their versions used in your setup (e.g., Library X v1.2.3, Library Y v4.5.6).
-          - **Hosting Environment**: Are you running this on a local machine, cloud provider (AWS, Azure, etc.), or other platforms?
-          - **Runtime Details**: Specify the runtime environment, such as Docker, Kubernetes, Node.js, etc.
-          - **Database Configuration**: Mention the type of database (e.g., SQLite, MariaDB, PostgreSQL) and any relevant configurations.
-          - **Storage Details**: Describe the file system or storage setup used (e.g., ext4, NTFS, ZFS, NFS).
-          - **Additional Context**: Other context that might affect the issue.
+        Provide detailed information about your setup to help us understand your environment better.
       value: |
-        - Dependencies and Versions:
-        - Hosting Environment:
-        - Runtime Details:
-        - Database Configuration:
-        - Storage Details:
-        - Additional Context:
+        - **Dependencies and Versions**:
+        - **Hosting Environment** (local, cloud, etc.):
+        - **Runtime Details** (Docker, Kubernetes, Node.js, etc.):
+        - **Database Configuration** (SQLite, MariaDB, PostgreSQL, etc.):
+        - **Storage Details** (ext4, NTFS, ZFS, NFS, etc.):
+        - **Additional Context**:
+
+  - type: textarea
+    id: additional-context
+    validations:
+      required: false
+    attributes:
+      label: 📋 Additional Context
+      description: |
+        Add any other context, screenshots, or references that might help us understand or resolve this bug.
+      placeholder: |
+        e.g., This started happening after upgrading from version 1.9.0 to 1.10.0. Screenshots attached.
+
+  - type: textarea
+    id: possible-fix
+    validations:
+      required: false
+    attributes:
+      label: 💡 Possible Fix
+      description: |
+        If you have an idea of what might be causing the bug or how to fix it, please share it here. This is entirely optional.
+      placeholder: |
+        Describe your thoughts on what might be causing the issue or how it could be resolved.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 🙋 Would You Like to Help Fix This Bug?
+      description: |
+        If you are interested in submitting a fix yourself, let us know! Check out the [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) to get started.
+      options:
+        - label: I would like to work on a fix for this bug.
+          required: false

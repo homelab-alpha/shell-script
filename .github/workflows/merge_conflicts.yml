@@ -23,27 +23,37 @@ concurrency:
 jobs:
   detect-conflicts:
     name: 🔍 Detect merge conflicts
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RETRY_AFTER: 60
+      RETRY_MAX: 5
 
     steps:
       - name: 🏁 Notify start of process
         run: |
+          set -Eeuo pipefail
           echo "::notice title=Workflow started::🔍 Merge conflict detection started"
           echo "::group::ℹ️ Execution context"
           echo "Repository: ${{ github.repository }}"
+          echo "Event: ${{ github.event_name }}"
           echo "PR Number: ${{ github.event.pull_request.number || 'N/A' }}"
           echo "Runner OS: ${{ runner.os }}"
           echo "::endgroup::"
 
       - name: 🔍 Check for merge conflicts
         id: conflict_check
-        uses: eps1lon/actions-label-merge-conflict@v3.1.0
+        uses: eps1lon/actions-label-merge-conflict@0273be72a0bbd58fcd71d0d6c02c209b50d1e5e1 # v3.1.0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
 
-          retryAfter: 60
-          retryMax: 5
+          retryAfter: ${{ env.RETRY_AFTER }}
+          retryMax: ${{ env.RETRY_MAX }}
 
           dirtyLabel: "PR: please resolve merge conflict"
           commentOnDirty: |
@@ -83,11 +93,13 @@ jobs:
       - name: 🚨 Handle workflow failure
         if: failure()
         run: |
+          set -Eeuo pipefail
           echo "::error title=Conflict Check Failed::❌ The conflict detection action encountered a technical error."
 
       - name: 📊 Generate job summary
         if: always()
         run: |
+          set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
 
           CHECK_STATUS="${{ steps.conflict_check.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
@@ -99,19 +111,20 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Target | Action | Result |
-          | :--- | :---: | :--- |
+          | Target          |     Action     | Result        |
+          | :-------------- | :------------: | :------------ |
           | 🔀 Pull Request | Conflict Check | $CHECK_STATUS |
 
           ### ⚙️ Runtime Configuration
 
           - **Target Branch:** main
-          - **Timeout:** 5 min
-          - **Retry After:** 20 sec
-          - **Retry Max:** 5
+          - **Timeout:** 15 min
+          - **Retry After:** ${RETRY_AFTER} sec
+          - **Retry Max:** ${RETRY_MAX}
 
           ### 🧩 Notes
 
+          - **Exception:** \`eps1lon/actions-label-merge-conflict@v3.1.0\` (approved per ENG-CI-001)
           - If "Failed", check logs for API rate limits or permission issues.
           - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF

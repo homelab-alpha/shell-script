@@ -1,194 +1,345 @@
-# Contributing to this Project
+# Contributing to shell-script
 
-Thanks for considering contributing to Homelab-Alpha! Your interest and effort
-are invaluable to our community's growth and the enhancement of our project.
-Below are some guidelines to streamline your contribution process:
+Thank you for your interest in contributing to **shell-script**! We welcome
+contributions of all kinds — from bug reports and feature requests to code
+improvements and documentation updates. This guide will walk you through
+everything you need to know to contribute effectively.
 
-## General Guidelines
+> [!IMPORTANT]
+>
+> Please read this document carefully before submitting any contributions. Not
+> all pull requests will be accepted. Following these guidelines ensures a
+> smooth and efficient review process for everyone involved.
 
-### Communication
+<details>
+  <summary>Table of Contents (click to expand)</summary>
+  <p>
 
-**Please Avoid Unnecessary Pings**
+1. [Contributing to {{PROJECT\_NAME}}](#contributing-to-project_name)
+   1. [Code of Conduct](#code-of-conduct)
+   2. [Getting Started](#getting-started)
+      1. [Prerequisites](#prerequisites)
+      2. [Fork and Clone](#fork-and-clone)
+   3. [How to Contribute](#how-to-contribute)
+      1. [Reporting Bugs](#reporting-bugs)
+      2. [Reporting Security Vulnerabilities](#reporting-security-vulnerabilities)
+      3. [Requesting Features](#requesting-features)
+      4. [Improving Documentation](#improving-documentation)
+      5. [Submitting Code Changes](#submitting-code-changes)
+   4. [Development Guidelines](#development-guidelines)
+      1. [Branch Naming](#branch-naming)
+      2. [Commit Messages](#commit-messages)
+      3. [Code Style](#code-style)
+      4. [Linting](#linting)
+      5. [Changelog](#changelog)
+   5. [Pull Requests](#pull-requests)
+      1. [Before You Submit](#before-you-submit)
+      2. [Submitting a Pull Request](#submitting-a-pull-request)
+      3. [Review Process](#review-process)
+   6. [Community](#community)
 
-We kindly ask all contributors to refrain from pinging maintainers unless
-absolutely necessary. Pings should be reserved for critical issues or urgent
-matters that require immediate attention.
+  </p>
+</details>
 
-**Why**: Limiting pings to urgent matters helps maintainers focus on and
-prioritize essential tasks more effectively.
+## Code of Conduct
 
-### Code of Conduct
+This project follows the
+[Contributor Covenant 3.0 Code of Conduct](./CODE_OF_CONDUCT.md). By
+participating in this project, you agree to abide by its terms. Please treat
+everyone with respect and help us maintain a welcoming and inclusive community.
 
-To ensure a welcoming and inclusive environment for everyone, we adhere to a
-[Code of Conduct]. Please read and respect it in all your interactions within
-this project.
-
-### AI Contribution Policy
-
-This project allows the use of AI-assisted development tools (e.g., ChatGPT,
-Copilot, Claude). However, all contributors are **fully responsible** for the
-code they submit.
-
-All AI-generated or AI-assisted contributions must be:
-
-- **Fully understood** by the contributor
-- **Manually reviewed** before submission
-- **Properly tested** to ensure correctness and stability
-
-Submissions that include unverified code, unclear logic, or invalid/hallucinated
-implementations may be rejected.
-
-For full details, please refer to our dedicated [AI Contribution Policy].
-
-### Visual Aids
-
-When reporting issues, asking for help, or proposing features, **screenshots**
-and **screencasts (short videos)** can be incredibly helpful. They provide
-visual context that text alone might miss, making it much easier for maintainers
-to understand the problem or proposal.
-
-- **Screenshots**: Use screenshots to capture specific UI elements, error
-  messages, or visual states.
-- **Screencasts**: For issues involving complex steps, animations, or transient
-  behavior, a short screencast can be invaluable. Please ensure screencasts are
-  concise and directly illustrate the point.
-
-<br />
+To report a possible Code of Conduct violation, **send an email to the
+[Homelab-Alpha team](mailto:homelab.api@gmail.com)**.
 
 ## Getting Started
 
-### Discussions
+### Prerequisites
 
-Before opening a new issue, please check the [Discussions] section. This is the
-best place to ask questions, share ideas, or discuss potential problems that
-aren't clear-cut bugs. Engaging in discussions helps keep the issue tracker
-focused on actionable tasks and can often provide quicker answers or solutions.
+Before contributing, make sure you have the following set up:
 
-### Issues
+- **Git**: For version control.
+- A **GitHub account**: Required to submit issues and pull requests.
+- Familiarity with the project's purpose — read the [README](./README.md) to
+  understand what shell-script is and how it works.
 
-- **Check Existing Issues**: Take a look at our list of [all issues] to see if
-  someone is already working on the problem or feature you're interested in, or
-  if it has already been addressed. If there's an open issue, consider
-  contributing to it.
-- **Creating New Issues**: If you're opening a new issue, ensure it's clear and
-  concise. Provide detailed descriptions, including steps to reproduce any
-  problems.
-- **Indicate Willingness to Work**: When submitting a new issue, let us know if
-  you're willing to work on a solution.
+### Fork and Clone
+
+1. Fork the repository by clicking **Fork** at the top of the
+   [GitHub page](https://github.com/homelab-alpha/shell-script).
+2. Clone your fork locally:
+
+   ```bash
+   git clone https://github.com/ < your-username > /shell-script.git
+   cd shell-script
+   ```
+
+3. Add the upstream remote so you can keep your fork up to date:
+
+   ```bash
+   git remote add upstream https://github.com/homelab-alpha/shell-script.git
+   ```
+
+4. Keep your fork in sync before starting any work:
+
+   ```bash
+   git fetch upstream
+   git checkout main
+   git merge upstream/main
+   ```
+
+## How to Contribute
+
+### Reporting Bugs
+
+If you encounter a bug, please
+[open a Bug Report](https://github.com/homelab-alpha/shell-script/issues/new?template=bug_report.yml)
+using our issue template. Before submitting, search the
+[existing issues](https://github.com/homelab-alpha/shell-script/issues) to avoid
+duplicates.
+
+A good bug report includes:
+
+- A clear and descriptive title.
+- Steps to reproduce the issue.
+- What you expected to happen vs. what actually happened.
+- Relevant logs or error messages.
+- Your environment details (OS, software version, runtime, etc.).
+
+### Reporting Security Vulnerabilities
+
+> [!WARNING]
+>
+> Do **not** report security vulnerabilities through public GitHub issues.
+
+Please follow the process outlined in our [Security Policy](./SECURITY.md).
+Submit a private
+[GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new)
+and then notify the team by
+[opening a Security Issue](https://github.com/homelab-alpha/shell-script/issues/new?template=security_report.yml)
+with only the advisory URL — no sensitive details in the issue itself.
+
+We aim to respond to vulnerability reports within **72 hours**.
+
+### Requesting Features
+
+Feature requests are managed through
+[GitHub Discussions](https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request).
+Please search existing discussions before opening a new one, and provide as much
+context as possible: the problem you are solving, your proposed solution, and
+any alternatives you have considered.
+
+### Improving Documentation
+
+Documentation improvements are always appreciated. This includes fixing typos,
+clarifying existing content, or adding missing information. Follow the same
+branch and commit conventions described below, and use the `docs` commit type.
+
+### Submitting Code Changes
+
+Code contributions are welcome! Please make sure your changes align with the
+project's goals and follow the guidelines in this document before opening a pull
+request.
+
+## Development Guidelines
+
+### Branch Naming
+
+Create a new branch for every contribution. Branches must follow this format:
+
+```none
+type/short-description
+```
+
+- Use **lowercase** letters only.
+- Separate words with **hyphens**.
+- Keep the description **brief and specific** (under 50 characters).
+
+| Prefix      | Purpose                             |
+| :---------- | :---------------------------------- |
+| `feat/`     | New features                        |
+| `fix/`      | Bugfixes                            |
+| `docs/`     | Documentation changes               |
+| `refactor/` | Code restructuring (no feature/fix) |
+| `chore/`    | General maintenance tasks           |
+| `hotfix/`   | Urgent production fixes             |
+
+**Valid examples:**
+
+```none
+feat/add-json-export
+fix/retrieval-null-reference
+docs/update-readme-installation
+chore/update-dependencies
+```
+
+**Invalid examples:**
+
+```none
+bugfix-123          (missing type prefix)
+Feature/AddExport   (wrong casing)
+update              (too vague)
+```
+
+### Commit Messages
+
+All commit messages must be written in **English** and follow the
+[Conventional Commits](https://conventionalcommits.org) specification.
+
+**Format:**
+
+```none
+type(scope): brief subject
+```
+
+- The **type** must be one of: `feat`, `fix`, `docs`, `style`, `refactor`,
+  `perf`, `test`, `chore`, `revert`.
+- The **scope** is optional and indicates the part of the codebase affected
+  (e.g., `core`, `data`, `cli`).
+- The **subject** must be written in imperative mood and kept under **50
+  characters**.
+
+**Optional body:**
+
+- Leave a blank line after the header.
+- Explain _what_ changed and _why_ (not how).
+- Use bullet points (`-`) for multiple items.
+- Keep lines under **72 characters**.
+
+**Examples:**
+
+```git
+feat(core): add JSON export for archived memories
+```
+
+```git
+fix(retrieval): handle null reference on empty archive
+
+- Added a null check before iterating over memory entries.
+- Updated unit tests to cover the empty-archive edge case.
+```
+
+```git
+docs: update installation steps in README
+```
+
+### Code Style
+
+We use **Prettier** for automatic code formatting. Please ensure your code is
+consistently formatted before committing.
+
+Follow these general principles:
+
+- **Consistency**: Match the existing code style.
+- **Simplicity**: Write clear, readable code with meaningful names.
+- **Comments**: Add comments only to explain complex logic, not obvious steps.
+- **Modularity**: Break code into small, reusable components or functions.
+- **Error Handling**: Handle errors gracefully and log them appropriately.
+
+For the full style reference, see
+[CODE_STYLE_AND_STANDARDS_GUIDES.md](./CODE_STYLE_AND_STANDARDS_GUIDES.md).
+
+### Linting
+
+This repository uses
+[Super Linter](https://github.com/super-linter/super-linter) to enforce code
+quality. The following linters are active:
+
+- **Checkov** — infrastructure-as-code security scanning
+- **ENV** — environment file validation
+- **GitHub Actions** — workflow file validation
+- **Gitleaks** — secret detection
+- **Git merge conflict markers** — conflict detection
+- **Markdown** — Markdown linting
+- **Natural Language** — terminology and grammar checking
+- **Pre-commit** — pre-commit hook validation
+- **Renovate** — dependency configuration validation
+- **YAML** — YAML linting
+
+Run linting locally before submitting a pull request to catch issues early.
+Linting runs automatically on all pushes and pull requests targeting `main`.
+
+### Changelog
+
+Update `CHANGELOG.md` under the `[Unreleased]` section as part of every pull
+request that changes behavior. Use the appropriate category: `Added`, `Changed`,
+`Deprecated`, `Removed`, `Fixed`, or `Security`.
+
+Write entries from the user's perspective in imperative mood:
+`Add export command`, not `Added export command`.
+
+See
+[CODE_STYLE_AND_STANDARDS_GUIDES.md](./CODE_STYLE_AND_STANDARDS_GUIDES.md#changelog-practices)
+for the full changelog conventions.
 
 ## Pull Requests
 
-- **Alignment with Project Goals**: Before sending a pull request, ensure your
-  contribution aligns with our project's objectives. For significant changes,
-  discussing them in an issue beforehand is beneficial. Check our [open pull
-  requests] to see if similar work is already in progress.
+### Before You Submit
 
-### Workflow and Versioning
+- [ ] Your branch follows the [branch naming convention](#branch-naming).
+- [ ] Your commits follow the [commit message convention](#commit-messages).
+- [ ] Your code follows the [code style guidelines](#code-style).
+- [ ] You have tested your changes locally.
+- [ ] Linting passes locally.
+- [ ] You have updated any relevant documentation.
+- [ ] You have updated `CHANGELOG.md` under `[Unreleased]`.
+- [ ] Your pull request targets the `main` branch.
 
-We follow the [GitHub flow] for our versioning workflow.
+### Submitting a Pull Request
 
-When you're working on something:
+1. Push your branch to your fork:
 
-1. Fork the repository
-2. Clone your forked repository:
-   `git clone https://github.com/your-username/shell-script.git`
-3. Create a new branch for your feature or bugfix
-4. Submit a pull request from your branch to our `main` branch
+   ```bash
+   git push origin feat/your-feature-name
+   ```
 
-### Code and Style Guidelines
+2. Open a pull request against the `main` branch of the upstream repository.
+3. Fill in the [pull request template](./.github/pull_request_template.md)
+   completely. Do not remove any sections.
+4. Assign relevant labels if possible.
+5. Wait for a maintainer to acknowledge your pull request — we aim to respond
+   within **5 business days**.
 
-- **Coding Standards**: Keep your code neat and consistent with our coding
-  standards.
-- **Style Guide**: Make sure your pull requests adhere to our [Code Style +
-  Standards Guides].
-- **Documentation Guidelines**: When you contribute new features or make
-  significant changes to the code, please also update the relevant
-  documentation. This ensures that the project remains easy to understand and
-  use for all contributors and users. Good documentation includes clear
-  explanations, examples, and any necessary configuration details.
-- **Testing Guidelines**: When submitting code, please ensure it's
-  **well-tested**. Include unit, integration, or end-to-end tests where
-  appropriate to cover your changes and prevent regressions. If you're adding a
-  new feature, please include tests for its functionality. For bugfixes,
-  consider adding a test that reproduces the bug before your fix, and then
-  passes after the fix. Explain how you've tested your changes in your pull
-  request description. If you've run specific commands to test, include them.
+> [!NOTE]
+>
+> Pull requests that do not follow the template or guidelines may be closed
+> without review.
 
-### Pull Request Size Guidelines
+### Review Process
 
-To streamline the review process and increase the likelihood of your
-contributions being accepted quickly, we ask you to break down large changes
-into **smaller, logical Pull Requests**.
+All pull requests go through a structured review process to ensure code quality
+and consistency. Here is what to expect:
 
-#### Why Smaller PRs?
+- A maintainer will review your pull request and may request changes.
+- Address all review comments by pushing additional commits to your branch.
+- Once all discussions are resolved and checks pass, a maintainer will approve
+  and merge your pull request.
+- Straightforward contributions are typically reviewed within **two weeks**.
+  Complex changes may take longer, and we will communicate any delays.
 
-- **Faster Reviews**: Smaller PRs are easier to grasp and understand, allowing
-  reviewers to provide feedback more quickly.
-- **Fewer Errors**: Isolating changes into smaller, focused parts reduces the
-  chance of introducing new bugs.
-- **Easier Debugging**: If issues arise, it's much simpler to pinpoint the cause
-  within a limited set of changes.
-- **Smoother Integration**: Small, incremental changes can be integrated into
-  the main branch more easily, minimizing conflicts.
+Dependency updates (patch, pin, digest) are handled automatically by
+[Renovate](https://docs.renovatebot.com/) and are automerged when all checks
+pass. Major and minor dependency updates require manual review.
 
-#### How to Break Down a Large PR
+For a detailed overview of the review workflow, see
+[`.github/policies/review_process.md`](./.github/policies/review_process.md).
 
-1. **Identify Logical Units**: Look for parts of your change that can stand
-   independently. Think about a new feature, a bugfix, a refactoring of a
-   specific component, or a documentation update.
-2. **Create Separate Branches**: For each logical unit, create a new branch.
-3. **Submit Incremental PRs**: Submit PRs for each individual branch. Ensure
-   each PR has a clear, well-defined goal and focuses on a single change.
-4. **Reference Related PRs**: If PRs are dependent on each other, reference the
-   earlier PR in the description of the subsequent PR (e.g., "This builds upon
-   #PR-number").
+## Community
 
-<br />
+We would love to hear from you! Here are the places where you can connect:
 
-## How Can You Help?
+| Channel                                                                                                        | Purpose                                |
+| :------------------------------------------------------------------------------------------------------------- | :------------------------------------- |
+| [Announcements](https://github.com/homelab-alpha/shell-script/discussions/categories/announcements)            | Stay up to date with releases and news |
+| [Feature Requests](https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request)       | Propose new features                   |
+| [Feedback](https://github.com/homelab-alpha/shell-script/discussions/categories/feedback)                      | Share thoughts and suggestions         |
+| [Help & Support](https://github.com/homelab-alpha/shell-script/discussions/categories/help-support)            | Ask questions and get help             |
+| [Q&A](https://github.com/homelab-alpha/shell-script/discussions/categories/q-a)                                | Get answers from the community         |
+| [General Discussion](https://github.com/homelab-alpha/homelab-alpha/discussions/categories/general-discussion) | Off-topic conversations                |
 
-### Keep Homelab-Alpha Up-to-Date
+For information about becoming a maintainer, see
+[MAINTAINERS.md](./MAINTAINERS.md).
 
-If you notice updates to your favorite operating systems or tools, feel free to
-open a [pull request] to incorporate them into Homelab-Alpha. Your contribution
-will undergo review and merge once validated.
+---
 
-### Enhance Documentation and Knowledge Base
-
-At Homelab-Alpha, we're committed to nurturing an educational environment where
-everyone can contribute to enhancing our documentation. If you excel in writing
-technical documentation, consider contributing to documents that aid others in
-learning and growing.
-
-### Share Your Ideas
-
-We're always eager to hear your innovative ideas and suggestions for new
-feature. Share your thoughts or concepts using the [feature request] link. Your
-input helps shape our future endeavors!
-
-<br />
-
-## Licensing
-
-By contributing, you agree to **Creative Commons
-Attribution–NonCommercial–ShareAlike 4.0 (CC BY-NC-SA 4.0)** license. See the
-[LICENSE] file for more details.
-
-<br />
-
-## Enjoy and Have Fun
-
-Thanks for contemplating contributing to Homelab-Alpha. Together, we can elevate
-and refine our project for the entire community to benefit from. We eagerly
-anticipate your contributions!
-
-[all issues]: https://github.com/homelab-alpha/shell-script/issues?q=sort%3Acreated-desc
-[Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
-[AI Contribution Policy]: https://github.com/homelab-alpha/shell-script/blob/main/AI_CONTRIBUTION_POLICY.md
-[Code Style + Standards Guides]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_STYLE_AND_STANDARDS_GUIDES.md
-[Discussions]: https://github.com/homelab-alpha/shell-script/discussions
-[GitHub flow]: https://guides.github.com/introduction/flow
-[feature request]: https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request
-[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE.md
-[open pull requests]: https://github.com/homelab-alpha/shell-script/pulls?q=is%3Apr%20is%3Aopen%20sort%3Acreated-desc
-[pull request]: https://github.com/homelab-alpha/shell-script/pulls
+Thank you for taking the time to contribute to shell-script. Every contribution
+— no matter how small — helps the project grow and improve. 🙏

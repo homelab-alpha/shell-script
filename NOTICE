@@ -1,0 +1,54 @@
+                                    NOTICE
+
+                              shell-script
+                    Copyright 2026 Homelab-Alpha
+
+   This product is licensed under the Creative Commons
+   Attribution-NonCommercial-ShareAlike 4.0 International License
+   (CC BY-NC-SA 4.0). A copy of the license is included in this
+   distribution as the LICENSE file, and is also available at:
+
+       https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+   You may share and adapt the material for non-commercial purposes
+   under the terms of that license. The material is provided "AS IS",
+   without warranties of any kind, to the extent permitted by law.
+
+   ORIGINAL WORK
+
+   This product includes content and configuration developed by
+   Homelab-Alpha (<https://github.com/shell-script>).
+
+   THIRD-PARTY COMPONENTS
+
+   This product may incorporate third-party open source software
+   components. Each component is subject to its own license terms.
+   A list of third-party dependencies and their respective licenses
+   can be found in the project's dependency configuration files
+   and is managed automatically by Renovate
+   (<https://docs.renovatebot.com/>).
+
+   ATTRIBUTION
+
+   If you share this product or an adapted version of it, you must
+   meet the following conditions:
+
+      (a) You must give appropriate credit, provide a link to the
+          license, and include a copy of the CC BY-NC-SA 4.0 license;
+          and
+
+      (b) You must include this NOTICE file, or a modified version
+          that reflects your changes while retaining the original
+          attribution above; and
+
+      (c) You must indicate if you made changes to the original; and
+
+      (d) You must distribute your contributions under the same
+          license, and you may not use the material for commercial
+          purposes.
+
+   CONTACT
+
+   For questions regarding attribution or licensing, contact:
+
+       Homelab-Alpha <homelab.api@gmail.com>
