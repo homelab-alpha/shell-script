@@ -17,7 +17,9 @@ Service.
       3. [1.3 System Integrity and Prohibited Activities](#13-system-integrity-and-prohibited-activities)
    2. [2. Intellectual Property](#2-intellectual-property)
    3. [3. Vulnerability Reporting](#3-vulnerability-reporting)
-   4. [4. Third-Party Dependencies](#4-third-party-dependencies)
+   4. [4. Third-Party Dependencies and Licenses](#4-third-party-dependencies-and-licenses)
+      1. [4.1 Third-Party Dependencies](#41-third-party-dependencies)
+      2. [4.2 Third-Party Licenses](#42-third-party-licenses)
    5. [5. Disclaimers and Limitation of Liability](#5-disclaimers-and-limitation-of-liability)
       1. [5.1 "As-Is" Warranty Disclaimer](#51-as-is-warranty-disclaimer)
       2. [5.2 Limitation of Liability](#52-limitation-of-liability)
@@ -83,7 +85,9 @@ technical flaw, please follow the responsible disclosure process described in
 our [Security Policy](./SECURITY.md). Do not report security issues through
 public GitHub issues.
 
-## 4. Third-Party Dependencies
+## 4. Third-Party Dependencies and Licenses
+
+### 4.1 Third-Party Dependencies
 
 shell-script incorporates third-party software, libraries, and components.
 
@@ -92,6 +96,25 @@ shell-script incorporates third-party software, libraries, and components.
   automated tooling, we cannot guarantee their safety, uptime, or future
   availability.
 - Use of third-party components is at your own risk.
+
+### 4.2 Third-Party Licenses
+
+Third-party components, and any other material that comes from third parties,
+remain under their own licenses and terms. The license of shell-script (see
+[Section 2](#2-intellectual-property)) does not apply to them and does not
+change their terms.
+
+- You are responsible for complying with the license of each third-party
+  component that you use, including attribution and redistribution requirements.
+- Licenses and attribution notices are listed in the [NOTICE](./NOTICE) file and
+  in the dependency configuration files of the project (for example,
+  `package.json` and `package-lock.json`). Dependency changes are checked for
+  denied licenses by the Dependency Review workflow.
+- We do not control the licenses of third-party components and cannot guarantee
+  that they stay the same. A component can change its license in a later
+  version.
+- If the license of a third-party component conflicts with your intended use, do
+  not use that component.
 
 ## 5. Disclaimers and Limitation of Liability
 

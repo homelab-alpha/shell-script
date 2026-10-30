@@ -27,7 +27,7 @@ unsupported branches or older versions are strongly encouraged to upgrade.
 | Branch         | Supported | Notes                                                                                  |
 | :------------- | :-------- | :------------------------------------------------------------------------------------- |
 | `main`         | ✅ Yes    | Primary stable branch. Receives all security updates.                                  |
-| `dev`          | ❌ No     | Active development branch. May contain unstable code; no dedicated security updates.   |
+| `dev/*`        | ❌ No     | Active development branches. May contain unstable code; no dedicated security updates. |
 | Other branches | ❌ No     | Feature branches, release candidates, and personal forks are not officially supported. |
 
 | Version       | Supported | Notes                                                                                     |

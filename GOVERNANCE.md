@@ -113,7 +113,8 @@ All contributions are governed by [CONTRIBUTING.md](./CONTRIBUTING.md) and
 reviewed according to
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).
 Contributors are expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md)
-and the [Code Style and Standards Guide](./CODE_STYLE_AND_STANDARDS_GUIDES.md).
+and the
+[Code Style and Standards Guide](./docs/code_style_and_standards_guides.md).
 
 ## Conflict Resolution
 

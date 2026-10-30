@@ -224,7 +224,7 @@ config files in `.github/linters/`. All checks must pass before a pull request
 can be merged.
 
 For more details on the linting setup, see
-[CODE_STYLE_AND_STANDARDS_GUIDES.md](../../CODE_STYLE_AND_STANDARDS_GUIDES.md#linting).
+[code_style_and_standards_guides.md](../../docs/code_style_and_standards_guides.md#linting).
 
 ## Revision History
 
