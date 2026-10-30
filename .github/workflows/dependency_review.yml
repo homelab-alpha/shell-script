@@ -55,7 +55,7 @@ jobs:
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: moderate
-          comment-summary-in-pr: always
+          comment-summary-in-pr: on-failure
           deny-licenses: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1
 
       - name: 🚨 Log dependency review failure
@@ -104,7 +104,7 @@ jobs:
           ### 🧩 Notes
 
           - Powered by \`actions/dependency-review-action\`.
-          - A detailed report has been posted as a comment on the pull request.
+          - A detailed report is posted as a comment on the pull request when the review fails.
           - To allow a specific license, update the \`deny-licenses\` list in \`.github/workflows/dependency_review.yml\`.
           EOF
 
