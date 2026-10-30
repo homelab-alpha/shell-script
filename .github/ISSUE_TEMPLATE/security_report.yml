@@ -1,47 +1,77 @@
 ---
 name: 🛡️ Security Issue
-description: |
+description: >
   Notify the Homelab-Alpha team about a security concern. Please do NOT include any sensitive details in this issue.
 title: "Security Advisory Notification [GHSA-ID or brief description]"
-labels: ["security", "P1: high"]
+labels: ["security", "P1: high", "triage"]
 assignees:
-  - homelab-alpha
+  - "homelab-alpha"
 body:
   - type: markdown
     attributes:
       value: |
-        ## ❗ IMPORTANT: DO NOT SHARE VULNERABILITY DETAILS HERE
+        ## 🛡️ Security Issue
 
-        ### ⚠️ Report a Security Vulnerability
+        Thank you for taking the time to report a security concern!
+        This issue is **only** for notifying the maintainers, please do **not** include any sensitive or detailed
+        vulnerability information here.
 
-        If you have discovered a security vulnerability, please report it securely using the GitHub Security Advisory.
+        > [!IMPORTANT]
+        >
+        > If you have discovered a security vulnerability, report it securely using the [GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+        > The advisory keeps your report confidential until a fix is released.
 
-        > [!note]
-        > This issue is only for notifying the maintainers of the repository, as the GitHub Security Advisory does not automatically send notifications.
+        > [!NOTE]
+        >
+        > This issue exists because the GitHub Security Advisory does not automatically send notifications.
+        > Use this issue only to share the advisory URL so the maintainers are alerted.
 
-        - **Confidentiality**: The information you provide in the GitHub Security Advisory will initially remain confidential. However, once the vulnerability is addressed, the advisory will be publicly disclosed on GitHub.
-        - **Access and Visibility**: Until the advisory is published, it will only be visible to the maintainers of the repository and invited collaborators.
-        - **Credit**: You will be automatically credited as a contributor for identifying and reporting the vulnerability. Your contribution will be reflected in the MITRE Credit System.
-        - **Important Reminder**: **Do not include any sensitive or detailed vulnerability information in this issue.** This issue is only for sharing the advisory URL to notify the maintainers of the repository, not for discussing the vulnerability itself.
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if this security issue has already been reported
+      description: |
+        To avoid duplicate reports, please search for existing issues before submitting a new one. You can find the list of current issues **[HERE](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20)**.
+      options:
+        - label: |
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue%20sort%3Acreated-desc%20) and found no similar security reports.
+          required: true
 
-        Thank you for helping to keep this project secure!
+  - type: checkboxes
+    id: security-policy-agreement
+    attributes:
+      label: 🛡️ Security Policy Agreement
+      description: |
+        Please review and acknowledge the Security Policy before reporting any security-related issues. You can find the full Security Policy **[HERE](https://github.com/homelab-alpha/shell-script/security/policy)**.
+      options:
+        - label: |
+            I have read and agree to Homelab-Alpha's [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy).
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        <br />
 
         ## **Step 1**: Submit a GitHub Security Advisory
 
-        Right-click the link below and select `Open link in new tab` to access the page. This will keep the security issue open, allowing you to easily return and paste the Advisory URL here later.
+        Right-click the link below and select `Open link in new tab` to access the page.
+        This will keep the security issue open, allowing you to easily return and paste the Advisory URL here later.
 
         ➡️ [Create a New Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new)
 
         ## **Step 2**: Share the Advisory URL
 
-        Once you've created your advisory, please share the URL below. This will notify the Homelab-Alpha team and enable them to take the appropriate action.
+        Once you have created your advisory, please share the URL below.
+        This will notify the Homelab-Alpha team and enable them to take the appropriate action.
 
   - type: textarea
     id: github-advisory-url
     validations:
       required: true
     attributes:
-      label: GitHub Advisory URL
+      label: 🔗 GitHub Advisory URL
+      description: |
+        Paste the GitHub Advisory URL here. Only the URL is required — Do **not** include any vulnerability details.
       placeholder: |
-        Please paste the GitHub Advisory URL here. Only the URL is required.
         e.g., https://github.com/homelab-alpha/shell-script/security/advisories/GHSA-9d2f-4v3j-p7qk

@@ -12,18 +12,17 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
   issues: write
 
 concurrency:
-  group: issue-${{ github.run_id || github.run_id }}
+  group: issue-${{ github.event.issue.number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   issue-automation:
     name: ℹ️ Automate issue management
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     if: |
       github.event.sender.type != 'Bot' &&
@@ -59,10 +58,10 @@ jobs:
 
         These resources help us maintain a healthy community and ensure smooth collaboration.
 
-        We truly appreciate your time and effort — thank you for helping improve this project! 🙌
+        We truly appreciate your time and effort — thank you for helping improve this project! 🙏
 
-        [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
-        [Contribution Guidelines]: https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md
+        [Code of Conduct]: https://github.com/${{ github.repository }}/blob/main/CODE_OF_CONDUCT.md
+        [Contribution Guidelines]: https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md
 
       BACKLOG_MSG: |
         ## 🗂️ This issue has been moved to the backlog
@@ -74,7 +73,7 @@ jobs:
         - We will revisit this issue during the next backlog prioritization process.
         - If you have new information or context, feel free to update the issue.
 
-        💬 If you believe this issue should be prioritized sooner, please let us know — we’re happy to revisit it!
+        💬 If you believe this issue should be prioritized sooner, please let us know — we're happy to revisit it!
 
         Thank you for your patience and contribution! 🙏
 
@@ -90,11 +89,15 @@ jobs:
     steps:
       - name: 🏁 Initialize workflow and context
         run: |
+          set -Eeuo pipefail
+
           echo "::notice title=Workflow started::🚀 Processing issue #$ISSUE_NUMBER"
+
           echo "::group::ℹ️ Context"
           echo "Event: ${{ github.event.action }}"
           echo "Issue: #$ISSUE_NUMBER"
           echo "Repository: $REPO"
+          echo "Actor: ${{ github.actor }}"
           echo "::endgroup::"
 
       - name: ✉️ Post welcome message to new issues
@@ -103,11 +106,11 @@ jobs:
           github.event_name == 'issues' &&
           github.event.action == 'opened'
         run: |
-          set -e
+          set -Eeuo pipefail
+
           echo "::notice title=Issue opened::ℹ️ Posting welcome message"
 
           if ! gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "$NEW_ISSUE_MSG"; then
-
             echo "::error title=Comment failed::❌ Unable to post welcome message to issue #$ISSUE_NUMBER"
             exit 1
           fi
@@ -118,11 +121,11 @@ jobs:
           github.event_name == 'issues' &&
           github.event.action == 'reopened'
         run: |
-          set -e
+          set -Eeuo pipefail
+
           echo "::notice title=Issue reopened::ℹ️ Applying reopen label"
 
           if ! gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "$LABEL_REOPEN"; then
-
             echo "::error title=Label failed::❌ Unable to apply reopen label to issue #$ISSUE_NUMBER"
             exit 1
           fi
@@ -133,7 +136,8 @@ jobs:
           github.event.action == 'labeled' &&
           github.event.label.name == 'backlog'
         run: |
-          set -e
+          set -Eeuo pipefail
+
           echo "::notice title=Backlog::ℹ️ Updating labels and notifying contributor"
 
           echo "::group::🧹 Modifying labels"
@@ -154,7 +158,6 @@ jobs:
           echo "::endgroup::"
 
           if ! gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body "$BACKLOG_MSG"; then
-
             echo "::error title=Comment failed::❌ Unable to notify backlog status for issue #$ISSUE_NUMBER"
             exit 1
           fi
@@ -166,7 +169,8 @@ jobs:
           github.event.action == 'labeled' &&
           github.event.label.name == 'wontfix'
         run: |
-          set -e
+          set -Eeuo pipefail
+
           echo "::notice title=Wontfix::❌ Closing issue"
 
           echo "::group::🧹 Modifying labels"
@@ -187,7 +191,6 @@ jobs:
           echo "::endgroup::"
 
           if ! gh issue close "$ISSUE_NUMBER" --repo "$REPO" --reason "not planned" --comment "$WONTFIX_MSG"; then
-
             echo "::error title=Close failed::❌ Unable to close issue #$ISSUE_NUMBER"
             exit 1
           fi
@@ -198,7 +201,8 @@ jobs:
           github.event_name == 'issues' &&
           github.event.action == 'closed'
         run: |
-          set -e
+          set -Eeuo pipefail
+
           echo "::notice title=Issue closed::🧹 Cleaning up labels"
 
           echo "::group::🔍 Removal details"
@@ -219,6 +223,8 @@ jobs:
       - name: 📊 Generate job summary
         if: always()
         run: |
+          set -Eeuo pipefail
+
           echo "::group::📝 Generating summary report"
 
           FINAL_STATUS="${{ job.status == 'success' && '✅ Success' || '❌ Failed' }}"
@@ -230,20 +236,22 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Metric | Detail |
-          | :--- | :--- |
+          | Metric              | Detail                         |
+          | :------------------ | :----------------------------- |
           | 🎯 **Event Action** | \`${{ github.event.action }}\` |
-          | 🆔 **Issue Target** | #$ISSUE_NUMBER |
-          | 📂 **Repository** | $REPO |
-          | 🚥 **Final Status** | $FINAL_STATUS |
+          | 🆔 **Issue Target** | #$ISSUE_NUMBER                 |
+          | 📂 **Repository**   | $REPO                          |
+          | 🚥 **Final Status** | $FINAL_STATUS                  |
 
           ### 🧩 Step Outcomes
 
-          - Welcome Message: ${{ steps.welcome_step.outcome || '⏭️ Skipped' }}
-          - Reopen Label: ${{ steps.reopen_step.outcome || '⏭️ Skipped' }}
-          - Backlog Update: ${{ steps.backlog_step.outcome || '⏭️ Skipped' }}
-          - Wontfix Handling: ${{ steps.wontfix_step.outcome || '⏭️ Skipped' }}
-          - Priority Cleanup: ${{ steps.cleanup_step.outcome || '⏭️ Skipped' }}
+          | Step                | Result                                            |
+          | :------------------ | :------------------------------------------------ |
+          | ✉️ Welcome Message  | ${{ steps.welcome_step.outcome || '⏭️ Skipped' }} |
+          | 🏷️ Reopen Label     | ${{ steps.reopen_step.outcome  || '⏭️ Skipped' }} |
+          | 🔄 Backlog Update   | ${{ steps.backlog_step.outcome || '⏭️ Skipped' }} |
+          | ❌ Wontfix          | ${{ steps.wontfix_step.outcome || '⏭️ Skipped' }} |
+          | 🧹 Priority Cleanup | ${{ steps.cleanup_step.outcome || '⏭️ Skipped' }} |
 
           ---
 

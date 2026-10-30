@@ -1,16 +1,62 @@
 ---
 labels: ["feature request", "P4: negligible"]
 body:
-  - type: textarea
-    id: related-issues
+  - type: markdown
+    attributes:
+      value: |
+        ## ✨ Feature Request
+
+        Thank you for taking the time to suggest an improvement!
+        Please fill in as much detail as possible so the community and maintainers can understand your idea and evaluate it effectively.
+
+        > [!TIP]
+        >
+        > Before submitting, consider checking the following resources — your idea may already have been proposed or addressed:
+        >
+        > - [README](https://github.com/homelab-alpha/shell-script/blob/main/README.md)
+        > - [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md)
+        > - [Roadmap](https://github.com/homelab-alpha/shell-script/blob/main/ROADMAP.md)
+        > - [Existing Discussions](https://github.com/homelab-alpha/shell-script/discussions)
+        > - [Existing Issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc)
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if this feature has already been requested
+      description: >
+        To avoid duplicate discussions, please search existing issues and discussions before submitting.
+      options:
+        - label: >
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and [discussions](https://github.com/homelab-alpha/shell-script/discussions) and found no similar proposals.
+          required: true
+
+  - type: dropdown
+    id: feature-category
     validations:
       required: true
     attributes:
-      label: 🔍 Have you found any related feature request or pull requests?
-      description: |
-        Check if this feature has already been reported. Use the following links for **[FEATURE REQUESTS](https://github.com/homelab-alpha/shell-script/discussions/categories/feature-request?discussions_q=category%3A%22Feature+Request%22+sort%3Atop)** and **[PULL REQUESTS](https://github.com/homelab-alpha/shell-script/pulls?q=is%3Apr+sort%3Acreated-desc+)**. to search for related feature requests, and explain the differences, or indicate if you couldn't find any related issues.
+      label: 🗂️ Category
+      description: >
+        Select the category that best describes your feature request. This helps us route it to the right people.
+      options:
+        - "New feature"
+        - "Enhancement of existing feature"
+        - "Documentation"
+        - "Developer experience"
+        - "Performance"
+        - "Usability"
+        - "Other"
+
+  - type: textarea
+    id: problem-statement
+    validations:
+      required: true
+    attributes:
+      label: 🎯 Problem Statement
+      description: >
+        Describe the problem or limitation you are experiencing. A clear problem statement helps us understand the motivation behind your request. Focus on the *why*, not the *what*.
       placeholder: |
-        e.g., This is related to #feature-request-number and/or #pr-number, which also affects the ... system. These issues should not be merged due to ...
+        e.g., I often find myself manually copying memory entries between sessions because there is no way to export them in bulk. This is time-consuming and error-prone.
 
   - type: textarea
     id: feature-summary
@@ -18,21 +64,10 @@ body:
       required: true
     attributes:
       label: 💡 Feature Summary
-      description: |
-        Provide a brief summary of the feature or improvement you are proposing.
+      description: >
+        Provide a brief, clear summary of the feature or improvement you are proposing. What should it do?
       placeholder: |
-        Summarize the proposed feature.
-
-  - type: textarea
-    id: use-case
-    validations:
-      required: true
-    attributes:
-      label: 🎯 Use Case
-      description: |
-        Describe the use case for this feature. What problem does it solve or what need does it fulfill?
-      placeholder: |
-        Explain why this feature is necessary.
+        e.g., Add a bulk export command that serializes all archived memories to a single JSON file.
 
   - type: textarea
     id: proposed-solution
@@ -40,10 +75,10 @@ body:
       required: false
     attributes:
       label: 🔧 Proposed Solution
-      description: |
-        Provide details on how you envision this feature working. Include any technical details, mockups, or examples if possible.
+      description: >
+        If you have an idea of how this feature could be implemented, describe it here. Include technical details, mockups, or examples if possible. This field is optional — a well-described problem is enough.
       placeholder: |
-        Describe how the feature could be implemented.
+        e.g., A new CLI command `memory-archive export --output archive.json` that iterates over all entries in `data/` and writes them to a single file.
 
   - type: textarea
     id: alternatives-considered
@@ -51,10 +86,37 @@ body:
       required: false
     attributes:
       label: 🔍 Alternatives Considered
-      description: |
-        Describe any alternative solutions or features you've considered.
+      description: >
+        Have you considered any alternative solutions or workarounds? If so, describe them and explain why they do not fully address the problem.
       placeholder: |
-        What other solutions have you thought about?
+        e.g., I tried manually copying files from the `data/` directory, but this does not preserve metadata and is not scriptable.
+
+  - type: dropdown
+    id: scope
+    validations:
+      required: true
+    attributes:
+      label: 📐 Scope of Change
+      description: >
+        How significant do you expect this change to be? This helps us prioritize and plan accordingly.
+      options:
+        - "Small   — minor addition or improvement to existing functionality"
+        - "Medium  — new feature that fits within the current architecture"
+        - "Large   — significant new capability or architectural change"
+        - "Unknown — I am not sure"
+
+  - type: dropdown
+    id: breaking-change
+    validations:
+      required: true
+    attributes:
+      label: 💥 Does This Introduce a Breaking Change?
+      description: >
+        Would this feature require changes that are incompatible with existing behavior or stored data?
+      options:
+        - "Yes     — existing behavior or data would need to change"
+        - "No      — this can be added without breaking anything"
+        - "Unknown — I am not sure"
 
   - type: textarea
     id: additional-context
@@ -62,7 +124,18 @@ body:
       required: false
     attributes:
       label: 📋 Additional Context
-      description: |
-        Provide any other context or screenshots that might be helpful.
+      description: >
+        Add any other context, screenshots, references, or examples that might help us understand or evaluate your request.
       placeholder: |
-        Add any other details here.
+        e.g., Similar functionality exists in tool X (link), which inspired this request.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 🙋 Would You Like to Implement This Feature?
+      description: >
+        If you are interested in contributing the implementation yourself, let us know! Check out the [Contributing
+        Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) to get started.
+      options:
+        - label: I would like to work on implementing this feature.
+          required: false

@@ -1,0 +1,275 @@
+---
+name: 👥 Update Contributors
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: contributors-${{ github.repository || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  update-contributors:
+    name: 👥 Regenerate contributors list
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      TARGET_FILE: CONTRIBUTORS.md
+      BRANCH: chore/update-contributors
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::👥 Contributors update initiated"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: $REPO"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "::endgroup::"
+
+      - name: 📥 Checkout repository source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 👥 Collect GitHub usernames via API
+        id: collect
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📋 Collecting contributor data via GitHub API"
+
+          # Use the contributors endpoint — returns login + contribution count
+          # directly, no per-commit pagination needed.
+          RAW=$(gh api \
+            --paginate \
+            --jq '.[].login' \
+            "repos/$REPO/contributors?per_page=100&anon=0")
+
+          if [[ -z "$RAW" ]]; then
+            echo "::error title=No data::❌ GitHub contributors API returned no results."
+            exit 1
+          fi
+
+          # Sort case-insensitively, filter bots, write result
+          echo "$RAW" \
+            | grep -v '\[bot\]' \
+            | grep -vi '\-bot$' \
+            | grep -v '^null$' \
+            | sort -f \
+            | uniq \
+            > /tmp/contributors.txt
+
+          COUNT=$(grep -c . /tmp/contributors.txt || echo 0)
+          echo "::notice title=Collected::ℹ️ Found $COUNT unique GitHub username(s)."
+          cat /tmp/contributors.txt
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 📝 Update CONTRIBUTORS.md
+        id: update
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📝 Rebuilding contributor section"
+
+          python3 << 'PYEOF'
+          import logging
+          import os
+          import sys
+
+          logging.basicConfig(
+              level=logging.INFO,
+              format="%(levelname)s: %(message)s",
+          )
+          logger = logging.getLogger(__name__)
+
+          def gh_annotation(level: str, title: str, message: str) -> None:
+              """Emit a GitHub Actions annotation if running in CI."""
+              if os.getenv("GITHUB_ACTIONS") == "true":
+                  print(f"::{level} title={title}::{message}")
+
+          contributors_file = os.environ["TARGET_FILE"]
+
+          with open("/tmp/contributors.txt") as f:
+              names = [line.strip() for line in f if line.strip()]
+
+          if names:
+              block = "\n" + "\n".join(
+                  f"- [@{n}](https://github.com/{n})" for n in names
+              ) + "\n"
+          else:
+              block = "\n_No contributors found yet._\n"
+
+          try:
+              with open(contributors_file, encoding="utf-8") as f:
+                  content = f.read()
+          except FileNotFoundError:
+              logger.error("File %s not found.", contributors_file)
+              gh_annotation("error", "File not found", f"❌ {contributors_file} does not exist.")
+              raise SystemExit(1)
+
+          start_marker = "<!-- CONTRIBUTORS_START -->"
+          end_marker   = "<!-- CONTRIBUTORS_END -->"
+          start_idx = content.find(start_marker)
+          end_idx   = content.find(end_marker)
+
+          if start_idx == -1 or end_idx == -1:
+              logger.error("CONTRIBUTORS_START or CONTRIBUTORS_END marker not found.")
+              gh_annotation("error", "Marker missing", "❌ CONTRIBUTORS_START or CONTRIBUTORS_END not found.")
+              raise SystemExit(1)
+
+          updated = (
+              content[: start_idx + len(start_marker)]
+              + block
+              + content[end_idx:]
+          )
+
+          with open(contributors_file, "w", encoding="utf-8") as f:
+              f.write(updated)
+
+          logger.info("Written %d contributor(s) to %s.", len(names), contributors_file)
+          for n in names:
+              logger.info("  - @%s", n)
+          PYEOF
+
+          echo "::endgroup::"
+
+      - name: 🔍 Check for changes
+        id: diff
+        run: |
+          if git diff --quiet "$TARGET_FILE"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=No changes::✅ CONTRIBUTORS.md is already up to date."
+          else
+            echo "changed=true"  >> "$GITHUB_OUTPUT"
+            echo "::notice title=Changes detected::ℹ️ CONTRIBUTORS.md will be updated."
+          fi
+
+      - name: 💾 Create pull request
+        if: steps.diff.outputs.changed == 'true'
+        id: pr
+        run: |
+          set -Eeuo pipefail
+          echo "::group::💾 Creating pull request"
+
+          SHA=$(gh api "repos/$REPO/contents/$TARGET_FILE" --jq '.sha' 2>/dev/null || true)
+          CONTENT=$(base64 --wrap=0 < "$TARGET_FILE")
+          BASE_SHA=$(gh api "repos/$REPO/git/ref/heads/${{ github.ref_name }}" \
+            --jq '.object.sha')
+
+          # Delete branch if it already exists
+          gh api --method DELETE "repos/$REPO/git/refs/heads/$BRANCH" 2>/dev/null || true
+
+          # Create feature branch from base
+          gh api --method POST "repos/$REPO/git/refs" \
+            -f ref="refs/heads/$BRANCH" \
+            -f sha="$BASE_SHA"
+
+          # Commit via Contents API PUT — produces a verified signature
+          COMMIT_RESPONSE=$(gh api --method PUT "repos/$REPO/contents/$TARGET_FILE" \
+            -f message="docs(contributors): update contributors list" \
+            -f content="$CONTENT" \
+            -f sha="$SHA" \
+            -f branch="$BRANCH")
+
+          COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.commit.sha')
+          echo "::notice title=Commit created::🔏 Commit ${COMMIT_SHA:0:7} created by github-actions[bot] at $(date -u)"
+
+          PR_BODY="## 👥 Automated contributors update
+
+          This pull request updates \`CONTRIBUTORS.md\` to reflect the current git commit history.
+
+          Automatically generated by the [Contributors workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) workflow."
+
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list \
+            --repo "$REPO" \
+            --head "$BRANCH" \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || true)
+
+          if [[ -n "$EXISTING_PR" ]]; then
+            echo "::notice title=PR exists::ℹ️ Existing PR #$EXISTING_PR updated."
+            PR_URL=$(gh pr view "$EXISTING_PR" --repo "$REPO" --json url --jq '.url')
+          else
+            PR_RESPONSE=$(gh api --method POST "repos/$REPO/pulls" \
+              -f title="docs(contributors): update contributors list" \
+              -f head="$BRANCH" \
+              -f base="${{ github.ref_name }}" \
+              -f body="$PR_BODY")
+            PR_URL=$(echo "$PR_RESPONSE" | jq -r '.html_url')
+            echo "::notice title=PR created::ℹ️ $PR_URL"
+          fi
+
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+
+          COLLECT_STATUS="${{ steps.collect.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+          UPDATE_STATUS="${{ steps.update.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+
+          if [[ "${{ steps.diff.outputs.changed }}" == "true" ]]; then
+            DIFF_STATUS="🔄 Changes detected"
+          else
+            DIFF_STATUS="✅ Already up to date"
+          fi
+
+          if [[ "${{ steps.pr.outcome }}" == "success" ]]; then
+            PR_STATUS="✅ Success"
+          elif [[ "${{ steps.pr.outcome }}" == "skipped" ]]; then
+            PR_STATUS="⏭️ Skipped (no changes)"
+          else
+            PR_STATUS="❌ Failed"
+          fi
+
+          PR_LINK=""
+          PR_URL="${{ steps.pr.outputs.pr_url || '' }}"
+          if [[ -n "$PR_URL" ]]; then
+            PR_LINK=" — [View PR]($PR_URL)"
+          fi
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 👥 Contributors Update Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+
+          | Step            | Result                 |
+          | :-------------- | :--------------------- |
+          | 📋 Collect      | $COLLECT_STATUS        |
+          | 📝 Update file  | $UPDATE_STATUS         |
+          | 🔍 Diff check   | $DIFF_STATUS           |
+          | 💾 Pull request | ${PR_STATUS}${PR_LINK} |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Contributors found:** ${{ steps.collect.outputs.count || '0' }}
+          - **Target file:** \`$TARGET_FILE\`
+          - **Repository:** $REPO
+          - **Triggered by:** ${{ github.actor }}
+          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
+          echo "::endgroup::"

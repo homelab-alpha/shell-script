@@ -2,19 +2,21 @@
 ⚠️ Important: Review Before Submitting Your Pull Request
 
 Before submitting your pull request, please ensure that you have thoroughly
-reviewed our contribution guidelines. We do not accept all types of pull requests,
-so make sure to follow the rules outlined in the Pull Request Guidelines.
+reviewed our contribution guidelines. We do not accept all types of pull
+requests, so make sure to follow the rules outlined in the Pull Request
+Guidelines.
 
 https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-requests
 
 How to Respond to Questions in This Pull Request
 
-1. Carefully read each question in the pull request shell-script.
+1. Carefully read each question in the pull request template.
 2. Provide your answers directly beneath the corresponding section.
 3. Replace the placeholder "..." with your response and remove the ellipsis.
-4. Do not remove the HTML comment tags, as this will break the Pull Request shell-script.
+4. Do not remove the HTML comment tags, as this will break the Pull Request
+   template.
 
-By following this structure helps us maintain clear and organized pull requests,
+Following this structure helps us maintain clear and organized pull requests,
 making the review process more efficient.
 
 Thank you for contributing! 🙏
@@ -22,253 +24,134 @@ Thank you for contributing! 🙏
 
 # 🐙 Pull Request Information
 
-## 📋 Overview
+## 📋 Description
 
 <!--
-REQUIRED: Provide a concise summary of the purpose and scope of this pull request.
-
-- What problem does this pull request address?:
-  Describe the problem this PR solves.
-
-- Why is this change necessary?:
-  Explain the motivation and importance of this change.
-
-- What features or functionality does this pull request introduce or enhance?:
-  Outline the new or improved functionality introduced.
-
-Provide your answer below:
+Provide a clear and concise summary of the changes introduced by this pull
+request. Explain what was changed, and why. If this closes an issue, reference
+it below.
 -->
 
-### What problem does this pull request address?
-
 ...
 
-### Why is this change necessary?
-
-...
-
-### What features or functionality does this pull request introduce or enhance?
-
-...
-
-## 🛠️ Type of Change
+### Related Issues
 
 <!--
-REQUIRED: Select all options that apply by marking them with an "[x]".
--->
-
-- [ ] 🐛 Bugfix ( a non-breaking change that resolves an issue )
-- [ ] 🎨 User Interface ( UI ) updates
-- [ ] ✨ New feature ( a non-breaking change that adds new functionality )
-- [ ] ⚠️ Breaking change ( a change that alters existing functionality in a way that could cause issues )
-- [ ] 📄 New Documentation ( addition of new documentation )
-- [ ] 📄 Documentation Update ( modification of existing documentation )
-- [ ] 📄 Documentation Update Required ( this change requires updates to related documentation )
-- [ ] 🌍 Internationalization ( i18n ) improvements
-- [ ] 🔧 Other ( please specify ):
-  - Provide additional details here.
-
-## 🔗 Related Issues
-
-<!--
-OPTIONAL: Reference related GitHub issues or tasks this PR addresses.
-NOTE:     Remove this section if not applicable.
-
-Use proper issue links or numbers, and only include issues directly related to
-this PR. Remove any irrelevant references.
-
+Link any related issues or discussions. Use keywords like "Closes", "Fixes", or
+"Resolves" to automatically close issues when this pull request is merged.
 Examples:
-
-- Relates to #issue-number
-- Resolves #issue-number
-- Fixes #issue-number
-
-Provide your answer below:
+  - Fixes #456
+  - Related to #789
 -->
 
 ...
 
-## 📦 Dependencies Added/Updated
+---
+
+## 🔄 Type of Change
 
 <!--
-OPTIONAL: Describe any new or updated dependencies.
-NOTE:     Remove this section if not applicable.
-
-- New Dependencies: List new dependencies and their purposes.
-- Updated Dependencies: Summarize any updates to existing dependencies and why
-  they were made.
-
-Provide your answer below:
+Select the type of change this pull request introduces by replacing [ ] with
+[x] for all that apply.
 -->
 
-### New Dependencies
+- [ ] 🐛 `fix` — Bugfix (non-breaking change that resolves an issue)
+- [ ] ✨ `feat` — New feature (non-breaking change that adds functionality)
+- [ ] 💥 `feat!` — Breaking change (fix or feature that causes existing functionality to behave differently)
+- [ ] 📝 `docs` — Documentation update (no code changes)
+- [ ] 🎨 `style` — Code formatting (no logic change)
+- [ ] ♻️ `refactor` — Code restructuring (no feature or fix)
+- [ ] ⚡ `perf` — Performance improvement
+- [ ] 🧪 `test` — Adding or updating tests
+- [ ] 🔧 `chore` — Maintenance, build updates, or dependency changes
+- [ ] ⏪ `revert` — Reverting a previous commit
 
-...
+---
 
-### Updated Dependencies
-
-...
-
-## 🌍 Internationalization ( i18n )
+## 🧪 Testing
 
 <!--
-OPTIONAL: Describe any internationalization ( i18n ) changes made.
-NOTE:     Remove this section if not applicable.
-
-- New languages added or removed.
-- Updates to existing translations.
-- Steps for verifying translations.
-
-Provide your answer below:
+Describe how you tested your changes. Include details about your test
+environment and the steps taken to verify the change works as expected.
 -->
 
+### Test Environment
+
 ...
 
-## ✅ Testing
+### Steps to Test
 
 <!--
-OPTIONAL: Describe your testing approach and steps taken.
-NOTE:     Remove this section if not applicable.
-
-- New Tests: Outline any unit, integration, or end-to-end tests added.
-- Modified Tests: Explain changes to existing test cases.
-- Manual Testing: Detail steps for manually verifying the functionality.
-- Test Coverage: Ensure relevant code is sufficiently tested.
-
-Provide your answer below:
--->
-
-...
-
-## ⚡ Performance Considerations
-
-<!--
-OPTIONAL: Mention any relevant performance considerations.
-NOTE:     Remove this section if not applicable.
-
-- Have you analyzed the performance impact? If so, explain your findings.
-- Provide benchmarks or profiling results if applicable.
-
-Provide your answer below:
--->
-
-...
-
-## 🔒 Security Impact
-
-<!--
-OPTIONAL: Outline any potential security impact and mitigation.
-NOTE:     Remove this section if not applicable.
-
-Does this change introduce or address any security risks? If yes, describe the
-risks and your mitigation approach.
-
-Provide your answer below:
--->
-
-...
-
-## 🚀 Deployment Considerations
-
-<!--
-OPTIONAL: Describe deployment-related details.
-NOTE:     Remove this section if not applicable.
-
-- Pre-deployment Steps: List any necessary tasks to perform before deployment.
-- Impact Assessment: Assess the impact of the change on the system.
-- Backward Compatibility: Specify if the change affects backward compatibility
-  and how to mitigate it.
-- Rollback Plan: Provide a clear rollback plan if necessary.
-
-Provide your answer below:
--->
-
-### Pre-deployment Steps
-
-...
-
-### Impact Assessment
-
-...
-
-### Backward Compatibility
-
-...
-
-### Rollback Plan
-
-...
-
-## 📄 Checklist
-
-<!--
-REQUIRED: Select all options that apply by marking them with an "[x]".
--->
-
-- [ ] 🔍 My code follows the [style guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CODE_STYLE_AND_STANDARDS_GUIDES.md) of this project.
-- [ ] ✅ I ran code linters on the modified files.
-- [ ] 🛠️ I have reviewed and tested my code thoroughly.
-- [ ] 📝 I have commented my code, especially in hard-to-understand areas ( e.g., using JSDoc for methods ).
-- [ ] ⚠️ My changes generate no new warnings.
-- [ ] 🧪 I have added automated tests, if required.
-- [ ] 🤖 My code required automated testing, and I have added the necessary tests ( optional task ).
-- [ ] 📄 Documentation updates are included in this PR.
-- [ ] 🔒 I have considered potential security impacts and mitigated risks.
-- [ ] 🌍 I have verified that any internationalization ( i18n ) changes are correct.
-- [ ] 🧰 Dependency updates are listed and explained.
-- [ ] 📚 I have read and understood the [Pull Request Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#pull-requests).
-- [ ] ✍️ I have completed the [Author Self-Review Process](https://github.com/homelab-alpha/shell-script/blob/main/.github/review_process_template.md).
-
-## 📰 Release Notes
-
-<!--
-REQUIRED: Provide a summary of the most important change for the changelog.
+Provide step-by-step instructions so reviewers can reproduce and verify your
+changes.
 
 Example:
-
-- Fixed a bug causing X to fail under Y conditions.
-
-Provide your answer below:
+  1. Clone the repository and check out this branch.
+  2. Run `...`
+  3. Observe that `...`
 -->
 
 ...
 
-## 📷 Screenshots or Visual Changes
+---
+
+## 📸 Screenshots or Logs
 
 <!--
-OPTIONAL: Provide screenshots for visual changes.
-NOTE:     Remove this section if not applicable.
-
-Please upload the image directly here by pasting it or dragging and dropping.
-Avoid using external image services as the image will be uploaded automatically.
-
-If this pull request introduces visual changes, please provide the following details.
-
-- UI Modifications: Highlight any changes made to the user interface.
-- Before & After: Include screenshots or comparisons.
-
-Example:
-
-| Changes  | Before                | After                |
-| -------- | --------------------- | -------------------- |
-| Change 1 | ![Before](image-link) | ![After](image-link) |
-| Change 2 | ![Before](image-link) | ![After](image-link) |
+If applicable, add screenshots, terminal output, or log snippets to help
+illustrate the changes. Remove this section if not relevant.
 -->
 
-Please upload screenshots directly here.
+...
 
-## ℹ️ Additional Context
+---
+
+## ✅ Checklist
 
 <!--
-OPTIONAL: Add any other notes or references useful for reviewers.
-NOTE:     Remove this section if not applicable.
+Go through the checklist below and replace [ ] with [x] for each item you have
+completed. Pull requests that do not satisfy these requirements may be closed
+without review.
+-->
 
-- Design decisions or trade-offs made during development.
-- Alternative solutions considered but not implemented.
-- Relevant links, such as specifications, discussions, or resources.
-- Dependencies or related pull requests that must be addressed before merging.
+### Code Quality
 
-Provide your answer below:
+- [ ] My code follows the style and conventions described in [code_style_and_standards_guides.md](https://github.com/homelab-alpha/shell-script/blob/main/docs/code_style_and_standards_guides.md).
+- [ ] I have added comments to complex or non-obvious parts of my code.
+- [ ] I have removed all debugging statements, console logs, and temporary code.
+
+### Testing
+
+- [ ] I have tested my changes locally and they work as expected.
+- [ ] I have added or updated tests to cover my changes (if applicable).
+- [ ] All existing tests pass.
+
+### Documentation
+
+- [ ] I have updated the relevant documentation to reflect my changes.
+- [ ] I have updated the [CHANGELOG.md](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md) under `[Unreleased]` with a brief description of my changes.
+
+### Git Hygiene
+
+- [ ] My branch name follows the [branch naming convention](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#branch-naming).
+- [ ] My commits follow the [commit message convention](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#commit-messages).
+- [ ] My branch is up to date with the `main` branch.
+- [ ] There are no merge conflicts.
+
+### General
+
+- [ ] I have read and followed the [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md).
+- [ ] I have searched for existing issues and pull requests related to this change to avoid duplicates.
+- [ ] This pull request does not introduce any secrets, credentials, or sensitive information.
+
+---
+
+## 📝 Additional Notes
+
+<!--
+Add any additional context, considerations, or information that reviewers should
+be aware of. For example: known limitations, follow-up tasks, or design
+decisions made during implementation. Remove this section if not needed.
 -->
 
 ...

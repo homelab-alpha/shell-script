@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": "",
+    "sessionUrl": false
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint*)",
+      "Bash(npx prettier@3 *)",
+      "Bash(bash -n *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)"
+    ],
+    "deny": ["Read(./.env)", "Read(./.env.*)"]
+  }
+}

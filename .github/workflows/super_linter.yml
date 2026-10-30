@@ -6,10 +6,6 @@ on:
     branches:
       - main
 
-  pull_request:
-    branches:
-      - main
-
   workflow_dispatch:
 
 concurrency:
@@ -17,8 +13,6 @@ concurrency:
     ${{
       github.event_name == 'push' &&
       format('linting-push-{0}', github.ref) ||
-      github.event_name == 'pull_request' &&
-      format('linting-pr-{0}', github.event.pull_request.number) ||
       format('linting-manual-{0}', github.run_id)
     }}
   cancel-in-progress: true
@@ -26,8 +20,6 @@ concurrency:
 permissions:
   contents: read
   packages: read
-  issues: write
-  pull-requests: write
   statuses: write
 
 jobs:
@@ -40,14 +32,28 @@ jobs:
       github.event.sender.type != 'Bot' &&
       !contains(github.actor, '[bot]')
 
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::🔍 Linting started"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow ref: $GITHUB_REF"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "::endgroup::"
+
       - name: 🏁 Checkout repository source
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: 📥 Extract Super-Linter environment
+        id: load_env
         run: |
           echo "::group::📄 Loading environment variables"
 
@@ -58,36 +64,27 @@ jobs:
               echo "$VARIABLES" >> "$GITHUB_ENV"
               echo "The following variables were loaded:"
               echo "$VARIABLES"
-              echo "Environment loaded successfully."
-
+              echo "env_loaded=true" >> "$GITHUB_OUTPUT"
+              echo "::notice title=Environment loaded::ℹ️ Super-Linter environment loaded successfully"
             else
-              echo "::notice title=No Active Configuration::super_linter.env contains no active variables."
+              echo "env_loaded=false" >> "$GITHUB_OUTPUT"
+              echo "::notice title=No Active Configuration::ℹ️ super_linter.env contains no active variables"
             fi
-
           else
-            echo "::warning title=Environment Missing::No .github/super_linter.env file found."
+            echo "env_loaded=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Environment Missing::⚠️ No .github/super_linter.env file found"
           fi
 
           echo "::endgroup::"
 
-      - name: 📢 Notify start of process
-        run: |
-          echo "::notice title=Linting::🔍 Linting started"
-          echo "::group::ℹ️ Lint configuration"
-          echo "Repository: $GITHUB_REPOSITORY"
-          echo "Workflow ref: $GITHUB_REF"
-          echo "Runner: $RUNNER_OS"
-          echo "Default branch: $DEFAULT_BRANCH"
-          echo "::endgroup::"
-
       - name: 🏃 Run Super-Linter
         id: run_linter
-        uses: super-linter/super-linter@v9.0.0
+        uses: super-linter/super-linter@2da136927bd4a73596db63044b504547c62cb854 # v9.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚨 Log linting failure
-        if: failure()
+        if: failure() && steps.run_linter.outcome == 'failure'
         run: |
           echo "::error title=Linting failed::❌ Super-Linter found issues in the codebase. Check the logs above for details."
 
@@ -96,12 +93,8 @@ jobs:
         run: |
           echo "::group::📊 Generating Summary Report"
 
-          # Determine status emoji
-          if [[ "${{ job.status }}" == "success" ]]; then
-            LINT_RESULT="✅ Success"
-          else
-            LINT_RESULT="❌ Failed"
-          fi
+          LINT_RESULT="${{ steps.run_linter.outcome == 'success' && '✅ Success' || steps.run_linter.outcome == 'failure' && '❌ Failed' || '⏭️ Skipped' }}"
+          ENV_RESULT="${{ steps.load_env.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🔍 Linting Summary
@@ -109,18 +102,23 @@ jobs:
           Execution completed at: $(date -u)
 
           ### 📈 Execution Results
-          | Metric | Value | Result |
-          | :--- | :--- | :--- |
-          | 📦 Tool | Super-Linter | $LINT_RESULT |
-          | 🔍 Scan Status | Completion | $LINT_RESULT |
+
+          | Target          | Action   | Result       |
+          | :-------------- | :------- | :----------- |
+          | 📄 Environment  | Loaded   | $ENV_RESULT  |
+          | 🔍 Super-Linter | Executed | $LINT_RESULT |
 
           ### ⚙️ Runtime Configuration
+
           - **Branch/Ref:** $GITHUB_REF
-          - **Default Branch:** $DEFAULT_BRANCH
+          - **Default Branch:** ${DEFAULT_BRANCH:-main}
           - **Runner OS:** $RUNNER_OS
+          - **Event:** ${{ github.event_name }}
+          - **Log Level:** ${LOG_LEVEL:-NOTICE}
 
           ### 🧩 Notes
-          - Automated linting performed via \`super-linter/super-linter\`.
+
+          - Automated linting performed via \`super-linter/super-linter@v9.0.0\`.
           - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
 

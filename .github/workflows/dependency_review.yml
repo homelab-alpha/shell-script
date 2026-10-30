@@ -1,0 +1,111 @@
+---
+name: 🔒 Dependency Review
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: dependency-review-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    name: 🔒 Scan Dependencies for Vulnerabilities
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: 🏁 Notify start of process
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          echo "::notice title=Workflow started::🔒 Dependency review started for PR #${PR_NUMBER}"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: ${REPO}"
+          echo "PR Number:  ${PR_NUMBER}"
+          echo "Base ref:   ${BASE_REF}"
+          echo "Head ref:   ${HEAD_REF}"
+          echo "::endgroup::"
+
+      - name: 🏁 Checkout repository source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 🔒 Run Dependency Review
+        id: dependency_review
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: always
+          deny-licenses: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1
+
+      - name: 🚨 Log dependency review failure
+        if: failure()
+        run: |
+          echo "::error title=Dependency Review Failed::❌ One or more dependencies introduced in this PR contain known vulnerabilities or use denied licenses. Check the PR comment for details."
+
+      - name: 📊 Generate job summary
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          SERVER_URL: ${{ github.server_url }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          echo "::group::📊 Generating Summary Report"
+
+          if [[ "${JOB_STATUS}" == "success" ]]; then
+            REVIEW_RESULT="✅ No issues found"
+          else
+            REVIEW_RESULT="❌ Issues detected"
+          fi
+
+          cat <<EOF >> "${GITHUB_STEP_SUMMARY}"
+          ## 🔒 Dependency Review Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+
+          | Metric                | Value                                        | Result           |
+          | :-------------------- | :------------------------------------------- | :--------------- |
+          | 🔍 Vulnerability Scan | Severity threshold: moderate                 | ${REVIEW_RESULT} |
+          | 📜 License Check      | Denied: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1 | ${REVIEW_RESULT} |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Base Ref:** ${BASE_REF}
+          - **Head Ref:** ${HEAD_REF}
+          - **PR Number:** #${PR_NUMBER}
+          - **Workflow Run:** [View Details](${SERVER_URL}/${REPO}/actions/runs/${RUN_ID})
+
+          ### 🧩 Notes
+
+          - Powered by \`actions/dependency-review-action\`.
+          - A detailed report has been posted as a comment on the pull request.
+          - To allow a specific license, update the \`deny-licenses\` list in \`.github/workflows/dependency_review.yml\`.
+          EOF
+
+          echo "::endgroup::"

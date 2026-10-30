@@ -25,13 +25,14 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: pr-${{ github.run_id }}
+  group: pr-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   pr-automation:
-    name: ℹ️ Pull Request Automation
+    name: 🤖 Process pull request events
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     if: |
       github.event.sender.type != 'Bot' &&
@@ -76,10 +77,10 @@ jobs:
 
         If you have any questions or if anything is unclear, feel free to ask right here — unclear documentation is a bug too! 😉
 
-        Thanks again for your time and effort. We can’t wait to review your changes! 🙌
+        Thanks again for your time and effort. We can't wait to review your changes! 🙌
 
-        [Code of Conduct]: https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md
-        [Contribution Guidelines]: https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md
+        [Code of Conduct]: https://github.com/${{ github.repository }}/blob/main/CODE_OF_CONDUCT.md
+        [Contribution Guidelines]: https://github.com/${{ github.repository }}/blob/main/CONTRIBUTING.md
 
       VALIDATE_PULL_REQUEST_TITLE_MSG: |
         ## ❌ Pull Request Title Invalid
@@ -88,11 +89,17 @@ jobs:
 
         **Please update the title** to follow the format: \<type\>(\<scope\>): \<description\>
 
+        ### Valid types
+
+        `feat` `fix` `docs` `style` `refactor` `perf` `test` `chore` `revert` `build` `ci`
+
         ### Examples:
 
         - feat(auth): add login functionality
         - fix(button): correct border-radius
         - chore(deps): update dependency versions
+        - fix(ci_cd): correct linting step
+        - feat(v2): introduce new API version
 
         Once updated, the title will be validated again.
 
@@ -105,7 +112,7 @@ jobs:
 
         ### ⏳ What happens next
 
-        - We’ll revisit this Pull Request when it comes up in the backlog prioritization.
+        - We'll revisit this Pull Request when it comes up in the backlog prioritization.
         - Feel free to follow up with any new information or context as needed.
 
         💬 If you think this Pull Request should be prioritized sooner, feel free to comment with any updates or feedback.
@@ -126,12 +133,12 @@ jobs:
 
         This pull request has been closed without being merged.
 
-        🧹 To keep things tidy, we’ve removed any workflow and status labels associated with this Pull Request.
+        🧹 To keep things tidy, we've removed any workflow and status labels associated with this Pull Request.
 
         ### 💡 Want to continue?
 
         - Feel free to reopen this pull request if you plan to continue the work, or
-        - Open a new Pull Request when you’re ready with updated changes or context
+        - Open a new Pull Request when you're ready with updated changes or context
 
         Thanks for the time and effort you put into this contribution — we appreciate it! 🙌
 
@@ -140,7 +147,7 @@ jobs:
 
         Great news — this pull request has been successfully merged! 🎉
 
-        🧹 As part of the cleanup, we’ve removed workflow and status labels that are no longer needed.
+        🧹 As part of the cleanup, we've removed workflow and status labels that are no longer needed.
 
         ### 🙌 Thank you for contributing
 
@@ -151,7 +158,9 @@ jobs:
 
     steps:
       - name: 🏁 Initialize workflow context
+        id: init
         run: |
+          set -Eeuo pipefail
           echo "::notice title=Workflow started::🤖 Automation triggered for PR #$PR_NUMBER"
           echo "::group::ℹ️ Context Analysis"
           echo "Event: ${{ github.event_name }}"
@@ -162,6 +171,7 @@ jobs:
           echo "::endgroup::"
 
       - name: 🔍 Check and revert to draft if necessary
+        id: revert_draft
         if: |
           (
             github.event_name == 'pull_request' &&
@@ -183,39 +193,36 @@ jobs:
             )
           )
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::🔍 Draft status check"
 
           IS_DRAFT=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json isDraft -q '.isDraft') || {
-
             echo "::error title=Draft check failed::❌ Unable to retrieve draft status for PR #$PR_NUMBER"
             exit 1
           }
 
           if [ "$IS_DRAFT" = "false" ]; then
             gh pr ready "$PR_NUMBER" --repo "$REPO" --undo || {
-
               echo "::error title=Draft revert failed::❌ Unable to convert PR #$PR_NUMBER back to draft"
               exit 1
             }
-
-            echo "::notice::ℹ️ Pull request reverted to draft"
+            echo "::notice title=Draft revert::ℹ️ Pull request reverted to draft"
             echo "action_taken=Converted to draft" >> "$GITHUB_ENV"
-
           else
-            echo "::notice::ℹ️ Pull request already in draft"
+            echo "::notice title=Draft status::ℹ️ Pull request already in draft"
             echo "action_taken=No change (already draft)" >> "$GITHUB_ENV"
           fi
 
           echo "::endgroup::"
 
       - name: 🛠️ Setup new pull request
+        id: setup_new
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'opened'
         run: |
-          set -e
-          echo "::group::ℹ️ New PR handling"
+          set -Eeuo pipefail
+          echo "::group::🛠️ New PR handling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
             --remove-label "$LABEL_BACKLOG" \
@@ -225,28 +232,27 @@ jobs:
             --remove-label "$LABEL_P3_LOW" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_IN_PROGRESS" || {
-
               echo "::error title=Label update failed::❌ Could not update labels for new PR #$PR_NUMBER"
               exit 1
             }
 
           gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$NEW_PULL_REQUEST_MSG" || {
-
             echo "::error title=Comment failed::❌ Could not post welcome comment to PR #$PR_NUMBER"
             exit 1
           }
 
-          echo "::notice::✅ New pull request initialized"
+          echo "::notice title=New PR initialized::✅ New pull request initialized"
           echo "action_taken=Initialized new PR" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: 🔄 Update reopened pull request
+        id: reopen
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'reopened'
         run: |
-          set -e
-          echo "::group::ℹ️ Reopened PR handling"
+          set -Eeuo pipefail
+          echo "::group::🔄 Reopened PR handling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
             --remove-label "$LABEL_BACKLOG" \
@@ -257,16 +263,16 @@ jobs:
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_IN_PROGRESS" \
             --add-label "$LABEL_REOPEN" || {
-
               echo "::error title=Label update failed::❌ Could not update labels for reopened PR #$PR_NUMBER"
               exit 1
             }
 
-          echo "::notice::ℹ️ Pull request reopened"
+          echo "::notice title=PR reopened::ℹ️ Pull request reopened"
           echo "action_taken=Processed reopened PR" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: 🔍 Validate pull request title
+        id: validate_title
         if: |
           github.event_name == 'pull_request' &&
           (
@@ -275,27 +281,26 @@ jobs:
             github.event.action == 'synchronize'
           )
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::🔍 PR title validation"
 
           PR_TITLE=$(gh pr view "$PR_NUMBER" --repo "$REPO" --json title -q '.title') || {
-
             echo "::error title=Title fetch failed::❌ Unable to read PR title for #$PR_NUMBER"
             exit 1
           }
 
-          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore)(\([a-z0-9\-]+\))?:\ [A-Za-z].* ]]; then
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|perf|test|chore|revert|build|ci)(\([a-z0-9_\-]+\))?(\!)?:[[:space:]][A-Za-z].* ]]; then
             echo "::error title=Invalid Pull Request Title::❌ PR #$PR_NUMBER does not follow Conventional Commits format"
-
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$VALIDATE_PULL_REQUEST_TITLE_MSG"
             exit 1
           fi
 
-          echo "::notice::✅ Pull request title is valid"
+          echo "::notice title=Title valid::✅ Pull request title is valid"
           echo "action_taken=Validated PR title" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: ⚠️ Update status to changes requested
+        id: changes_requested
         if: |
           (
             (
@@ -313,7 +318,7 @@ jobs:
             )
           )
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::⚠️ Changes requested handling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
@@ -325,23 +330,23 @@ jobs:
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_FIX_REQUESTED" \
             --add-label "$LABEL_IN_PROGRESS" || {
-
               echo "::error title=Label update failed::❌ Could not update labels for changes requested on PR #$PR_NUMBER"
               exit 1
             }
 
-          echo "::notice::⚠️ Changes requested by reviewer"
+          echo "::notice title=Changes requested::⚠️ Changes requested by reviewer"
           echo "action_taken=Labeled as fix requested" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: 🔍 Label external review feedback
+        id: external_feedback
         if: |
           github.event_name == 'pull_request_review' &&
           github.event.review.state == 'changes_requested' &&
           github.event.review.author_association != 'MEMBER' &&
           github.event.review.author_association != 'OWNER'
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::🔍 External review handling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
@@ -353,21 +358,21 @@ jobs:
             --remove-label "$LABEL_STALE" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_EXTERNAL_FEEDBACK" || {
-
               echo "::error title=Label update failed::❌ Could not update labels for external review on PR #$PR_NUMBER"
               exit 1
             }
 
-          echo "::notice::ℹ️ External feedback requested"
+          echo "::notice title=External feedback::ℹ️ External feedback requested"
           echo "action_taken=Labeled for external feedback" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: ✅ Mark ready for review
+        id: ready_for_review
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'ready_for_review'
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::✅ Ready for review handling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
@@ -379,23 +384,23 @@ jobs:
             --remove-label "$LABEL_STALE" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_NEEDS_REVIEW" || {
-
               echo "::error title=Label update failed::❌ Could not update labels for ready status on PR #$PR_NUMBER"
               exit 1
             }
 
-          echo "::notice::✅ Pull request ready for review"
+          echo "::notice title=Ready for review::✅ Pull request ready for review"
           echo "action_taken=Marked ready for review" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
-      - name: 🧹 Move to backlog
+      - name: 🗂️ Move to backlog
+        id: backlog
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'labeled' &&
           github.event.label.name == 'backlog'
         run: |
-          set -e
-          echo "::group::🧹 Backlog labeling"
+          set -Eeuo pipefail
+          echo "::group::🗂️ Backlog labeling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
             --remove-label "$LABEL_EXTERNAL_FEEDBACK" \
@@ -406,24 +411,27 @@ jobs:
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_BACKLOG" \
             --add-label "$LABEL_P3_LOW" || {
-
               echo "::error title=Label update failed::❌ Could not move PR #$PR_NUMBER to backlog"
               exit 1
             }
 
-          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$BACKLOG_MSG"
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$BACKLOG_MSG" || {
+            echo "::error title=Comment failed::❌ Could not post backlog comment to PR #$PR_NUMBER"
+            exit 1
+          }
 
-          echo "::notice::ℹ️ Pull request moved to backlog"
+          echo "::notice title=Backlog::ℹ️ Pull request moved to backlog"
           echo "action_taken=Moved to backlog" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: 🗑️ Delete and perform wontfix actions
+        id: wontfix
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'labeled' &&
           github.event.label.name == 'wontfix'
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::🗑️ Wontfix handling"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
@@ -435,27 +443,26 @@ jobs:
             --remove-label "$LABEL_P3_LOW" \
             --remove-label "$LABEL_STALE" \
             --add-label "$LABEL_WONTFIX" || {
-
               echo "::error title=Label update failed::❌ Could not update labels for wontfix on PR #$PR_NUMBER"
               exit 1
             }
 
           gh pr close "$PR_NUMBER" --repo "$REPO" --delete-branch --comment "$WONTFIX_MSG" || {
-
             echo "::error title=Close failed::❌ Could not close PR #$PR_NUMBER as wontfix"
             exit 1
           }
 
-          echo "::notice::❌ Pull request closed as wontfix"
+          echo "::notice title=Wontfix::❌ Pull request closed as wontfix"
           echo "action_taken=Closed as wontfix" >> "$GITHUB_ENV"
           echo "::endgroup::"
 
       - name: 🧹 Clean up labels on close
+        id: cleanup
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'closed'
         run: |
-          set -e
+          set -Eeuo pipefail
           echo "::group::🧹 Final cleanup"
 
           gh pr edit "$PR_NUMBER" --repo "$REPO" \
@@ -468,30 +475,40 @@ jobs:
             --remove-label "$LABEL_REOPEN" \
             --remove-label "$LABEL_STALE" \
             --remove-label "$LABEL_WONTFIX" || {
-
               echo "::error title=Cleanup failed::❌ Could not remove labels on close for PR #$PR_NUMBER"
               exit 1
             }
 
           if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$MERGED_PULL_REQUEST_MSG"
-
             echo "action_taken=Cleaned up after merge" >> "$GITHUB_ENV"
-
           else
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$UNMERGED_PULL_REQUEST_MSG"
-
             echo "action_taken=Cleaned up after unmerged close" >> "$GITHUB_ENV"
           fi
 
-          echo "::notice::🧹 Cleanup completed"
+          echo "::notice title=Cleanup::🧹 Cleanup completed"
           echo "::endgroup::"
 
       - name: 📊 Generate job summary
         if: always()
         run: |
+          set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
+
           JOB_STATUS_EMOJI="${{ job.status == 'success' && '✅' || '❌' }}"
+
+          INIT_STATUS="${{ steps.init.outcome == 'success' && '✅ Success' || steps.init.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          DRAFT_STATUS="${{ steps.revert_draft.outcome == 'success' && '✅ Success' || steps.revert_draft.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          SETUP_STATUS="${{ steps.setup_new.outcome == 'success' && '✅ Success' || steps.setup_new.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          REOPEN_STATUS="${{ steps.reopen.outcome == 'success' && '✅ Success' || steps.reopen.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          TITLE_STATUS="${{ steps.validate_title.outcome == 'success' && '✅ Success' || steps.validate_title.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          CHANGES_STATUS="${{ steps.changes_requested.outcome == 'success' && '✅ Success' || steps.changes_requested.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          EXTERNAL_STATUS="${{ steps.external_feedback.outcome == 'success' && '✅ Success' || steps.external_feedback.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          READY_STATUS="${{ steps.ready_for_review.outcome == 'success' && '✅ Success' || steps.ready_for_review.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          BACKLOG_STATUS="${{ steps.backlog.outcome == 'success' && '✅ Success' || steps.backlog.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          WONTFIX_STATUS="${{ steps.wontfix.outcome == 'success' && '✅ Success' || steps.wontfix.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
+          CLEANUP_STATUS="${{ steps.cleanup.outcome == 'success' && '✅ Success' || steps.cleanup.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🤖 Pull Request Automation Summary
@@ -500,17 +517,32 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Metric | Value |
-          | :--- | :--- |
-          | **Status** | $JOB_STATUS_EMOJI ${{ job.status }} |
+          | Step                            | Result           |
+          | :------------------------------ | :--------------- |
+          | 🏁 Initialize workflow context  | $INIT_STATUS     |
+          | 🔍 Check and revert to draft    | $DRAFT_STATUS    |
+          | 🛠️ Setup new pull request       | $SETUP_STATUS    |
+          | 🔄 Update reopened pull request | $REOPEN_STATUS   |
+          | 🔍 Validate pull request title  | $TITLE_STATUS    |
+          | ⚠️ Changes requested            | $CHANGES_STATUS  |
+          | 🔍 External review feedback     | $EXTERNAL_STATUS |
+          | ✅ Mark ready for review        | $READY_STATUS    |
+          | 🗂️ Move to backlog              | $BACKLOG_STATUS  |
+          | 🗑️ Wontfix actions              | $WONTFIX_STATUS  |
+          | 🧹 Clean up labels on close     | $CLEANUP_STATUS  |
+
+          | Metric           | Value                                     |
+          | :--------------- | :---------------------------------------- |
+          | **Overall**      | ${JOB_STATUS_EMOJI} ${{ job.status }}     |
           | **Action Taken** | ${action_taken:-No state change required} |
-          | **PR Number** | #$PR_NUMBER |
+          | **PR Number**    | #$PR_NUMBER                               |
 
           ### ⚙️ Runtime Configuration
 
           - **Trigger Event:** ${{ github.event_name }}
           - **Event Action:** ${{ github.event.action }}
           - **Repository:** $REPO
+          - **Actor:** ${{ github.actor }}
 
           ### 🧩 Workflow Details
 

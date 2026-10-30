@@ -1,0 +1,194 @@
+---
+name: 🌍 Translation & Localization Issue (i18n)
+description: >
+  Encounter a translation or i18n-related issue? Let us know here and help us improve the experience for everyone!
+labels: ["i18n", "P3: low", "triage"]
+assignees:
+  - "homelab-alpha"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🌍 Translation & Localization Issue (i18n)
+
+        Thank you for taking the time to report a translation or localization issue!
+        Please fill in as much detail as possible to help us investigate and resolve the issue quickly.
+
+        > [!IMPORTANT]
+        >
+        > If you believe this issue has **security implications**, do **not** file it here.
+        > Instead, follow our [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) and submit a private [GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if this translation or i18n-related issue has already been reported
+      description: >
+        To avoid duplicate reports, please search for existing issues before submitting a new one. You can find the list
+        of current issues
+        **[HERE](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc)**.
+      options:
+        - label: >
+            I have searched the [existing
+            issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and found no
+            similar translation or i18n-related reports.
+          required: true
+
+  - type: checkboxes
+    id: contribution-guidelines
+    attributes:
+      label: 📖 Contribution Guidelines Acknowledgement
+      description: >
+        Please make sure you have reviewed the [Contribution
+        Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) regarding translations and
+        i18n.
+      options:
+        - label: >
+            I have read and understand the [Contribution
+            Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) for translations.
+          required: true
+
+  - type: checkboxes
+    id: security-policy-agreement
+    attributes:
+      label: 🛡️ Security Policy Agreement
+      description: >
+        Please review and acknowledge the Security Policy before reporting any security-related bugs or issues. You can
+        find the full Security Policy **[HERE](https://github.com/homelab-alpha/shell-script/security/policy)**.
+      options:
+        - label: >
+            I have read and agree to Homelab-Alpha's [Security
+            Policy](https://github.com/homelab-alpha/shell-script/security/policy).
+          required: true
+
+  - type: input
+    id: language
+    validations:
+      required: true
+    attributes:
+      label: 🌍 Language
+      description: >
+        Specify the language where the issue occurs.
+      placeholder: |
+        e.g., English (en), Dutch (nl)
+
+  - type: textarea
+    id: issue-description
+    validations:
+      required: true
+    attributes:
+      label: 📝 Issue Description
+      description: >
+        Clearly describe the translation or i18n issue. Include what is wrong, where it appears, and why it is
+        incorrect.
+      placeholder: |
+        The translation for "Save" on the settings page is incorrect or misleading.
+
+  - type: textarea
+    id: steps-to-reproduce
+    validations:
+      required: true
+    attributes:
+      label: 🧩 Steps to Reproduce
+      description: >
+        Provide clear steps to reproduce the issue so we can verify it.
+      placeholder: |
+        1. Set the site language to Dutch.
+        2. Navigate to the settings page.
+        3. Observe the label on the save button.
+
+  - type: textarea
+    id: expected-translation
+    validations:
+      required: true
+    attributes:
+      label: ✔️ Expected Translation
+      description: >
+        Describe what the correct translation should be.
+      placeholder: |
+        The button label should be "Opslaan".
+
+  - type: textarea
+    id: actual-translation
+    validations:
+      required: true
+    attributes:
+      label: ❌ Actual Translation
+      description: >
+        Describe the current (incorrect) translation.
+      placeholder: |
+        The button label currently shows "Bewaren".
+
+  - type: dropdown
+    id: regression
+    validations:
+      required: true
+    attributes:
+      label: 📉 Is This a Regression?
+      description: >
+        Did this translation work correctly in a previous version? If yes, please include the last known working version
+        in the additional context below.
+      options:
+        - "Yes — this worked in a previous version"
+        - "No — this has never worked as far as I know"
+        - "Unknown — I am not sure"
+
+  - type: input
+    id: software-version
+    validations:
+      required: true
+    attributes:
+      label: 📦 Software Version
+      description: >
+        Specify the version of the software you are using. Avoid using vague terms like "latest" or "current".
+      placeholder: |
+        e.g., 1.10.0
+
+  - type: textarea
+    id: logs
+    validations:
+      required: false
+    attributes:
+      label: 📜 Relevant Logs or Error Messages
+      description: >
+        Paste any relevant output, warnings, or error messages related to i18n or translations. Sensitive information
+        such as tokens or passwords must be redacted before sharing.
+      render: shell
+      placeholder: |
+        Paste logs or error messages here. This will be automatically formatted into code, so no need for backticks.
+
+  - type: textarea
+    id: relevant-config-files
+    validations:
+      required: false
+    attributes:
+      label: ⚙️ Relevant Configuration Files
+      description: >
+        Attach any relevant i18n configuration files, translation files, or code snippets that might help diagnose the
+        issue. Sensitive information such as tokens or passwords must be redacted before sharing.
+      render: shell
+      placeholder: |
+        Paste or upload your configuration files or code snippets here.
+        This will be automatically formatted into code, so no need for backticks.
+
+  - type: textarea
+    id: additional-context
+    validations:
+      required: false
+    attributes:
+      label: 🧠 Additional Context
+      description: >
+        Add any other context, screenshots, or references that might help resolve this issue.
+      placeholder: |
+        Links to documentation, screenshots, or notes about related translations.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: 🙋 Would You Like to Help Fix This Issue?
+      description: >
+        If you are interested in submitting a fix yourself, let us know! Check out the [Contributing
+        Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md) to get started.
+      options:
+        - label: I would like to work on a fix for this issue.
+          required: false

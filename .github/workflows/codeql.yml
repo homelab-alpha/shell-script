@@ -1,0 +1,131 @@
+---
+name: 🛡️ CodeQL Security Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  schedule:
+    - cron: "0 3 * * 0"
+
+  workflow_dispatch:
+
+permissions:
+  security-events: write
+  packages: read
+  actions: read
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    name: 🔍 Analyze (${{ matrix.language }})
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: javascript-typescript
+            build-mode: none
+
+    steps:
+      - name: 🏁 Notify start of analysis
+        run: |
+          echo "::notice title=CodeQL Started::🔍 Starting security scan for ${{ matrix.language }}"
+          echo "::group::ℹ️ Environment Details"
+          echo "Language: ${{ matrix.language }}"
+          echo "Build Mode: ${{ matrix.build-mode }}"
+          echo "Runner: ${{ runner.os }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "::endgroup::"
+
+      - name: 📥 Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: 🏗️ Initialize CodeQL
+        id: codeql_init
+        uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: 🛠️ Execute manual build
+        if: matrix.build-mode == 'manual'
+        shell: bash
+        run: |
+          echo "::group::🔨 Build Instructions"
+          echo "Manual build mode detected."
+          echo "Replace this step with your build commands, for example:"
+          echo "  make bootstrap"
+          echo "  make release"
+          echo "::endgroup::"
+          echo "::error title=Build Required::❌ Manual build mode detected but no build commands provided."
+          exit 1
+
+      - name: 🧪 Perform CodeQL analysis
+        id: codeql_analysis
+        uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          category: "/language:${{ matrix.language }}"
+
+      - name: 🚨 Log analysis failure
+        if: failure()
+        run: |
+          echo "::error title=CodeQL Failed::❌ CodeQL analysis failed for ${{ matrix.language }}. Check the logs for details."
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+
+          INIT_STATUS="${{ steps.codeql_init.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+          ANALYSIS_STATUS="${{ steps.codeql_analysis.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🛡️ CodeQL Analysis Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Scan Results
+
+          | Component         | Detail                   | Result           |
+          | :---------------- | :----------------------- | :--------------- |
+          | 🏗️ Initialization | CodeQL database setup    | $INIT_STATUS     |
+          | 🔐 Security Scan  | ${{ matrix.language }}   | $ANALYSIS_STATUS |
+          | ⚙️ Build Mode     | ${{ matrix.build-mode }} | ✅ Configured    |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Language:** ${{ matrix.language }}
+          - **Build Mode:** ${{ matrix.build-mode }}
+          - **Runner OS:** ${{ runner.os }}
+          - **Database Category:** /language:${{ matrix.language }}
+          - **Ref:** ${{ github.ref }}
+
+          ### 🧩 Notes
+
+          - Results are uploaded to the **Security** tab under Code Scanning alerts.
+          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
+          echo "::endgroup::"

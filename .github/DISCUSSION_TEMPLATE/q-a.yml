@@ -1,0 +1,81 @@
+---
+labels: ["question", "P4: negligible"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🙏 Q&A
+
+        Thank you for reaching out!
+        Please fill in as much detail as possible so the community and maintainers can answer your question accurately and quickly.
+
+        > [!TIP]
+        >
+        > Before submitting, consider checking the following resources — your question may already be answered:
+        >
+        > - [README](https://github.com/homelab-alpha/shell-script/blob/main/README.md)
+        > - [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md)
+        > - [Existing Discussions](https://github.com/homelab-alpha/shell-script/discussions)
+        > - [Existing Issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc)
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if your question has already been asked
+      description: >
+        To avoid duplicate discussions, please search existing issues and
+        discussions before submitting.
+      options:
+        - label: >
+            I have searched the [existing issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and [discussions](https://github.com/homelab-alpha/shell-script/discussions) and found no similar questions.
+          required: true
+
+  - type: checkboxes
+    id: security-policy-agreement
+    attributes:
+      label: 🛡️ Security Policy Agreement
+      description: >
+        Please review and acknowledge the Security Policy before submitting any security-related questions. You can find the full Security Policy **[HERE](https://github.com/homelab-alpha/shell-script/security/policy)**.
+      options:
+        - label: >
+            I have read and agree to Homelab-Alpha's [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy).
+          required: true
+
+  - type: dropdown
+    id: question-category
+    validations:
+      required: true
+    attributes:
+      label: 🗂️ Category
+      description: >
+        Select the category that best describes your question. This helps route it to the right people.
+      options:
+        - "How do I...? (Usage question)"
+        - "Why does...? (Behavior explanation)"
+        - "What is the best way to...? (Best practice)"
+        - "Is it possible to...? (Capability question)"
+        - "Difference between X and Y"
+        - "Other"
+
+  - type: textarea
+    id: question
+    validations:
+      required: true
+    attributes:
+      label: ❓ Your Question
+      description: >
+        Ask your question clearly and concisely. Include any relevant context that would help someone answer it accurately.
+      placeholder: |
+        Describe your question in detail. The more context you provide, the better and faster the answer will be.
+
+  - type: textarea
+    id: context
+    validations:
+      required: false
+    attributes:
+      label: 📋 Additional Context
+      description: >
+        Share any additional context that might be relevant — such as what you are trying to achieve, what you have already tried, or links to related
+        discussions.
+      placeholder: |
+        e.g., I am trying to achieve X. I have already read Y and tried Z, but I am unclear on how to proceed.

@@ -1,0 +1,14 @@
+# Gitleaks Ignore (Allowlist)
+
+# --- Reserved paths for GitHub Actions & Runners ---
+# Exclude the entire workspace directory to prevent scanning runner-specific files.
+# Example: `^github/workspace/.*`
+
+# --- Local Super-Linter paths ---
+# Exclude temporary linting directories used during local execution.
+# Example: `^tmp/lint/.*`
+
+# --- Specific Files & Mock Data (Optional) ---
+# Exclude test data, examples, or configurations that trigger false positives.
+# Example: `^examples/.*`
+# Example: `.*_test\.go`

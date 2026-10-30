@@ -918,7 +918,7 @@ GJS (homelab-alpha)
 
 This project is licensed under CC BY-NC-SA 4.0 - see the [LICENSE](LICENSE.md) file for details.
 
-[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE.md
+[LICENSE]: https://github.com/homelab-alpha/shell-script/blob/main/LICENSE
 EOL
 
 display_message "Docker container directory structure created in $dir_path."

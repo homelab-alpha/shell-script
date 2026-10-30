@@ -28,6 +28,7 @@ jobs:
   labels:
     name: 🏷️ Manage Labels
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     if: |
       github.event.sender.type != 'Bot' &&
@@ -49,182 +50,192 @@ jobs:
           echo "::group::ℹ️ Execution context"
           echo "Repository: $REPO"
           echo "Mode: $( [ "$DRY_RUN" = "true" ] && echo "DRY-RUN" || echo "ACTIVE" )"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
           echo "::endgroup::"
 
-      - name: 📦 Download Labels Configuration
-        uses: actions/checkout@v7.0.1
+      - name: 📦 Checkout labels configuration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: .github/labels.yml
 
-      - name: ℹ️ Load Desired Labels
+      - name: ℹ️ Load desired labels
         id: load_labels
         run: |
-          set -euo pipefail
-          echo "::group::ℹ️ Loading Desired Labels"
-          echo "🔍 Reading $LABELS_FILE"
+          set -Eeuo pipefail
+          echo "::group::ℹ️ Loading desired labels"
 
           if [ ! -f "$LABELS_FILE" ]; then
-            echo "::error title=Configuration Missing::❌ The file $LABELS_FILE was not found."
+            echo "::error title=Configuration missing::❌ The file $LABELS_FILE was not found"
             exit 1
           fi
 
           yq -o=json '.' "$LABELS_FILE" | jq 'unique_by(.name)' > /tmp/desired-labels.json
 
-          echo "✅ Desired labels loaded:"
+          DESIRED_COUNT=$(jq '. | length' /tmp/desired-labels.json)
+          echo "desired_count=$DESIRED_COUNT" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Labels loaded::ℹ️ $DESIRED_COUNT labels found in $LABELS_FILE"
 
-          cat /tmp/desired-labels.json
+          jq -r '.[].name' /tmp/desired-labels.json
 
           echo "::endgroup::"
 
-      - name: 🔍 Fetch Existing Repository Labels
+      - name: 🔍 Fetch existing repository labels
         id: fetch_labels
         run: |
-          set -euo pipefail
-          echo "::group::🔍 Fetching Existing Labels"
+          set -Eeuo pipefail
+          echo "::group::🔍 Fetching existing labels"
 
           if ! gh label list --repo "$REPO" --limit 5000 --json name,color,description > /tmp/existing-labels.json; then
-            echo "::error title=GitHub API Failure::❌ Could not fetch labels from $REPO"
+            echo "::error title=GitHub API failure::❌ Could not fetch labels from $REPO"
             exit 1
           fi
 
-          echo "✅ Existing labels fetched:"
+          EXISTING_COUNT=$(jq '. | length' /tmp/existing-labels.json)
+          echo "existing_count=$EXISTING_COUNT" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Labels fetched::ℹ️ $EXISTING_COUNT existing labels found in $REPO"
 
-          cat /tmp/existing-labels.json
+          jq -r '.[].name' /tmp/existing-labels.json
 
           echo "::endgroup::"
 
-      - name: 🔄 Synchronize Labels
+      - name: 🔄 Synchronize labels
         id: sync_labels
         run: |
-          set -euo pipefail
-          echo "::group::ℹ️ Creating or Updating Labels"
+          set -Eeuo pipefail
+          echo "::group::🔄 Creating or updating labels"
+
+          CREATED=0
+          UPDATED=0
+          SKIPPED=0
 
           jq -r '.[].name' /tmp/existing-labels.json > /tmp/existing-names.txt
 
           jq -c '.[]' /tmp/desired-labels.json | while read -r row; do
-            NAME=$(jq -r '.name' <<<"$row")
-            COLOR=$(jq -r '.color' <<<"$row")
-            DESC=$(jq -r '.description // ""' <<<"$row")
+            NAME=$(jq -r '.name' <<< "$row")
+            COLOR=$(jq -r '.color' <<< "$row")
+            DESC=$(jq -r '.description // ""' <<< "$row")
 
             if grep -Fxq "$NAME" /tmp/existing-names.txt; then
-              echo "ℹ️ Updating label: $NAME"
-
               if [ "$DRY_RUN" != "true" ]; then
                 if ! gh label edit "$NAME" --repo "$REPO" --color "$COLOR" --description "$DESC"; then
-
-                  echo "::error title=Label Update Failed::❌ Failed to update $NAME"
+                  echo "::error title=Label update failed::❌ Failed to update label '$NAME'"
                   exit 1
                 fi
-
+                echo "::notice title=Label updated::🔄 Label '$NAME' updated by github-actions[bot] at $(date -u)"
               else
-                echo "ℹ️ Dry-run: update skipped"
+                echo "ℹ️ Dry-run: would update label '$NAME'"
               fi
-
+              UPDATED=$((UPDATED + 1))
             else
-              echo "ℹ️ Creating label: $NAME"
-
               if [ "$DRY_RUN" != "true" ]; then
                 if ! gh label create "$NAME" --repo "$REPO" --color "$COLOR" --description "$DESC"; then
-
-                  echo "::error title=Label Creation Failed::❌ Failed to create $NAME"
+                  echo "::error title=Label creation failed::❌ Failed to create label '$NAME'"
                   exit 1
                 fi
-
+                echo "::notice title=Label created::🏷️ Label '$NAME' created by github-actions[bot] at $(date -u)"
               else
-                echo "ℹ️ Dry-run: create skipped"
+                echo "ℹ️ Dry-run: would create label '$NAME'"
               fi
+              CREATED=$((CREATED + 1))
             fi
           done
 
+          {
+            echo "created=$CREATED"
+            echo "updated=$UPDATED"
+            echo "skipped=$SKIPPED"
+          } >> "$GITHUB_OUTPUT"
+
           echo "::endgroup::"
 
-      - name: 🧹 Remove Obsolete Labels
+      - name: 🧹 Remove obsolete labels
         id: cleanup_labels
         run: |
-          set -euo pipefail
-          echo "::group::🧹 Removing Obsolete Labels"
+          set -Eeuo pipefail
+          echo "::group::🧹 Removing obsolete labels"
 
-          PROTECTED_LABELS=""
+          DELETED=0
 
           if [ "$DRY_RUN" = "true" ]; then
-            echo "::warning title=Cleanup Dry-run::⚠️ No labels will be deleted (Dry-run mode is active)"
+            echo "::warning title=Cleanup dry-run::⚠️ No labels will be deleted (dry-run mode is active)"
           fi
 
           jq -r '.[].name' /tmp/existing-labels.json | while read -r LABEL; do
-            case " $PROTECTED_LABELS " in
-              *" $LABEL "*) echo "ℹ️ Protected label: $LABEL — skipping"; continue;;
-            esac
-
             if ! jq -r '.[].name' /tmp/desired-labels.json | grep -Fxq "$LABEL"; then
-              echo "🗑️ Label not defined in labels.yml: $LABEL"
+              echo "🗑️ Label not defined in $LABELS_FILE: $LABEL"
 
               if [ "$DRY_RUN" != "true" ]; then
                 if ! gh label delete "$LABEL" --repo "$REPO" --yes; then
-                  echo "::warning title=Label Delete Failed::⚠️ Label '$LABEL' may have already been removed"
+                  echo "::warning title=Label delete failed::⚠️ Label '$LABEL' may have already been removed"
                 fi
-
+                echo "::notice title=Label deleted::🗑️ Label '$LABEL' deleted by github-actions[bot] at $(date -u)"
               else
-                echo "ℹ️ Dry-run: delete skipped"
+                echo "ℹ️ Dry-run: would delete label '$LABEL'"
               fi
+              DELETED=$((DELETED + 1))
             fi
           done
 
+          echo "deleted=$DELETED" >> "$GITHUB_OUTPUT"
+
           echo "::endgroup::"
 
-      - name: 📊 Generate Job Summary
+      - name: 📊 Generate job summary
         if: always()
         run: |
-          set -euo pipefail
-          echo "::group::📊 Generating Summary"
+          set -Eeuo pipefail
+          echo "::group::📊 Generating summary report"
 
-          # Determine statuses for the table
           LOAD_STATUS="${{ steps.load_labels.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
           FETCH_STATUS="${{ steps.fetch_labels.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
           SYNC_STATUS="${{ steps.sync_labels.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
           CLEAN_STATUS="${{ steps.cleanup_labels.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
-          {
-            echo "## 🏷️ Label Synchronization Summary"
-            echo ""
-            echo "Execution completed at: $(date -u)"
-            echo ""
+          DESIRED_COUNT="${{ steps.load_labels.outputs.desired_count || '0' }}"
+          EXISTING_COUNT="${{ steps.fetch_labels.outputs.existing_count || '0' }}"
+          CREATED="${{ steps.sync_labels.outputs.created || '0' }}"
+          UPDATED="${{ steps.sync_labels.outputs.updated || '0' }}"
+          DELETED="${{ steps.cleanup_labels.outputs.deleted || '0' }}"
 
-            if [ "$DRY_RUN" = "true" ]; then
-              echo "> [!IMPORTANT]"
-              echo "> **Mode: Dry-run**. No changes were applied to the repository."
-            else
-              echo "### ✅ Mode: Active"
-              echo "Repository labels have been synchronized with \`$LABELS_FILE\`."
-            fi
+          if [ "$DRY_RUN" = "true" ]; then
+            MODE_BLOCK=$'> [!IMPORTANT]\n>\n> **Mode: Dry-run** — No changes were applied to the repository.'
+          else
+            MODE_BLOCK=$'### ✅ Mode: Active\n\nRepository labels have been synchronized with `'"$LABELS_FILE"'`.'
+          fi
 
-            echo ""
-            echo "### 📈 Execution Results"
-            echo ""
-            echo "| Task | Result |"
-            echo "| :--- | :--- |"
-            echo "| ℹ️ Load Config | $LOAD_STATUS |"
-            echo "| 🔍 Fetch Existing | $FETCH_STATUS |"
-            echo "| 🔄 Sync Labels | $SYNC_STATUS |"
-            echo "| 🧹 Cleanup | $CLEAN_STATUS |"
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🏷️ Label Synchronization Summary
 
-            echo ""
-            echo "### 📊 Metrics"
-            echo ""
-            echo "| Metric | Value |"
-            echo "| :--- | :--- |"
+          Execution completed at: $(date -u)
 
-            DESIRED_COUNT=$( [ -f /tmp/desired-labels.json ] && jq '. | length' /tmp/desired-labels.json || echo "0" )
-            EXISTING_COUNT=$( [ -f /tmp/existing-labels.json ] && jq '. | length' /tmp/existing-labels.json || echo "0" )
+          $MODE_BLOCK
 
-            echo "| 🔍 Configured Labels | $DESIRED_COUNT |"
-            echo "| 🏷️ Existing Labels | $EXISTING_COUNT |"
+          ### 📈 Execution Results
 
-            echo ""
-            echo "### ⚙️ Runtime Configuration"
-            echo ""
-            echo "- **Repository:** $REPO"
-            echo "- **Config Path:** $LABELS_FILE"
-            echo "- **Triggered By:** ${{ github.actor }}"
-            echo "- **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-          } >> "$GITHUB_STEP_SUMMARY"
+          | Task              | Result        |
+          | :---------------- | :------------ |
+          | ℹ️ Load Config    | $LOAD_STATUS  |
+          | 🔍 Fetch Existing | $FETCH_STATUS |
+          | 🔄 Sync Labels    | $SYNC_STATUS  |
+          | 🧹 Cleanup        | $CLEAN_STATUS |
+
+          ### 📊 Metrics
+
+          | Metric               | Value           |
+          | :------------------- | :-------------- |
+          | 🔍 Configured Labels | $DESIRED_COUNT  |
+          | 🏷️ Existing Labels   | $EXISTING_COUNT |
+          | ✅ Created           | $CREATED        |
+          | 🔄 Updated           | $UPDATED        |
+          | 🗑️ Deleted           | $DELETED        |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Repository:** $REPO
+          - **Config Path:** $LABELS_FILE
+          - **Triggered By:** ${{ github.actor }}
+          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
           echo "::endgroup::"

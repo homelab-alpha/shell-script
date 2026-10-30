@@ -38,13 +38,14 @@ permissions:
   issues: write
 
 concurrency:
-  group: unreproducible-${{ github.run_id || github.run_id }}
-  cancel-in-progress: true
+  group: unreproducible-${{ github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   scan_and_cleanup:
-    name: 🔍 Detect and Handle Unreproducible Issues
+    name: 🔍 Detect and handle unreproducible issues
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     if: |
       github.event.sender.type != 'Bot' &&
@@ -54,9 +55,9 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
 
-      DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
-      WAIT_DAYS: ${{ github.event.inputs.wait_days || '0' }}
-      CLOSE_AFTER_DAYS: ${{ github.event.inputs.close_after_days || '7' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+      WAIT_DAYS: ${{ inputs.wait_days || '0' }}
+      CLOSE_AFTER_DAYS: ${{ inputs.close_after_days || '7' }}
 
       LABEL_CANNOT_REPRODUCE: "cannot reproduce"
       LABEL_NEEDS_INPUT: "needs input"
@@ -64,7 +65,7 @@ jobs:
       CHECKING_MSG: |
         ## 🔍 Unable to reproduce this issue
 
-        We haven’t been able to reproduce this issue so far.
+        We haven't been able to reproduce this issue so far.
 
         ### 🧪 How you can help
 
@@ -72,18 +73,16 @@ jobs:
         - Include **logs, screenshots, or sample data**
         - Share your **environment and version**
 
-        ⏳ If we don’t receive additional information within **$CLOSE_AFTER_DAYS days**, this issue may be closed automatically.
+        ⏳ If we don't receive additional information within **{CLOSE_DAYS} days**, this issue may be closed automatically.
 
         Thanks for helping us investigate! 🙌
 
       CLOSE_MSG: |
         ## 🚫 Issue closed due to missing information
 
-        We haven’t received the additional information needed to reproduce this issue,
-        so we’re closing it for now.
+        We haven't received the additional information needed to reproduce this issue, so we're closing it for now.
 
-        💡 If you can still reproduce this problem, feel free to reopen the issue
-        with clear steps and relevant details — we’ll gladly take another look.
+        💡 If you can still reproduce this problem, feel free to reopen the issue with clear steps and relevant details — we'll gladly take another look.
 
         Thanks for reporting this! 🙌
 
@@ -94,6 +93,9 @@ jobs:
           echo "::group::ℹ️ Execution context"
           echo "Repository: $REPO"
           echo "Dry Run: $DRY_RUN"
+          echo "Wait Days: $WAIT_DAYS"
+          echo "Close After Days: $CLOSE_AFTER_DAYS"
+          echo "Event: ${{ github.event_name }}"
           echo "::endgroup::"
 
       - name: 🔍 Scan unreproducible issues
@@ -101,9 +103,9 @@ jobs:
         if: |
           github.event_name == 'schedule' ||
           github.event_name == 'workflow_dispatch' ||
-          github.event_name == 'labeled'
+          (github.event_name == 'issues' && github.event.action == 'labeled')
         run: |
-          set -e
+          set -Eeuo pipefail
 
           echo "::group::🔍 API Query & Configuration"
           echo "Wait days: $WAIT_DAYS"
@@ -136,12 +138,12 @@ jobs:
             number=$(echo "$issue" | jq -r '.number')
             updated_at=$(echo "$issue" | jq -r '.updatedAt')
             locked=$(echo "$issue" | jq -r '.isLocked')
-            has_needs_input=$(echo "$issue" | jq -r '.labels | any(.name == "'"$LABEL_NEEDS_INPUT"'")')
+            has_needs_input=$(echo "$issue" | jq -r \
+              '.labels | any(.name == "'"$LABEL_NEEDS_INPUT"'")')
 
             if [ "$locked" = "true" ]; then
               echo "::debug::Skipping #$number - Issue is locked"
-
-              skipped=$((skipped+1))
+              skipped=$((skipped + 1))
               continue
             fi
 
@@ -153,22 +155,39 @@ jobs:
                 echo "::notice title=Detection::🔍 Requesting more information on issue #$number"
 
                 if [ "$DRY_RUN" != "true" ]; then
-                  gh issue edit "$number" --repo "$REPO" --add-label "$LABEL_NEEDS_INPUT"
+                  gh issue edit "$number" --repo "$REPO" \
+                    --add-label "$LABEL_NEEDS_INPUT" || {
+                      echo "::error title=Label failed::❌ Failed to add label to #$number"
+                      exit 1
+                    }
 
-                  echo -e "$CHECKING_MSG" | envsubst | gh issue comment "$number" --repo "$REPO" --body-file -
+                  COMMENT_BODY="${CHECKING_MSG//\{CLOSE_DAYS\}/$CLOSE_AFTER_DAYS}"
+                  echo "$COMMENT_BODY" | gh issue comment "$number" \
+                    --repo "$REPO" --body-file - || {
+                      echo "::error title=Comment failed::❌ Failed to comment on #$number"
+                      exit 1
+                    }
+                else
+                  echo "::notice title=Dry-run::ℹ️ Would add '$LABEL_NEEDS_INPUT' label and comment on #$number"
                 fi
 
-                needs_input_added=$((needs_input_added+1))
+                needs_input_added=$((needs_input_added + 1))
               fi
             else
               if [ "$diff" -ge "$CLOSE_SECONDS" ]; then
                 echo "::notice title=Cleanup::🗑️ Closing issue #$number"
 
                 if [ "$DRY_RUN" != "true" ]; then
-                  gh issue close "$number" --repo "$REPO" --comment "$(echo -e "$CLOSE_MSG")"
+                  gh issue close "$number" --repo "$REPO" \
+                    --comment "$CLOSE_MSG" || {
+                      echo "::error title=Close failed::❌ Failed to close #$number"
+                      exit 1
+                    }
+                else
+                  echo "::notice title=Dry-run::ℹ️ Would close issue #$number"
                 fi
 
-                closed=$((closed+1))
+                closed=$((closed + 1))
               fi
             fi
           done < <(echo "$issues" | jq -c '.[]')
@@ -186,7 +205,7 @@ jobs:
         run: |
           echo "::group::📊 Generating Summary Report"
 
-          SCAN_STATUS="${{ steps.scan.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
+          SCAN_STATUS="${{ steps.scan.outcome == 'success' && '✅ Success' || (steps.scan.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🔍 Unreproducible Issues Summary
@@ -195,11 +214,11 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Metric | Value | Result |
-          | :--- | :--- | :--- |
+          | Metric                   | Value                                            | Result       |
+          | :----------------------- | :----------------------------------------------- | :----------- |
           | ℹ️ Needs input requested | ${{ steps.scan.outputs.needs_input_added || 0 }} | $SCAN_STATUS |
-          | 🗑️ Issues closed | ${{ steps.scan.outputs.closed || 0 }} | $SCAN_STATUS |
-          | ⏭️ Issues skipped | ${{ steps.scan.outputs.skipped || 0 }} | $SCAN_STATUS |
+          | 🗑️ Issues closed         | ${{ steps.scan.outputs.closed || 0 }}            | $SCAN_STATUS |
+          | ⏭️ Issues skipped        | ${{ steps.scan.outputs.skipped || 0 }}           | $SCAN_STATUS |
 
           ### ⚙️ Runtime Configuration
 
@@ -216,16 +235,17 @@ jobs:
           echo "::endgroup::"
 
   reset_on_activity:
-    name: 🔄 Remove Needs Input on Activity
+    name: 🔄 Remove needs input on activity
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     if: |
       github.event.sender.type != 'Bot' &&
       !contains(github.actor, '[bot]') &&
       github.event.issue.state == 'open' &&
       (
-      github.event_name == 'issues' ||
-      github.event_name == 'issue_comment'
+        github.event_name == 'issues' ||
+        github.event_name == 'issue_comment'
       )
 
     permissions:
@@ -240,13 +260,25 @@ jobs:
       LABEL_NEEDS_INPUT: "needs input"
 
     steps:
+      - name: 🏁 Initialize workflow context
+        run: |
+          echo "::notice title=Workflow started::🔄 Checking activity on issue #$ISSUE_NUMBER"
+          echo "::group::ℹ️ Context"
+          echo "Event: ${{ github.event_name }}"
+          echo "Issue: #$ISSUE_NUMBER"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: $REPO"
+          echo "::endgroup::"
+
       - name: 🔍 Detect activity and update labels
         id: reset_label
         run: |
+          set -Eeuo pipefail
+
           echo "::group::🔍 Labels Analysis"
 
-          labels=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name') || {
-
+          labels=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" \
+            --json labels --jq '.labels[].name') || {
               echo "::error title=Fetch failed::❌ Failed to fetch issue labels for #$ISSUE_NUMBER"
               exit 1
             }
@@ -259,8 +291,8 @@ jobs:
 
             echo "::notice title=Label Update::🧹 Removing '$LABEL_NEEDS_INPUT' from #$ISSUE_NUMBER"
 
-            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "$LABEL_NEEDS_INPUT" || {
-
+            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" \
+              --remove-label "$LABEL_NEEDS_INPUT" || {
                 echo "::error title=Removal failed::❌ Failed to remove label from #$ISSUE_NUMBER"
                 exit 1
               }
@@ -282,17 +314,22 @@ jobs:
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🔄 Activity Reset Summary
 
+          Execution completed at: $(date -u)
+
           ### 📈 Execution Results
 
-          | Target | Action | Result |
-          | :--- | :--- | :--- |
+          | Target                  | Action         | Result        |
+          | :---------------------- | :------------- | :------------ |
           | 🎫 Issue #$ISSUE_NUMBER | Activity Check | $RESET_STATUS |
 
           ### 🧩 Context
 
-          - Triggered by: **${{ github.actor }}**
-          - Event: **${{ github.event_name }}**
-          - Status: ✅ Success
+          - **Triggered by:** ${{ github.actor }}
+          - **Event:** ${{ github.event_name }}
+
+          ### ⚙️ Runtime Configuration
+
+          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           EOF
 
           echo "::endgroup::"

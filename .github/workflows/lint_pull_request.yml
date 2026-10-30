@@ -1,0 +1,105 @@
+---
+name: 🧹 Lint Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+concurrency:
+  group: >
+    ${{
+      github.event_name == 'pull_request' &&
+      format('npm-linting-pr-{0}', github.event.pull_request.number) ||
+      format('npm-linting-manual-{0}', github.run_id)
+    }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: 🧹 Perform npm Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::🧹 npm linting started"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: ${{ github.repository }}"
+          echo "Workflow ref: $GITHUB_REF"
+          echo "Runner OS: ${{ runner.os }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "::endgroup::"
+
+      - name: 🏁 Checkout repository source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: package.json
+          cache: npm
+
+      - name: 📦 Install dev tooling
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📦 npm ci (install scripts are off)"
+          npm ci --ignore-scripts
+          echo "::endgroup::"
+
+      - name: 🔐 Check the dependencies
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🔐 npm audit"
+          npm audit --audit-level=high
+          echo "::endgroup::"
+          echo "::group::🔏 npm audit signatures"
+          npm audit signatures
+          echo "::endgroup::"
+
+      - name: 🧹 Run lint
+        id: lint
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -Eeuo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            npm run lint -- origin/main
+          else
+            npm run lint
+          fi
+
+      - name: 📊 Generate summary report
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -Eeuo pipefail
+          {
+            echo "## 🧹 npm Linting"
+            echo ""
+            echo "- **Status:** ${JOB_STATUS}"
+            echo "- **Event:** ${EVENT_NAME}"
+            echo "- **Checks:** Prettier, textlint terminology, merge conflict markers"
+            echo "- **Not covered:** actionlint, gitleaks, Checkov; Super Linter runs them on \`main\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$JOB_STATUS" = "success" ]; then
+            echo "::notice title=Linting::✅ All checks passed"
+          else
+            echo "::error title=Linting::❌ Linting failed. See the annotations and the summary. Run 'npm run lint:fix -- origin/main' locally."
+          fi

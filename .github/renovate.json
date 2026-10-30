@@ -1,8 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":semanticCommits", ":rebaseStalePrs"],
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":semanticCommits",
+    ":rebaseStalePrs"
+  ],
   "dependencyDashboard": true,
   "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "addLabels": ["security"]
+  },
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
   "timezone": "Europe/Amsterdam",
@@ -15,10 +23,13 @@
   "automergeSchedule": [],
   "automergeType": "pr",
   "automergeStrategy": "squash",
-  "vulnerabilityAlerts": {
-    "addLabels": ["security"]
-  },
   "packageRules": [
+    {
+      "description": "Pin npm dependencies to exact versions, but not the engines range",
+      "matchManagers": ["npm"],
+      "rangeStrategy": "pin",
+      "matchDepTypes": ["dependencies", "devDependencies"]
+    },
     {
       "description": "Never automerge major/minor",
       "matchUpdateTypes": ["major", "minor"],
@@ -32,10 +43,17 @@
       "addLabels": ["automerge"]
     },
     {
-      "description": "Keep Node.js on major version 22",
+      "description": "Prioritize security updates",
+      "matchPackageNames": ["*"],
+      "isVulnerabilityAlert": true,
+      "prPriority": 100,
+      "minimumReleaseAge": "0 days"
+    },
+    {
+      "description": "Keep Node.js on major version 24 (LTS)",
       "matchPackageNames": ["node", "@types/node"],
       "matchManagers": ["npm", "nodenv", "dockerfile"],
-      "allowedVersions": "^22.0.0"
+      "allowedVersions": "^24.0.0"
     },
     {
       "description": "General labeling for all updates",
@@ -64,6 +82,8 @@
       "addLabels": ["dev dependencies"]
     }
   ],
+  "internalChecksFilter": "strict",
+  "minimumReleaseAge": "7 days",
   "customManagers": [
     {
       "description": "Track Hugo version in GitHub Actions workflows",

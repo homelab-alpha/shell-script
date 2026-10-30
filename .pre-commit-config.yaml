@@ -1,0 +1,42 @@
+---
+# Pre-commit hook configuration
+# Run locally: pre-commit run --all-files
+# Install:     pip install pre-commit && pre-commit install
+# Docs:        https://pre-commit.com
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+      - id: end-of-file-fixer
+        name: Ensure files end with a newline
+      - id: check-yaml
+        name: Validate YAML syntax
+      - id: check-json
+        name: Validate JSON syntax
+      - id: check-merge-conflict
+        name: Detect unresolved merge conflict markers
+      - id: check-added-large-files
+        name: Prevent committing large files
+        args: [--maxkb=1024]
+      - id: mixed-line-ending
+        name: Enforce consistent line endings (LF)
+        args: [--fix=lf]
+      - id: detect-private-key
+        name: Detect accidentally committed private keys
+
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        name: Lint YAML files
+        args: [--config-file, .github/linters/.yaml-lint.yml]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.48.0
+    hooks:
+      - id: markdownlint
+        name: Lint Markdown files
+        args: [--config, .github/linters/.markdown-lint.yml]
