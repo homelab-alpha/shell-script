@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the table of contents link of `CONTRIBUTING.md` to its first heading
 ### Security
 
 [Unreleased]: https://github.com/homelab-alpha/shell-script/compare/main...HEAD
