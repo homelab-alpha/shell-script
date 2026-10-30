@@ -35,13 +35,14 @@ optimization.
       2. [Linting](#linting)
       3. [Dependency Management](#dependency-management)
    8. [Policies and Standards](#policies-and-standards)
-   9. [Known Issues](#known-issues)
-      1. [Currently Being Addressed](#currently-being-addressed)
-   10. [Contributing](#contributing)
-   11. [Support](#support)
-   12. [Security](#security)
-   13. [Roadmap](#roadmap)
-   14. [License](#license)
+   9. [Working with Claude](#working-with-claude)
+   10. [Known Issues](#known-issues)
+       1. [Currently Being Addressed](#currently-being-addressed)
+   11. [Contributing](#contributing)
+   12. [Support](#support)
+   13. [Security](#security)
+   14. [Roadmap](#roadmap)
+   15. [License](#license)
 
   </p>
 </details>
@@ -267,6 +268,7 @@ shell-script/
 ├── .prettierrc                                 # Prettier configuration file
 ├── AI_CONTRIBUTION_POLICY.md                   # Rules for contributions made with AI assistance
 ├── CHANGELOG.md                                # Project change history
+├── CLAUDE.md                                   # Project rules for Claude Code
 ├── CODE_OF_CONDUCT.md                          # Contributor Covenant Code of Conduct
 ├── CONTRIBUTING.md                             # Contribution guidelines
 ├── CONTRIBUTORS.md                             # Auto-generated contributors list
@@ -355,6 +357,14 @@ These are documented in `.github/policies/` and in root-level files:
 | [`GOVERNANCE.md`](./GOVERNANCE.md)                                                     | Project governance model and decision-making process |
 | [`MAINTAINERS.md`](./MAINTAINERS.md)                                                   | Maintainer roles, responsibilities, and current list |
 | [`TERMS_OF_SERVICE.md`](./TERMS_OF_SERVICE.md)                                         | Terms of use for the repository                      |
+
+## Working with Claude
+
+Project rules and conventions for Claude Code live in
+[`CLAUDE.md`](./CLAUDE.md). The shared settings are in
+[`.claude/settings.json`](./.claude/settings.json). The code style guide is in
+[`docs/code_style_and_standards_guides.md`](./docs/code_style_and_standards_guides.md),
+so a session on any computer follows the same rules.
 
 ## Known Issues
 
