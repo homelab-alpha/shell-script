@@ -11,6 +11,7 @@ individuals who have contributed a commit to the `main` branch.
 > overwritten on the next workflow run.
 
 <!-- CONTRIBUTORS_START -->
+- [@homelab-alpha](https://github.com/homelab-alpha)
 <!-- CONTRIBUTORS_END -->
 
 ---
