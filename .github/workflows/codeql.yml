@@ -44,6 +44,9 @@ jobs:
         include:
           - language: actions
             build-mode: none
+          # Add a language only when the repository has source code for it,
+          # because CodeQL fails when it finds no code to analyze.
+          # javascript-typescript covers the JavaScript in develop/.
           - language: javascript-typescript
             build-mode: none
 
