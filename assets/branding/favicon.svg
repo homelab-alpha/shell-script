@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>shell-script</title>
+  <style>
+    .line { stroke: #1D1D1F; }
+    .dot { fill: #5856D6; }
+    @media (prefers-color-scheme: dark) {
+      .line { stroke: #F5F5F7; }
+      .dot { fill: #5E5CE6; }
+    }
+  </style>
+  <path class="line" d="M19 12 L14 42 M35 12 L30 42 M9 22 H41 M7 33 H39 M53 10 V32" fill="none" stroke-width="6"
+    stroke-linecap="round" stroke-linejoin="round"/>
+  <circle class="dot" cx="53" cy="46" r="5"/>
+</svg>
