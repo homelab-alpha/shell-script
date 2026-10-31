@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122 24" width="122" height="24" role="img" aria-label="SemVer: 2.0.0">
+  <title>SemVer: 2.0.0</title>
+  <style>
+    .tile { fill: #eaeef2; stroke: #c3c9cf; }
+    .icon { stroke: #5c5c61; }
+    .label { fill: #5c5c61; }
+    .value { fill: #000000; font-variant-numeric: tabular-nums; }
+    .dot-now { fill: #0062cc; }
+    .dot-ok { fill: #1b7a34; }
+    .dot-fail { fill: #c4161c; }
+    .dot-none { stroke: #5c5c61; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #151b23; stroke: #353a3f; }
+      .icon { stroke: #8b949e; }
+      .label { fill: #8b949e; }
+      .value { fill: #dfe2e6; }
+      .dot-now { fill: #398cfe; }
+      .dot-ok { fill: #3fbc51; }
+      .dot-fail { fill: #df3733; }
+      .dot-none { stroke: #8b949e; }
+    }
+  </style>
+  <rect class="tile" x="0.5" y="0.5" width="121" height="23" rx="11.5" stroke-width="1"/>
+  <g class="icon" transform="translate(12 6.0) scale(0.75)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2.5 H8 L14 8.5 L8.5 14 L2 7.5 Z M5 5.5 H5.01"/></g>
+  <text class="label" x="32" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" textLength="44.4" lengthAdjust="spacing">SemVer</text>
+  <text class="value" x="80.4" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="29.1" lengthAdjust="spacing">2.0.0</text>
+</svg>
