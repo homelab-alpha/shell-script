@@ -53,8 +53,9 @@ other linters. For one file, `npx prettier --write <file>` uses the same
   `# Version:`, and `# Description:`. Keep it correct when you change a script.
 - Check a script with `bash -n <script>` and `shellcheck <script>`. Every `*.sh`
   file must be executable, because the Bash Exec linter checks it.
-- `scripts/lint.sh`, `scripts/setup_gpg.sh`, and `scripts/verify_signatures.sh`
-  are repository tooling from the blueprint, not user scripts.
+- `scripts/lint.sh`, `scripts/setup_gpg.sh`, `scripts/verify_signatures.sh`, and
+  `scripts/generate_badges.py` are repository tooling from the blueprint, not
+  user scripts. They have no page on the documentation site.
 - Scripts have a page on the documentation site (repository
   `homelab-alpha/docs`, folder `content/docs/shell-script/script-information/`)
   that shows the script text. Keep the page in line with the script.
