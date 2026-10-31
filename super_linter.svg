@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 178 24" width="178" height="24" role="img" aria-label="Super Linter: passing">
+  <title>Super Linter: passing</title>
+  <style>
+    .tile { fill: #eaeef2; stroke: #c3c9cf; }
+    .icon { stroke: #5c5c61; }
+    .label { fill: #5c5c61; }
+    .value { fill: #000000; font-variant-numeric: tabular-nums; }
+    .dot-now { fill: #0062cc; }
+    .dot-ok { fill: #1b7a34; }
+    .dot-fail { fill: #c4161c; }
+    .dot-none { stroke: #5c5c61; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #151b23; stroke: #353a3f; }
+      .icon { stroke: #8b949e; }
+      .label { fill: #8b949e; }
+      .value { fill: #dfe2e6; }
+      .dot-now { fill: #398cfe; }
+      .dot-ok { fill: #3fbc51; }
+      .dot-fail { fill: #df3733; }
+      .dot-none { stroke: #8b949e; }
+    }
+  </style>
+  <rect class="tile" x="0.5" y="0.5" width="177" height="23" rx="11.5" stroke-width="1"/>
+  <g class="icon" transform="translate(12 6.0) scale(0.75)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 L14 14"/></g>
+  <text class="label" x="32" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" textLength="72.5" lengthAdjust="spacing">Super Linter</text>
+  <text class="value" x="108.5" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="43.1" lengthAdjust="spacing">passing</text>
+  <circle class="dot-ok" cx="162.6" cy="12.0" r="3.0"/>
+</svg>
