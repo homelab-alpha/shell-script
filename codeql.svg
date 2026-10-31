@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 147 24" width="147" height="24" role="img" aria-label="CodeQL: passing">
+  <title>CodeQL: passing</title>
+  <style>
+    .tile { fill: #eaeef2; stroke: #c3c9cf; }
+    .icon { stroke: #5c5c61; }
+    .label { fill: #5c5c61; }
+    .value { fill: #000000; font-variant-numeric: tabular-nums; }
+    .dot-now { fill: #0062cc; }
+    .dot-ok { fill: #1b7a34; }
+    .dot-fail { fill: #c4161c; }
+    .dot-none { stroke: #5c5c61; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #151b23; stroke: #353a3f; }
+      .icon { stroke: #8b949e; }
+      .label { fill: #8b949e; }
+      .value { fill: #dfe2e6; }
+      .dot-now { fill: #398cfe; }
+      .dot-ok { fill: #3fbc51; }
+      .dot-fail { fill: #df3733; }
+      .dot-none { stroke: #8b949e; }
+    }
+  </style>
+  <rect class="tile" x="0.5" y="0.5" width="146" height="23" rx="11.5" stroke-width="1"/>
+  <g class="icon" transform="translate(12 6.0) scale(0.75)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.8 L13.5 3.8 V8 C13.5 11 11.2 13 8 14.3 C4.8 13 2.5 11 2.5 8 V3.8 Z M5.7 8 L7.3 9.6 L10.3 6.4"/></g>
+  <text class="label" x="32" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" textLength="41.8" lengthAdjust="spacing">CodeQL</text>
+  <text class="value" x="77.8" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="43.1" lengthAdjust="spacing">passing</text>
+  <circle class="dot-ok" cx="131.9" cy="12.0" r="3.0"/>
+</svg>
