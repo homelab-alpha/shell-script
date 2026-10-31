@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 188 24" width="188" height="24" role="img" aria-label="Contributor Covenant: 3.0">
+  <title>Contributor Covenant: 3.0</title>
+  <style>
+    .tile { fill: #eaeef2; stroke: #c3c9cf; }
+    .icon { stroke: #5c5c61; }
+    .label { fill: #5c5c61; }
+    .value { fill: #000000; font-variant-numeric: tabular-nums; }
+    .dot-now { fill: #0062cc; }
+    .dot-ok { fill: #1b7a34; }
+    .dot-fail { fill: #c4161c; }
+    .dot-none { stroke: #5c5c61; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #151b23; stroke: #353a3f; }
+      .icon { stroke: #8b949e; }
+      .label { fill: #8b949e; }
+      .value { fill: #dfe2e6; }
+      .dot-now { fill: #398cfe; }
+      .dot-ok { fill: #3fbc51; }
+      .dot-fail { fill: #df3733; }
+      .dot-none { stroke: #8b949e; }
+    }
+  </style>
+  <rect class="tile" x="0.5" y="0.5" width="187" height="23" rx="11.5" stroke-width="1"/>
+  <g class="icon" transform="translate(12 6.0) scale(0.75)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13.5 C3 10.5 1.5 8 1.5 5.8 C1.5 3.8 3 2.5 4.8 2.5 C6.2 2.5 7.4 3.3 8 4.5 C8.6 3.3 9.8 2.5 11.2 2.5 C13 2.5 14.5 3.8 14.5 5.8 C14.5 8 13 10.5 8 13.5 Z"/></g>
+  <text class="label" x="32" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" textLength="122.4" lengthAdjust="spacing">Contributor Covenant</text>
+  <text class="value" x="158.4" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="18.1" lengthAdjust="spacing">3.0</text>
+</svg>
