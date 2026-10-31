@@ -7,7 +7,7 @@
 
 # Description: Generates the README badges as self-contained SVG files, in the
 #              Apple Human Interface Guidelines style described in
-#              assets/branding/brand_guide.md. It replaces
+#              .github/branding/brand_guide.md. It replaces
 #              img.shields.io: nothing is fetched from a third-party service.
 #
 #              Dynamic badges (Super Linter, CodeQL, last commit, repo size,
@@ -19,7 +19,7 @@
 #
 # Usage:
 #   # Render all badges into ./badges
-#   python3 scripts/generate_badges.py --data badge_data.json --output badges
+#   python3 .github/scripts/generate_badges.py --data badge_data.json --output badges
 #
 # Input (--data), a JSON object:
 #   {
@@ -52,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 # ── Semantic color tokens ────────────────────────────────────────────────────
 # Same tokens as the design guidelines (Apple HIG): never use a raw color
-# outside these tables. Keep in sync with assets/branding/brand_guide.md.
+# outside these tables. Keep in sync with .github/branding/brand_guide.md.
 # `group` and `sep` match the tile and line colors of the profile stats cards,
 # in light and dark mode. The dark text, accent, green, and red colors match the
 # terminal session of those cards, so the badges blend with the GitHub themes.

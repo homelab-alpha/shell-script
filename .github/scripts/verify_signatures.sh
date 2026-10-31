@@ -15,19 +15,19 @@
 #
 # Usage:
 #   # Verify the last 10 commits (default)
-#   ./scripts/verify_signatures.sh
+#   ./.github/scripts/verify_signatures.sh
 #
 #   # Verify a specific number of commits
-#   ./scripts/verify_signatures.sh --commits 25
+#   ./.github/scripts/verify_signatures.sh --commits 25
 #
 #   # Verify tags only
-#   ./scripts/verify_signatures.sh --tags-only
+#   ./.github/scripts/verify_signatures.sh --tags-only
 #
 #   # Verify both commits and tags
-#   ./scripts/verify_signatures.sh --commits 10 --tags 5
+#   ./.github/scripts/verify_signatures.sh --commits 10 --tags 5
 #
 #   # Strict mode: exit 1 on first unverified object
-#   ./scripts/verify_signatures.sh --strict
+#   ./.github/scripts/verify_signatures.sh --strict
 #
 # Environment Variables:
 #   GH_TOKEN          — GitHub token for API access (set automatically in CI).

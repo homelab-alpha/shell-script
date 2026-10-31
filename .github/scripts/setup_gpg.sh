@@ -22,12 +22,12 @@
 #
 # Usage:
 #   API mode (default — just validates prerequisites):
-#     source scripts/setup_gpg.sh --api
+#     source .github/scripts/setup_gpg.sh --api
 #
 #   GPG mode (requires GPG_PRIVATE_KEY and optionally GPG_PASSPHRASE):
 #     export GPG_PRIVATE_KEY="<base64-encoded-armored-key>"
 #     export GPG_PASSPHRASE="<passphrase>"
-#     source scripts/setup_gpg.sh --gpg
+#     source .github/scripts/setup_gpg.sh --gpg
 #
 # Environment Variables:
 #   GH_TOKEN / GITHUB_TOKEN — Required for API mode.

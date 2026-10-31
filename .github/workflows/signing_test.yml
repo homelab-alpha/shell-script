@@ -49,7 +49,7 @@ jobs:
 
       - name: 🔏 Validate API signing prerequisites
         run: |
-          source scripts/setup_gpg.sh --api
+          source .github/scripts/setup_gpg.sh --api
 
       - name: 📝 Create test commit via Contents API PUT
         if: github.event.inputs.dry_run == 'false'

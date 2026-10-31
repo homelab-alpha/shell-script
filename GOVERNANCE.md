@@ -114,7 +114,7 @@ reviewed according to
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).
 Contributors are expected to follow the [Code of Conduct](./CODE_OF_CONDUCT.md)
 and the
-[Code Style and Standards Guide](./docs/code_style_and_standards_guides.md).
+[Code Style and Standards Guide](./.github/docs/code_style_and_standards_guides.md).
 
 ## Conflict Resolution
 

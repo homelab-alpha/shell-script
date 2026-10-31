@@ -2,12 +2,10 @@
 name: 🏷️ Update Badges
 
 on:
-  push:
-    branches:
-      - main
-
-  # Refresh the Super Linter and CodeQL badges when those workflows finish.
-  # The names must match the `name` of the workflows exactly.
+  # Run only after Lint Repository and CodeQL have finished: a push to the
+  # default branch does not start this workflow itself. The names must match the
+  # `name` of the workflows exactly. The `check-workflows` job lets the badges
+  # update only when both workflows ran and passed.
   workflow_run:
     workflows:
       - 🔍 Lint Repository
@@ -31,8 +29,104 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check-workflows:
+    name: 🚦 Check Lint and CodeQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: read
+      actions: read
+
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      EVENT_NAME: ${{ github.event_name }}
+      TRIGGER_NAME: ${{ github.event.workflow_run.name }}
+      TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
+      TRIGGER_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+
+    steps:
+      - name: 🚦 Check that Lint and CodeQL ran and passed
+        id: check
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🚦 Checking the Lint and CodeQL runs"
+
+          DEFAULT_BRANCH=$(gh api "repos/$REPO" --jq '.default_branch')
+
+          # Conclusion of the latest finished run of a workflow on the default
+          # branch, for one commit when a SHA is given. Cancelled and skipped
+          # runs are ignored (the workflows skip bot commits). "none" means
+          # that the workflow has not run, or not finished, yet.
+          run_conclusion() {
+            local workflow="$1" sha="${2:-}" query
+            query="branch=$DEFAULT_BRANCH&per_page=20"
+            if [[ -n "$sha" ]]; then
+              query+="&head_sha=$sha"
+            fi
+            gh api "repos/$REPO/actions/workflows/$workflow/runs?$query" \
+              --jq '[.workflow_runs[] | select(.status == "completed" and .event != "pull_request")
+                | select(.conclusion == "success" or .conclusion == "failure" or .conclusion == "timed_out")]
+                | (.[0].conclusion // "none")' 2> /dev/null || echo "none"
+          }
+
+          READY=true
+          REASON="Lint Repository and CodeQL both passed."
+          SHA=""
+
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            # A workflow that just finished started this run: look at the
+            # commit it ran for, so a newer or older commit is never mixed in.
+            SHA="$TRIGGER_SHA"
+            if [[ "$TRIGGER_CONCLUSION" != "success" ]]; then
+              READY=false
+              REASON="$TRIGGER_NAME finished with '$TRIGGER_CONCLUSION'."
+            fi
+          fi
+
+          SUPER_LINTER=$(run_conclusion super_linter.yml "$SHA")
+          CODEQL=$(run_conclusion codeql.yml "$SHA")
+
+          if [[ "$READY" == true ]]; then
+            if [[ "$SUPER_LINTER" != "success" ]]; then
+              READY=false
+              REASON="Lint Repository did not pass (result: $SUPER_LINTER)."
+            elif [[ "$CODEQL" != "success" ]]; then
+              READY=false
+              REASON="CodeQL did not pass (result: $CODEQL)."
+            fi
+          fi
+
+          echo "ready=$READY" >> "$GITHUB_OUTPUT"
+
+          if [[ "$READY" == true ]]; then
+            echo "::notice title=Checks passed::✅ $REASON"
+          else
+            echo "::notice title=Badges not updated::⏭️ $REASON The badges are not updated."
+          fi
+
+          {
+            echo "## 🚦 Lint and CodeQL check"
+            echo ""
+            echo "| Workflow           | Result         |"
+            echo "| :----------------- | :------------- |"
+            echo "| 🔍 Lint Repository | $SUPER_LINTER |"
+            echo "| 🛡️ CodeQL          | $CODEQL |"
+            echo ""
+            echo "- **Commit:** ${SHA:-latest on $DEFAULT_BRANCH}"
+            echo "- **Event:** $EVENT_NAME"
+            echo "- **Badges update:** $READY ($REASON)"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::endgroup::"
+
   update-badges:
     name: 🏷️ Regenerate badges
+    needs: check-workflows
+    if: needs.check-workflows.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -120,7 +214,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           echo "::group::🎨 Rendering SVG badges"
-          python3 scripts/generate_badges.py --data "$DATA_FILE" --output "$BADGES_DIR"
+          python3 .github/scripts/generate_badges.py --data "$DATA_FILE" --output "$BADGES_DIR"
           COUNT=$(find "$BADGES_DIR" -name '*.svg' | wc -l)
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
           echo "::endgroup::"

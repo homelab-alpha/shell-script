@@ -101,7 +101,7 @@
 
         # FIX: Was missing entirely. The init script intentionally uses UTF-8
         #      without BOM for cross-platform compatibility (as documented in
-        #      docs/code_style_and_standards_guides.md).
+        #      .github/docs/code_style_and_standards_guides.md).
         'PSUseBOMForUnicodeEncodedFile',
 
         # FIX: Was missing entirely. Functions like Write-Info, Write-Success,
