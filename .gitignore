@@ -4,7 +4,11 @@
 # Files matched by later patterns are explicitly tracked.
 !core
 !super_linter.env
-!super_linter.log
+
+# --- Local development files ---
+# Notes and the local Super Linter log stay out of the repository.
+notes.md
+super_linter.log
 
 # --- Database Files ---
 # MySQL/MariaDB
@@ -91,6 +95,10 @@ Thumbs.db
 *.tmp
 temp*
 TEMP*
+
+# Python
+__pycache__/
+*.py[cod]
 
 # Vim/Neovim
 *.swo

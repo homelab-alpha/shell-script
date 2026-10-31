@@ -1,0 +1,250 @@
+---
+name: 🏷️ Update Badges
+
+on:
+  push:
+    branches:
+      - main
+
+  # Refresh the Super Linter and CodeQL badges when those workflows finish.
+  # The names must match the `name` of the workflows exactly.
+  workflow_run:
+    workflows:
+      - 🔍 Lint Repository
+      - 🛡️ CodeQL Security Analysis
+    types:
+      - completed
+    branches:
+      - main
+
+  schedule:
+    - cron: "0 3 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: badges-${{ github.repository || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  update-badges:
+    name: 🏷️ Regenerate badges
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      BADGES_BRANCH: badges
+      BADGES_DIR: /tmp/badges
+      DATA_FILE: /tmp/badge_data.json
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::🏷️ Badge update initiated"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: $REPO"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "::endgroup::"
+
+      - name: 📥 Checkout repository source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 📋 Collect badge data via API
+        id: collect
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📋 Collecting repository data via GitHub API"
+
+          REPO_JSON=$(gh api "repos/$REPO")
+          DEFAULT_BRANCH=$(jq -r '.default_branch' <<< "$REPO_JSON")
+          SIZE_KB=$(jq -r '.size' <<< "$REPO_JSON")
+
+          # Prefer the SPDX id. GitHub cannot match some license texts (for
+          # example the Creative Commons licenses) and then reports
+          # NOASSERTION: fall back to the license field in package.json, and
+          # then to the license name.
+          LICENSE_TEXT=$(jq -r '.license.spdx_id // "NOASSERTION"' <<< "$REPO_JSON")
+          if [[ "$LICENSE_TEXT" == "NOASSERTION" ]]; then
+            LICENSE_TEXT=$(jq -r '.license // empty' package.json 2> /dev/null || true)
+          fi
+          if [[ -z "$LICENSE_TEXT" ]]; then
+            LICENSE_TEXT=$(jq -r '.license.name // "None"' <<< "$REPO_JSON")
+          fi
+
+          LAST_COMMIT=$(gh api "repos/$REPO/commits?sha=$DEFAULT_BRANCH&per_page=1" \
+            --jq '.[0].commit.committer.date')
+
+          if [[ -z "$LAST_COMMIT" || "$LAST_COMMIT" == "null" ]]; then
+            echo "::error title=No data::❌ Could not read the last commit of $DEFAULT_BRANCH."
+            exit 1
+          fi
+
+          # Conclusion of the latest finished run of a workflow on the default
+          # branch. Cancelled and skipped runs are ignored; "none" means no run.
+          run_conclusion() {
+            gh api "repos/$REPO/actions/workflows/$1/runs?branch=$DEFAULT_BRANCH&exclude_pull_requests=true&per_page=20" \
+              --jq '[.workflow_runs[] | select(.status == "completed")
+                | select(.conclusion == "success" or .conclusion == "failure" or .conclusion == "timed_out")]
+                | (.[0].conclusion // "none")' 2> /dev/null || echo "none"
+          }
+
+          SUPER_LINTER=$(run_conclusion super_linter.yml)
+          CODEQL=$(run_conclusion codeql.yml)
+
+          jq -n \
+            --arg last_commit "$LAST_COMMIT" \
+            --argjson size_kb "$SIZE_KB" \
+            --arg license "$LICENSE_TEXT" \
+            --arg super_linter "$SUPER_LINTER" \
+            --arg codeql "$CODEQL" \
+            '{last_commit: $last_commit, size_kb: $size_kb, license: $license,
+              super_linter: $super_linter, codeql: $codeql}' \
+            > "$DATA_FILE"
+
+          cat "$DATA_FILE"
+          echo "::notice title=Collected::ℹ️ Last commit $LAST_COMMIT, size $SIZE_KB KB, license $LICENSE_TEXT, Super Linter $SUPER_LINTER, CodeQL $CODEQL."
+          echo "::endgroup::"
+
+      - name: 🎨 Generate badges
+        id: generate
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🎨 Rendering SVG badges"
+          python3 scripts/generate_badges.py --data "$DATA_FILE" --output "$BADGES_DIR"
+          COUNT=$(find "$BADGES_DIR" -name '*.svg' | wc -l)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 🌿 Ensure badges branch exists
+        id: branch
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🌿 Checking the $BADGES_BRANCH branch"
+
+          if gh api "repos/$REPO/git/ref/heads/$BADGES_BRANCH" > /dev/null 2>&1; then
+            echo "created=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Branch exists::ℹ️ Branch $BADGES_BRANCH already exists."
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          # The branch has no shared history with the default branch: create
+          # an orphan root commit with a short README via the Git Data API.
+          README_B64=$(printf '%s\n' \
+            "# Badges" \
+            "" \
+            "This branch is generated by the \`badges.yml\` workflow. Do not edit it by hand." \
+            | base64 --wrap=0)
+
+          BLOB_SHA=$(gh api --method POST "repos/$REPO/git/blobs" \
+            -f content="$README_B64" -f encoding=base64 --jq '.sha')
+
+          TREE_SHA=$(jq -n --arg sha "$BLOB_SHA" \
+            '{tree: [{path: "README.md", mode: "100644", type: "blob", sha: $sha}]}' \
+            | gh api --method POST "repos/$REPO/git/trees" --input - --jq '.sha')
+
+          COMMIT_SHA=$(jq -n --arg tree "$TREE_SHA" \
+            '{message: "chore(badges): initialize badges branch", tree: $tree, parents: []}' \
+            | gh api --method POST "repos/$REPO/git/commits" --input - --jq '.sha')
+
+          gh api --method POST "repos/$REPO/git/refs" \
+            -f ref="refs/heads/$BADGES_BRANCH" \
+            -f sha="$COMMIT_SHA"
+
+          VERIFIED=$(gh api "repos/$REPO/commits/$COMMIT_SHA" \
+            --jq '[(.commit.verification.verified | tostring), .commit.verification.reason] | @tsv')
+          echo "created=true" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Branch created::🌿 Branch $BADGES_BRANCH created at ${COMMIT_SHA:0:7} (verification: $VERIFIED)"
+          if [[ "${VERIFIED%%$'\t'*}" != "true" ]]; then
+            echo "::warning title=Unsigned root commit::⚠️ The initial commit of $BADGES_BRANCH is not verified ($VERIFIED). Later commits use the Contents API and are verified."
+          fi
+          echo "::endgroup::"
+
+      - name: 💾 Publish changed badges
+        id: publish
+        run: |
+          set -Eeuo pipefail
+          echo "::group::💾 Publishing badges to $BADGES_BRANCH"
+
+          CHANGED=0
+          for FILE in "$BADGES_DIR"/*.svg; do
+            NAME=$(basename "$FILE")
+
+            REMOTE=$(gh api "repos/$REPO/contents/$NAME?ref=$BADGES_BRANCH" 2> /dev/null || true)
+            SHA=$(jq -r '.sha // empty' <<< "$REMOTE")
+
+            if [[ -n "$SHA" ]]; then
+              jq -r '.content // empty' <<< "$REMOTE" | base64 --decode > /tmp/remote_badge.svg
+              if cmp -s /tmp/remote_badge.svg "$FILE"; then
+                echo "✅ $NAME is up to date."
+                continue
+              fi
+            fi
+
+            CONTENT=$(base64 --wrap=0 < "$FILE")
+            ARGS=(-f message="chore(badges): update ${NAME%.svg} badge" -f content="$CONTENT" -f branch="$BADGES_BRANCH")
+            if [[ -n "$SHA" ]]; then
+              ARGS+=(-f sha="$SHA")
+            fi
+
+            # Commit via Contents API PUT — produces a verified signature
+            COMMIT_SHA=$(gh api --method PUT "repos/$REPO/contents/$NAME" "${ARGS[@]}" --jq '.commit.sha')
+            echo "::notice title=Badge updated::🔏 $NAME committed as ${COMMIT_SHA:0:7}"
+            CHANGED=$((CHANGED + 1))
+          done
+
+          echo "changed=$CHANGED" >> "$GITHUB_OUTPUT"
+          if [[ "$CHANGED" -eq 0 ]]; then
+            echo "::notice title=No changes::✅ All badges are already up to date."
+          fi
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        run: |
+          echo "::group::📊 Generating Summary Report"
+
+          status() {
+            case "$1" in
+              success) echo "✅ Success" ;;
+              skipped) echo "⏭️ Skipped" ;;
+              *) echo "❌ Failed" ;;
+            esac
+          }
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## 🏷️ Badge Update Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+
+          | Step               | Result                                 |
+          | :----------------- | :------------------------------------- |
+          | 📋 Collect data    | $(status "${{ steps.collect.outcome }}") |
+          | 🎨 Generate badges | $(status "${{ steps.generate.outcome }}") |
+          | 🌿 Badges branch   | $(status "${{ steps.branch.outcome }}") |
+          | 💾 Publish         | $(status "${{ steps.publish.outcome }}") |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Badges generated:** ${{ steps.generate.outputs.count || '0' }}
+          - **Badges updated:** ${{ steps.publish.outputs.changed || '0' }}
+          - **Branch created:** ${{ steps.branch.outputs.created || 'false' }}
+          - **Output branch:** \`$BADGES_BRANCH\`
+          - **Repository:** $REPO
+          - **Triggered by:** ${{ github.actor }}
+          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          EOF
+
+          echo "::endgroup::"

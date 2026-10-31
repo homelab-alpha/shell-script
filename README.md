@@ -1,14 +1,21 @@
 <!-- markdownlint-disable MD041 -->
 
-[![Super Linter](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml)
-[![CodeQL](https://github.com/homelab-alpha/shell-script/actions/workflows/codeql.yml/badge.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/codeql.yml)
-[![Last commit](https://img.shields.io/github/last-commit/homelab-alpha/shell-script?style=flat&logo=github&logoColor=96a1a9&labelColor=313A41&color=3955CD&label=Last%20commit&cacheSeconds=3600)](https://github.com/homelab-alpha/shell-script/commits/main/)
-[![Repo Size](https://img.shields.io/github/repo-size/homelab-alpha/shell-script?style=flat&logo=github&logoColor=96a1a9&labelColor=313A41&color=3955CD&label=Repo%20size&cacheSeconds=3600)](https://github.com/homelab-alpha/shell-script/tree/main)
-[![Changelog](https://img.shields.io/badge/Changelog-Keep%20a%20Changelog%20v1.1.0-313A41?style=flat&logo=keepachangelog&logoColor=96a1a9&&labelColor=313A41&color=3955CD)](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-3.0-313A41?style=flat&logo=contributorcovenant&logoColor=96a1a9&&labelColor=313A41&color=3955CD)](https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md)
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-313A41?style=flat&logo=conventionalcommits&logoColor=96a1a9&&labelColor=313A41&color=3955CD)](https://conventionalcommits.org)
-[![Semantic Versioning](https://img.shields.io/badge/SemVer-2.0.0-313A41?style=flat&logo=semver&logoColor=96a1a9&&labelColor=313A41&color=3955CD)](https://semver.org/spec/v2.0.0.html)
-[![License](https://img.shields.io/github/license/homelab-alpha/shell-script?style=flat&logo=creativecommons&logoColor=96a1a9&labelColor=313A41&color=3955CD&label=License)](https://github.com/homelab-alpha/shell-script/blob/main/LICENSE)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/branding/logo_dark.svg" />
+    <img src="assets/branding/logo_light.svg" alt="shell-script" width="320" />
+  </picture>
+</p>
+
+[![Super Linter](https://github.com/homelab-alpha/shell-script/raw/badges/super_linter.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml)
+[![CodeQL](https://github.com/homelab-alpha/shell-script/raw/badges/codeql.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/codeql.yml)
+[![Last commit](https://github.com/homelab-alpha/shell-script/raw/badges/last_commit.svg)](https://github.com/homelab-alpha/shell-script/commits/main/)
+[![Repo size](https://github.com/homelab-alpha/shell-script/raw/badges/repo_size.svg)](https://github.com/homelab-alpha/shell-script/tree/main)
+[![Changelog](https://github.com/homelab-alpha/shell-script/raw/badges/changelog.svg)](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md)
+[![Contributor Covenant](https://github.com/homelab-alpha/shell-script/raw/badges/contributor_covenant.svg)](https://github.com/homelab-alpha/shell-script/blob/main/CODE_OF_CONDUCT.md)
+[![Conventional Commits](https://github.com/homelab-alpha/shell-script/raw/badges/conventional_commits.svg)](https://conventionalcommits.org)
+[![Semantic Versioning](https://github.com/homelab-alpha/shell-script/raw/badges/semver.svg)](https://semver.org/spec/v2.0.0.html)
+[![License](https://github.com/homelab-alpha/shell-script/raw/badges/license.svg)](https://github.com/homelab-alpha/shell-script/blob/main/LICENSE)
 
 # Shell Script
 
@@ -198,6 +205,7 @@ shell-script/
 │   │   ├── security.md                         # Security policy
 │   │   └── tests.md                            # Testing policy
 │   ├── workflows/                              # GitHub Actions workflows
+│   │   ├── badges.yml                          # Self-hosted README badges
 │   │   ├── codeql.yml                          # CodeQL security analysis
 │   │   ├── contributors.yml                    # Contributors list generator
 │   │   ├── dependency_review.yml               # Dependency review
@@ -218,6 +226,20 @@ shell-script/
 │   ├── pull_request_template.md                # Pull request template
 │   ├── renovate.json                           # Renovate dependency automation
 │   └── super_linter.env                        # Super Linter environment configuration
+├── assets/                                     # Static project assets
+│   └── branding/                               # Brand guide, logo, icons, and social preview
+│       ├── brand_guide.md                      # Brand guide
+│       ├── favicon.svg                         # Favicon
+│       ├── icon_dark.svg                       # App icon (dark tile)
+│       ├── icon_light.svg                      # App icon (light tile)
+│       ├── logo_dark.svg                       # Logo (dark backgrounds)
+│       ├── logo_light.svg                      # Logo (light backgrounds)
+│       ├── logo_tagline_dark.svg               # Logo with slogan (dark)
+│       ├── logo_tagline_light.svg              # Logo with slogan (light)
+│       ├── mark_dark.svg                       # Mark (dark backgrounds)
+│       ├── mark_light.svg                      # Mark (light backgrounds)
+│       ├── social_preview.png                  # GitHub social preview (1280x640)
+│       └── social_preview.svg                  # Source of the social preview
 ├── develop/                                    # Development material for Docker deployments
 │   ├── speedtest-tracker/                      # Custom PHP widgets and dashboard for Speedtest Tracker (15 files)
 │   └── uptime-kuma/                            # Custom Slack notification provider for Uptime Kuma (2 files)
@@ -240,6 +262,7 @@ shell-script/
 │   ├── check_system_info.sh                    # Shows uptime, hardware information, temperature, and `systemctl` status
 │   ├── clearcache.sh                           # Drops clean caches and reclaimable slab objects such as dentries and inodes
 │   ├── cronjob_template.sh                     # Cronjob template that pings a monitoring server for a health check
+│   ├── generate_badges.py                      # Renders the README badges as SVG files
 │   ├── github_pr_inspector.sh                  # Interactive menu that builds `.patch` and `.diff` links for GitHub pull requests
 │   ├── gnome_keybindings_backup_restore.sh     # Backs up and restores GNOME keybindings
 │   ├── gpg_keygen_script.sh                    # Generates a GPG key pair
@@ -292,28 +315,40 @@ on push, pull request, and scheduled triggers.
 
 ### Workflows
 
-| Workflow                             | Trigger                 | Purpose                                              |
-| :----------------------------------- | :---------------------- | :--------------------------------------------------- |
-| `codeql.yml`                         | Push, PR, schedule      | CodeQL static analysis for security vulnerabilities  |
-| `contributors.yml`                   | Push to `main`          | Auto-generates `CONTRIBUTORS.md`                     |
-| `dependency_review.yml`              | PR                      | Reviews dependency changes for known vulnerabilities |
-| `housekeeping.yml`                   | Weekly schedule, manual | Cleans up old workflow runs and Actions caches       |
-| `issues.yml`                         | Issue events            | Automates issue labeling and triage                  |
-| `labels.yml`                         | Push, manual            | Synchronizes repository labels from `labels.yml`     |
-| `lint_pull_request.yml`              | PR, manual              | Runs `npm run lint` on the changed files             |
-| `merge_conflicts.yml`                | Push, PR                | Detects merge conflicts in open pull requests        |
-| `milestone_manager.yml`              | Manual                  | Automates milestone creation and lifecycle           |
-| `pull_request.yml`                   | PR events               | Pull request automation and validation               |
-| `release_manager.yml`                | Manual                  | Automates GitHub Releases                            |
-| `signing_test.yml`                   | Manual                  | Tests API-based commit and tag signing               |
-| `stale_issues_and_pull_requests.yml` | Schedule                | Marks and closes stale issues and pull requests      |
-| `super_linter.yml`                   | Push to `main`, manual  | Runs Super Linter across the codebase                |
-| `unreproducible_issues.yml`          | Schedule                | Manages issues that cannot be reproduced             |
+| Workflow                             | Trigger                   | Purpose                                              |
+| :----------------------------------- | :------------------------ | :--------------------------------------------------- |
+| `badges.yml`                         | Push, workflow run, daily | Renders the README badges to the `badges` branch     |
+| `codeql.yml`                         | Push, PR, schedule        | CodeQL static analysis for security vulnerabilities  |
+| `contributors.yml`                   | Push to `main`            | Auto-generates `CONTRIBUTORS.md`                     |
+| `dependency_review.yml`              | PR                        | Reviews dependency changes for known vulnerabilities |
+| `housekeeping.yml`                   | Weekly schedule, manual   | Cleans up old workflow runs and Actions caches       |
+| `issues.yml`                         | Issue events              | Automates issue labeling and triage                  |
+| `labels.yml`                         | Push, manual              | Synchronizes repository labels from `labels.yml`     |
+| `lint_pull_request.yml`              | PR, manual                | Runs `npm run lint` on the changed files             |
+| `merge_conflicts.yml`                | Push, PR                  | Detects merge conflicts in open pull requests        |
+| `milestone_manager.yml`              | Manual                    | Automates milestone creation and lifecycle           |
+| `pull_request.yml`                   | PR events                 | Pull request automation and validation               |
+| `release_manager.yml`                | Manual                    | Automates GitHub Releases                            |
+| `signing_test.yml`                   | Manual                    | Tests API-based commit and tag signing               |
+| `stale_issues_and_pull_requests.yml` | Schedule                  | Marks and closes stale issues and pull requests      |
+| `super_linter.yml`                   | Push to `main`, manual    | Runs Super Linter across the codebase                |
+| `unreproducible_issues.yml`          | Schedule                  | Manages issues that cannot be reproduced             |
 
 All workflows follow the standards documented in
 [`.github/policies/github_actions.md`](./.github/policies/github_actions.md),
 including actions pinned to a commit SHA, concurrency controls, timeout limits,
 bot filtering, and structured job summaries.
+
+The README badges are not fetched from a third-party service. `badges.yml`
+renders them with `scripts/generate_badges.py` (Python standard library only)
+and publishes the SVG files to the `badges` branch, which the README links to
+through `github.com/<owner>/<repo>/raw/badges/`. The Super Linter and CodeQL
+badges show the latest run on the default branch and refresh when those
+workflows finish (the `workflow_run` trigger lists their names, so update it
+when you rename them). The workflow creates the branch on its first run. The
+badges follow the colors in
+[`assets/branding/brand_guide.md`](./assets/branding/brand_guide.md) and switch
+to a dark variant with the system theme.
 
 ### Linting
 

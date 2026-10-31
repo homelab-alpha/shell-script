@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-labelledby="t">
+  <title id="t">shell-script app icon</title>
+  <rect width="1024" height="1024" rx="224" fill="#F5F5F7"/>
+  <g transform="translate(96 226) scale(10)"><path d="M24 10 L18 46 M42 10 L36 46 M14 22 H48 M12 34 H46 M68 8 V32" fill="none" stroke="#1D1D1F" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="68" cy="46" r="6" fill="#5856D6"/></g>
+</svg>
