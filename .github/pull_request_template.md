@@ -116,7 +116,7 @@ without review.
 
 ### Code Quality
 
-- [ ] My code follows the style and conventions described in [code_style_and_standards_guides.md](https://github.com/homelab-alpha/shell-script/blob/main/docs/code_style_and_standards_guides.md).
+- [ ] My code follows the style and conventions described in [code_style_and_standards_guides.md](https://github.com/homelab-alpha/shell-script/blob/main/.github/docs/code_style_and_standards_guides.md).
 - [ ] I have added comments to complex or non-obvious parts of my code.
 - [ ] I have removed all debugging statements, console logs, and temporary code.
 

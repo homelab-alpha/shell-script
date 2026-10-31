@@ -56,7 +56,7 @@ transparent, and respectful of everyone's time.
   manner. Pull requests with no activity for **14 days** after a review request
   may be closed and can be reopened when ready.
 - All merged contributions must meet the standards described in
-  [code_style_and_standards_guides.md](../../docs/code_style_and_standards_guides.md)
+  [code_style_and_standards_guides.md](../docs/code_style_and_standards_guides.md)
   and [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Who Reviews
@@ -143,7 +143,7 @@ Reviewers assess pull requests against the following criteria:
 ### Code Quality
 
 - Does the code follow the conventions in
-  [code_style_and_standards_guides.md](../../docs/code_style_and_standards_guides.md)?
+  [code_style_and_standards_guides.md](../docs/code_style_and_standards_guides.md)?
 - Is the code readable, well-structured, and appropriately commented?
 - Are errors handled gracefully?
 
@@ -157,7 +157,7 @@ Reviewers assess pull requests against the following criteria:
 
 - Does the change introduce any secrets, credentials, or sensitive data?
 - Does it follow the practices in [SECURITY.md](../../SECURITY.md) and
-  [code_style_and_standards_guides.md](../../docs/code_style_and_standards_guides.md#security-practices)?
+  [code_style_and_standards_guides.md](../docs/code_style_and_standards_guides.md#security-practices)?
 - Does it introduce new dependencies, and if so, are they justified and safe?
 
 ### Tests

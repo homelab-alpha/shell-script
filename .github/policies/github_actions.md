@@ -354,7 +354,7 @@ require a Git Tree + Commit object), local `git commit` or `git tag` may be used
 with GPG signing. This is the **only** scenario where local Git configuration is
 permitted.
 
-Use the `scripts/setup_gpg.sh --gpg` helper to configure signing:
+Use the `.github/scripts/setup_gpg.sh --gpg` helper to configure signing:
 
 1. Store the GPG private key as `GPG_PRIVATE_KEY` (armor-exported, base64
    encoded) in repository or organization secrets.
@@ -363,7 +363,7 @@ Use the `scripts/setup_gpg.sh --gpg` helper to configure signing:
 3. Call the setup script in the workflow:
 
 ```bash
-source scripts/setup_gpg.sh --gpg
+source .github/scripts/setup_gpg.sh --gpg
 ```
 
 > [!CAUTION]
@@ -418,11 +418,11 @@ fi
 echo "::notice title=Tag verified::✅ Tag $TAG_NAME points to verified commit"
 ```
 
-For comprehensive verification, use `scripts/verify_signatures.sh`:
+For comprehensive verification, use `.github/scripts/verify_signatures.sh`:
 
 ```bash
 # Verify last 10 commits and last 5 tags (strict mode)
-./scripts/verify_signatures.sh --commits 10 --tags 5 --strict
+./.github/scripts/verify_signatures.sh --commits 10 --tags 5 --strict
 ```
 
 ### Known Platform Behaviors

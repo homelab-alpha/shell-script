@@ -321,16 +321,16 @@ counterparts — identical placeholders, identical flags, identical behavior.
 
 For a complete reference on workflow naming, logging, and job summary
 requirements, see
-[`.github/policies/github_actions.md`](../.github/policies/github_actions.md).
+[`.github/policies/github_actions.md`](../policies/github_actions.md).
 
 ## Linting
 
 This repository lints in two stages.
 
 - **Pull requests** run `npm run lint` (`lint_pull_request.yml`,
-  `scripts/lint.sh`) on the changed files: Prettier, textlint terminology, and
-  merge conflict markers. Run `npm run lint:fix` to repair formatting and
-  terminology locally.
+  `.github/scripts/lint.sh`) on the changed files: Prettier, textlint
+  terminology, and merge conflict markers. Run `npm run lint:fix` to repair
+  formatting and terminology locally.
 - **Pushes to `main`** run
   [Super Linter](https://github.com/super-linter/super-linter) across all file
   types. It adds actionlint, Gitleaks, Checkov, and the other linters.
@@ -421,7 +421,8 @@ is a specific reason. Let Renovate handle routine updates.
 - **Gitleaks** runs on every push to detect accidentally committed secrets.
   False positives can be allowlisted in `.gitleaksignore`.
 - **Checkov** scans infrastructure-as-code files for misconfigurations.
-- Follow the [Security Policy](../SECURITY.md) when reporting vulnerabilities.
+- Follow the [Security Policy](../../SECURITY.md) when reporting
+  vulnerabilities.
 - Keep dependencies up to date to minimize exposure to known CVEs — Renovate
   handles this automatically.
 - New code is reviewed by maintainers before merging into `main` to catch
@@ -459,4 +460,4 @@ section when submitting a pull request.
 ---
 
 For contribution workflows, branch conventions, and pull request guidelines, see
-[CONTRIBUTING.md](../CONTRIBUTING.md).
+[CONTRIBUTING.md](../../CONTRIBUTING.md).

@@ -9,8 +9,8 @@
     "url": "git+https://github.com/homelab-alpha/shell-script.git"
   },
   "scripts": {
-    "lint": "bash scripts/lint.sh",
-    "lint:fix": "bash scripts/lint.sh --fix"
+    "lint": "bash .github/scripts/lint.sh",
+    "lint:fix": "bash .github/scripts/lint.sh --fix"
   },
   "devDependencies": {
     "prettier": "3.9.10",
@@ -18,6 +18,10 @@
     "textlint-filter-rule-allowlist": "4.0.0",
     "textlint-filter-rule-comments": "1.3.0",
     "textlint-rule-terminology": "5.2.16"
+  },
+  "overrides": {
+    "glob": "14.0.3",
+    "minimatch": "11.0.3"
   },
   "engines": {
     "node": "^24.22.2"

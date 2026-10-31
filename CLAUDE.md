@@ -11,7 +11,7 @@ automation and optimization.
 More detail: [`README.md`](./README.md) (what the repository does and how it is
 organized), [`CONTRIBUTING.md`](./CONTRIBUTING.md) (branches, commits, and pull
 requests),
-[`docs/code_style_and_standards_guides.md`](./docs/code_style_and_standards_guides.md)
+[`.github/docs/code_style_and_standards_guides.md`](./.github/docs/code_style_and_standards_guides.md)
 (code style), and [`.github/policies/`](./.github/policies/) (workflows,
 reviews, security, tests, and logs).
 
@@ -27,7 +27,7 @@ npm run lint:fix                # repair formatting and terminology, then lint a
 The dev tooling needs the Node.js version in `engines` in `package.json`.
 
 Linting has two parts. Pull requests run `npm run lint` (workflow
-`lint_pull_request.yml`, script `scripts/lint.sh`): Prettier, textlint
+`lint_pull_request.yml`, script `.github/scripts/lint.sh`): Prettier, textlint
 terminology, and merge conflict markers, with the same configuration as Super
 Linter. Pushes to `main` run the full Super Linter (`.github/super_linter.env`,
 workflow `super_linter.yml`), which adds actionlint, Gitleaks, Checkov, and the
@@ -53,9 +53,10 @@ other linters. For one file, `npx prettier --write <file>` uses the same
   `# Version:`, and `# Description:`. Keep it correct when you change a script.
 - Check a script with `bash -n <script>` and `shellcheck <script>`. Every `*.sh`
   file must be executable, because the Bash Exec linter checks it.
-- `scripts/lint.sh`, `scripts/setup_gpg.sh`, `scripts/verify_signatures.sh`, and
-  `scripts/generate_badges.py` are repository tooling from the blueprint, not
-  user scripts. They have no page on the documentation site.
+- `.github/scripts/lint.sh`, `.github/scripts/setup_gpg.sh`,
+  `.github/scripts/verify_signatures.sh`, and
+  `.github/scripts/generate_badges.py` are repository tooling from the
+  blueprint, not user scripts. They have no page on the documentation site.
 - Scripts have a page on the documentation site (repository
   `homelab-alpha/docs`, folder `content/docs/shell-script/script-information/`)
   that shows the script text. Keep the page in line with the script.

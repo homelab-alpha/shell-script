@@ -19,12 +19,17 @@
 # Management of GitHub-specific automation and repo settings
 /.claude/                             @homelab-alpha
 /.editorconfig                        @homelab-alpha
+/.github/branding/                    @homelab-alpha
 /.github/CODEOWNERS                   @homelab-alpha
 /.github/DISCUSSION_TEMPLATE/         @homelab-alpha
+/.github/docs/                        @homelab-alpha
 /.github/ISSUE_TEMPLATE/              @homelab-alpha
 /.github/labels.yml                   @homelab-alpha
 /.github/linters/                     @homelab-alpha
 /.github/renovate.json                @homelab-alpha
+/.github/scripts/                     @homelab-alpha
+/.github/scripts/setup_gpg.sh         @homelab-alpha
+/.github/scripts/verify_signatures.sh @homelab-alpha
 /.github/super_linter.env             @homelab-alpha
 /.github/workflows/                   @homelab-alpha
 /.gitignore                           @homelab-alpha
@@ -52,7 +57,6 @@
 /CLAUDE.md                            @homelab-alpha
 /CONTRIBUTING.md                      @homelab-alpha
 /CONTRIBUTORS.md                      @homelab-alpha
-/docs/                                @homelab-alpha
 /GOVERNANCE.md                        @homelab-alpha
 /MAINTAINERS.md                       @homelab-alpha
 /README.md                            @homelab-alpha
@@ -62,8 +66,6 @@
 # Core Logic, Data, and Automation
 # Ownership for the engine, storage schemas, and scripts
 /scripts/                             @homelab-alpha
-/scripts/setup_gpg.sh                 @homelab-alpha
-/scripts/verify_signatures.sh         @homelab-alpha
 
 # Repository Content
 # Ownership for the main content of the repository
