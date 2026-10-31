@@ -64,7 +64,7 @@ development material for Uptime Kuma and Speedtest Tracker.
 
 Each script starts with a header that describes its purpose, version, and usage.
 More documentation is on the
-[Homelab-Alpha documentation site](https://homelab-alpha.nl/docs/shell-script/).
+[Homelab-Alpha documentation site](https://homelab-alpha.nl/shell-script/).
 
 ## Features
 
