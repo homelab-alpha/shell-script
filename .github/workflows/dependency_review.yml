@@ -55,13 +55,16 @@ jobs:
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: moderate
+          fail-on-scopes: runtime, development
           comment-summary-in-pr: on-failure
-          deny-licenses: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1
+          allow-licenses:
+            MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Unlicense, CC0-1.0, CC-BY-NC-SA-4.0, MPL-2.0,
+            Python-2.0
 
       - name: 🚨 Log dependency review failure
         if: failure()
         run: |
-          echo "::error title=Dependency Review Failed::❌ One or more dependencies introduced in this PR contain known vulnerabilities or use denied licenses. Check the PR comment for details."
+          echo "::error title=Dependency Review Failed::❌ One or more dependencies introduced in this PR contain known vulnerabilities or use licenses that are not on the allowlist. Check the PR comment for details."
 
       - name: 📊 Generate job summary
         if: always()
@@ -92,7 +95,7 @@ jobs:
           | Metric                | Value                                        | Result           |
           | :-------------------- | :------------------------------------------- | :--------------- |
           | 🔍 Vulnerability Scan | Severity threshold: moderate                 | ${REVIEW_RESULT} |
-          | 📜 License Check      | Denied: GPL-2.0, GPL-3.0, LGPL-2.0, LGPL-2.1 | ${REVIEW_RESULT} |
+          | 📜 License Check      | Allowlist enforced (see workflow)            | ${REVIEW_RESULT} |
 
           ### ⚙️ Runtime Configuration
 
@@ -105,7 +108,7 @@ jobs:
 
           - Powered by \`actions/dependency-review-action\`.
           - A detailed report is posted as a comment on the pull request when the review fails.
-          - To allow a specific license, update the \`deny-licenses\` list in \`.github/workflows/dependency_review.yml\`.
+          - To allow a specific license, add its SPDX identifier to the \`allow-licenses\` list in \`.github/workflows/dependency_review.yml\`.
           EOF
 
           echo "::endgroup::"
