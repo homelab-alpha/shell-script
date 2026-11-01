@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Explain in `codeql.yml` when to add a language
 - Ignore `notes.md`, `super_linter.log`, and Python cache files in `.gitignore`
 - List `.github/scripts/generate_badges.py` as repository tooling in `CLAUDE.md`
+- Replace the deprecated `deny-licenses` option in `dependency_review.yml` with
+  an `allow-licenses` list of permissive licenses and CC BY-NC-SA 4.0, so GPL
+  and LGPL stay blocked
+- Check development dependencies too in `dependency_review.yml`, by setting
+  `fail-on-scopes` to `runtime, development`
 
 ### Deprecated
 
