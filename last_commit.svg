@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 24" width="200" height="24" role="img" aria-label="Last commit: 2026-10-31">
-  <title>Last commit: 2026-10-31</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 24" width="200" height="24" role="img" aria-label="Last commit: 2026-11-01">
+  <title>Last commit: 2026-11-01</title>
   <style>
     .tile { fill: #eaeef2; stroke: #c3c9cf; }
     .icon { stroke: #5c5c61; }
@@ -23,6 +23,6 @@
   <rect class="tile" x="0.5" y="0.5" width="199" height="23" rx="11.5" stroke-width="1"/>
   <g class="icon" transform="translate(12 6.0) scale(0.75)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8 H5.5 M10.5 8 H15"/><circle cx="8" cy="8" r="2.5"/></g>
   <text class="label" x="32" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" textLength="73.0" lengthAdjust="spacing">Last commit</text>
-  <text class="value" x="109.0" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="65.0" lengthAdjust="spacing">2026-10-31</text>
+  <text class="value" x="109.0" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="65.0" lengthAdjust="spacing">2026-11-01</text>
   <circle class="dot-now" cx="185.0" cy="12.0" r="3.0"/>
 </svg>
