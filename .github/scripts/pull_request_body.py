@@ -28,8 +28,8 @@
 #     > pull_request_body.md
 #
 # Options:
-#   --repo         Repository (owner/name). Fills homelab-alpha and
-#                  shell-script when the template still has them.
+#   --repo         Repository (owner/name). Fills {{GITHUB_USERNAME}} and
+#                  {{PROJECT_NAME}} when the template still has them.
 #   --type         Type of change to tick: fix, feat, feat!, docs, style,
 #                  refactor, perf, test, chore, revert, build, or ci.
 #   --description  Text of the Description section.
@@ -137,7 +137,7 @@ def main():
 
     owner, _, name = args.repo.partition("/")
     text = read_template(args.template, args.repo)
-    text = text.replace("homelab-alpha", owner).replace("shell-script", name)
+    text = text.replace("{{GITHUB_USERNAME}}", owner).replace("{{PROJECT_NAME}}", name)
 
     for heading, option in SECTIONS:
         text = fill(text, heading, getattr(args, option))
