@@ -6,7 +6,7 @@ yaml-files:
 
 rules:
   anchors: enable
-  braces: enable
+  braces: disable # Prettier decides the spaces inside braces
   brackets: enable
   colons: enable
   commas: enable
@@ -21,7 +21,7 @@ rules:
   empty-values: disable
   float-values: disable
   hyphens: enable
-  indentation: enable
+  indentation: disable # Prettier decides the indentation (also of lists)
   key-duplicates: enable
   key-ordering: disable
   line-length:

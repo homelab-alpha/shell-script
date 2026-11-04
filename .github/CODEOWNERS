@@ -28,7 +28,7 @@
 /.github/linters/                     @homelab-alpha
 /.github/renovate.json                @homelab-alpha
 /.github/scripts/                     @homelab-alpha
-/.github/scripts/setup_gpg.sh         @homelab-alpha
+/.github/scripts/setup_signing.sh     @homelab-alpha
 /.github/scripts/verify_signatures.sh @homelab-alpha
 /.github/super_linter.env             @homelab-alpha
 /.github/workflows/                   @homelab-alpha

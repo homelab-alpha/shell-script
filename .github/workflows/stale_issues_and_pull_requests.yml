@@ -1,6 +1,11 @@
 ---
 name: 🕵️ Manage Stale Issues and Pull Requests
 
+# Marks issues and pull requests as stale, and closes them when there is still no activity, with
+# actions/stale. It runs every day and by hand. A manual run can change the periods (default: issues
+# 11 days until stale and 3 until close, pull requests 25 and 3). The step lists the labels and
+# assignees that are exempt.
+
 on:
   schedule:
     - cron: "0 3 * * *"
@@ -118,7 +123,7 @@ jobs:
             releaseblocker
 
           exempt-issue-assignees: |
-            homelab-alpha
+            ${{ github.repository_owner }}
 
           operations-per-run: 1000
 
@@ -157,7 +162,7 @@ jobs:
           stale-pr-label: "stale"
 
           exempt-pr-assignees: |
-            homelab-alpha
+            ${{ github.repository_owner }}
 
           exempt-pr-labels: |
             in progress

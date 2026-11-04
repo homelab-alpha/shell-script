@@ -108,8 +108,8 @@ change their terms.
   component that you use, including attribution and redistribution requirements.
 - Licenses and attribution notices are listed in the [NOTICE](./NOTICE) file and
   in the dependency configuration files of the project (for example,
-  `package.json` and `package-lock.json`). Dependency changes are checked for
-  denied licenses by the Dependency Review workflow.
+  `package.json` and `package-lock.json`). The Dependency Review workflow checks
+  dependency changes for licenses that are not allowed.
 - We do not control the licenses of third-party components and cannot guarantee
   that they stay the same. A component can change its license in a later
   version.

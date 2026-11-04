@@ -33,7 +33,7 @@ unsupported branches or older versions are strongly encouraged to upgrade.
 | Version       | Supported | Notes                                                                                     |
 | :------------ | :-------- | :---------------------------------------------------------------------------------------- |
 | Latest stable | ✅ Yes    | The most recently tagged stable release (e.g., `v1.0.0`). Only this version is supported. |
-| Prereleases   | ❌ No     | Alpha, beta, and dev releases are not supported for security updates.                     |
+| Prereleases   | ❌ No     | Alpha, beta, and rc releases are not supported for security updates.                      |
 | Older stable  | ❌ No     | Previous stable versions are not supported. Please upgrade to the latest release.         |
 
 ## Reporting a Vulnerability
@@ -88,8 +88,8 @@ A good vulnerability report includes:
   [Renovate](https://docs.renovatebot.com/). OSV vulnerability alerts are
   enabled.
 - **Secret Detection**: [Gitleaks](https://github.com/gitleaks/gitleaks) runs on
-  every push to detect accidentally committed secrets. False positives can be
-  allowlisted in [.gitleaksignore](./.gitleaksignore).
+  every push to `main` to detect accidentally committed secrets. False positives
+  can be allowlisted in [.gitleaksignore](./.gitleaksignore).
 - **Code Review**: All changes to `main` are reviewed by a maintainer before
   merging to catch potential security issues early.
 - **Infrastructure Scanning**: [Checkov](https://www.checkov.io/) scans GitHub
@@ -98,8 +98,8 @@ A good vulnerability report includes:
   any sensitive credentials. Use environment variables or a secrets manager.
 - **Dependency Review**: The
   [Dependency Review workflow](./.github/workflows/dependency_review.yml) scans
-  new dependencies introduced in pull requests for known CVEs and denied
-  licenses.
+  new dependencies introduced in pull requests for known CVEs and licenses that
+  are not allowed.
 
 ---
 

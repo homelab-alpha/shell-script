@@ -1,11 +1,17 @@
 ---
 name: 🏷️ Update Badges
 
+# Renders the README badges as SVG files and publishes them to the "badges" branch, which the README
+# links to. It starts when Lint Repository or CodeQL has finished (whatever the result), once a day, and
+# by hand. It creates the branch on its first run. See "CI/CD and Automation" in README.md.
+
 on:
-  # Run only after Lint Repository and CodeQL have finished: a push to the
-  # default branch does not start this workflow itself. The names must match the
-  # `name` of the workflows exactly. The `check-workflows` job lets the badges
-  # update only when both workflows ran and passed.
+  # Run after Lint Repository and CodeQL have finished, whatever the result: a
+  # push to the default branch does not start this workflow itself. The names
+  # must match the `name` of the workflows exactly. The badges show a passing,
+  # failing, or disabled workflow, and an empty badge for a workflow that does not
+  # exist. A run that a bot started is skipped, as the policy requires; the
+  # nightly run catches up.
   workflow_run:
     workflows:
       - 🔍 Lint Repository
@@ -29,106 +35,17 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  check-workflows:
-    name: 🚦 Check Lint and CodeQL
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    permissions:
-      contents: read
-      actions: read
-
-    outputs:
-      ready: ${{ steps.check.outputs.ready }}
-
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      REPO: ${{ github.repository }}
-      EVENT_NAME: ${{ github.event_name }}
-      TRIGGER_NAME: ${{ github.event.workflow_run.name }}
-      TRIGGER_SHA: ${{ github.event.workflow_run.head_sha }}
-      TRIGGER_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-
-    steps:
-      - name: 🚦 Check that Lint and CodeQL ran and passed
-        id: check
-        run: |
-          set -Eeuo pipefail
-          echo "::group::🚦 Checking the Lint and CodeQL runs"
-
-          DEFAULT_BRANCH=$(gh api "repos/$REPO" --jq '.default_branch')
-
-          # Conclusion of the latest finished run of a workflow on the default
-          # branch, for one commit when a SHA is given. Cancelled and skipped
-          # runs are ignored (the workflows skip bot commits). "none" means
-          # that the workflow has not run, or not finished, yet.
-          run_conclusion() {
-            local workflow="$1" sha="${2:-}" query
-            query="branch=$DEFAULT_BRANCH&per_page=20"
-            if [[ -n "$sha" ]]; then
-              query+="&head_sha=$sha"
-            fi
-            gh api "repos/$REPO/actions/workflows/$workflow/runs?$query" \
-              --jq '[.workflow_runs[] | select(.status == "completed" and .event != "pull_request")
-                | select(.conclusion == "success" or .conclusion == "failure" or .conclusion == "timed_out")]
-                | (.[0].conclusion // "none")' 2> /dev/null || echo "none"
-          }
-
-          READY=true
-          REASON="Lint Repository and CodeQL both passed."
-          SHA=""
-
-          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
-            # A workflow that just finished started this run: look at the
-            # commit it ran for, so a newer or older commit is never mixed in.
-            SHA="$TRIGGER_SHA"
-            if [[ "$TRIGGER_CONCLUSION" != "success" ]]; then
-              READY=false
-              REASON="$TRIGGER_NAME finished with '$TRIGGER_CONCLUSION'."
-            fi
-          fi
-
-          SUPER_LINTER=$(run_conclusion super_linter.yml "$SHA")
-          CODEQL=$(run_conclusion codeql.yml "$SHA")
-
-          if [[ "$READY" == true ]]; then
-            if [[ "$SUPER_LINTER" != "success" ]]; then
-              READY=false
-              REASON="Lint Repository did not pass (result: $SUPER_LINTER)."
-            elif [[ "$CODEQL" != "success" ]]; then
-              READY=false
-              REASON="CodeQL did not pass (result: $CODEQL)."
-            fi
-          fi
-
-          echo "ready=$READY" >> "$GITHUB_OUTPUT"
-
-          if [[ "$READY" == true ]]; then
-            echo "::notice title=Checks passed::✅ $REASON"
-          else
-            echo "::notice title=Badges not updated::⏭️ $REASON The badges are not updated."
-          fi
-
-          {
-            echo "## 🚦 Lint and CodeQL check"
-            echo ""
-            echo "| Workflow           | Result         |"
-            echo "| :----------------- | :------------- |"
-            echo "| 🔍 Lint Repository | $SUPER_LINTER |"
-            echo "| 🛡️ CodeQL          | $CODEQL |"
-            echo ""
-            echo "- **Commit:** ${SHA:-latest on $DEFAULT_BRANCH}"
-            echo "- **Event:** $EVENT_NAME"
-            echo "- **Badges update:** $READY ($REASON)"
-          } >> "$GITHUB_STEP_SUMMARY"
-          echo "::endgroup::"
-
   update-badges:
     name: 🏷️ Regenerate badges
-    needs: check-workflows
-    if: needs.check-workflows.outputs.ready == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    # Also skips the run that follows a skipped Lint Repository or CodeQL run, such as the one for the push that
+    # creates the repository from the template.
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]') &&
+      github.event.workflow_run.conclusion != 'skipped'
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -192,8 +109,43 @@ jobs:
                 | (.[0].conclusion // "none")' 2> /dev/null || echo "none"
           }
 
-          SUPER_LINTER=$(run_conclusion super_linter.yml)
-          CODEQL=$(run_conclusion codeql.yml)
+          # Result of a workflow for its badge:
+          #   absent    the workflow file is not on the default branch: empty badge
+          #   disabled  the workflow exists but is turned off
+          #   otherwise the conclusion of the latest run (see run_conclusion)
+          workflow_result() {
+            local file="$1" output state
+
+            if ! output=$(gh api "repos/$REPO/contents/.github/workflows/$file?ref=$DEFAULT_BRANCH" --jq '.name' 2>&1); then
+              if grep -q 'HTTP 404' <<< "$output"; then
+                echo "absent"
+              else
+                echo "::warning title=Workflow lookup failed::⚠️ Could not look up $file: $output" >&2
+                echo "none"
+              fi
+              return 0
+            fi
+
+            if ! state=$(gh api "repos/$REPO/actions/workflows/$file" --jq '.state' 2>&1); then
+              echo "::warning title=Workflow state failed::⚠️ Could not read the state of $file: $state" >&2
+              echo "none"
+              return 0
+            fi
+
+            case "$state" in
+              active) run_conclusion "$file" ;;
+              deleted) echo "absent" ;;
+              *) echo "disabled" ;;
+            esac
+          }
+
+          SUPER_LINTER=$(workflow_result lint_repository.yml)
+          CODEQL=$(workflow_result codeql.yml)
+
+          {
+            echo "super_linter=$SUPER_LINTER"
+            echo "codeql=$CODEQL"
+          } >> "$GITHUB_OUTPUT"
 
           jq -n \
             --arg last_commit "$LAST_COMMIT" \
@@ -329,6 +281,18 @@ jobs:
           | 🎨 Generate badges | $(status "${{ steps.generate.outcome }}") |
           | 🌿 Badges branch   | $(status "${{ steps.branch.outcome }}") |
           | 💾 Publish         | $(status "${{ steps.publish.outcome }}") |
+
+          ### 🏷️ Workflow badges
+
+          | Workflow           | Badge                                            |
+          | :----------------- | :----------------------------------------------- |
+          | 🔍 Lint Repository | ${{ steps.collect.outputs.super_linter || 'n/a' }} |
+          | 🛡️ CodeQL          | ${{ steps.collect.outputs.codeql || 'n/a' }}      |
+
+          \`success\` is passing and \`failure\` is failing. \`disabled\` means the
+          workflow is turned off. \`absent\` means there is no workflow file, so the
+          badge is empty and the README shows nothing. \`none\` means the workflow has
+          no finished run yet.
 
           ### ⚙️ Runtime Configuration
 

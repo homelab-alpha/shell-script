@@ -1,0 +1,399 @@
+---
+name: 📖 Update Changelog
+
+# Adds one entry to the [Unreleased] section of CHANGELOG.md for every pull
+# request that was merged into main and is not listed yet:
+#   - type(scope): subject [1a2b3c4](commit url) by [@anna](profile url)
+# The hash links to the commit on main and the name links to the profile of the
+# author.
+# The entry goes under the Keep a Changelog category of the type of the title
+# (feat is Added, fix is Fixed, fix(security) is Security, the other types are
+# Changed). Pull requests of a bot are skipped. The Release Manager workflow
+# moves the [Unreleased] entries to the section of the new version.
+#
+# The workflow runs every 8 hours, so a busy day gives one commit (or one pull
+# request) for all merged pull requests, not one per pull request. It looks at
+# the pull requests merged since the last release (one day earlier, as a margin)
+# and skips the ones whose commit link or number is already in the file, so a run
+# without new pull requests changes nothing. Run it by hand from the Actions tab
+# to update the changelog at once, for example before a release.
+#
+# It never checks out or runs code of a pull request. The title and the author
+# come from the API and reach the script through the API response only, never
+# through a shell command.
+#
+# The entries are committed to main in one commit. If main does not accept that
+# commit (a branch rule), the workflow opens one pull request with the entries
+# instead.
+
+on:
+  schedule:
+    - cron: "0 */8 * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: changelog-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  update-changelog:
+    name: 📖 Add the merged pull requests to the changelog
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    if: |
+      github.event.sender.type != 'Bot' &&
+      !contains(github.actor, '[bot]')
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+    steps:
+      - name: 🏁 Notify start of process
+        run: |
+          echo "::notice title=Workflow started::📖 Changelog update for $REPO"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: $REPO"
+          echo "Event: ${{ github.event_name }}"
+          echo "::endgroup::"
+
+      # Only the .github folder: the script that builds the pull request description and its template.
+      - name: 📥 Checkout the pull request template
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github
+          persist-credentials: false
+
+      - name: 📝 Add the entries to CHANGELOG.md
+        id: entry
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📝 Updating CHANGELOG.md"
+
+          python3 - <<'PY'
+          import base64
+          import datetime
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+
+          repo = os.environ["REPO"]
+          path = "CHANGELOG.md"
+
+          CATEGORIES = ("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security")
+          SUBJECT = re.compile(r"^(?P<type>[a-z]+)(?:\((?P<scope>[^)]*)\))?(?P<bang>!)?: (?P<text>.+)$")
+
+
+          def note(level, title, message):
+              print(f"::{level} title={title}::{message}")
+
+
+          def output(**values):
+              with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+                  for key, value in values.items():
+                      handle.write(f"{key}={value}\n")
+
+
+          def gh(*args, body=None):
+              result = subprocess.run(
+                  ["gh", *args],
+                  input=json.dumps(body) if body is not None else None,
+                  capture_output=True,
+                  text=True,
+              )
+              return result.returncode, result.stdout, result.stderr
+
+
+          def category(kind, scope):
+              if kind == "feat":
+                  return "Added"
+              if kind == "fix":
+                  return "Security" if scope == "security" else "Fixed"
+              return "Changed"
+
+
+          def strip_blank(items):
+              items = list(items)
+              while items and not items[0].strip():
+                  items.pop(0)
+              while items and not items[-1].strip():
+                  items.pop()
+              return items
+
+
+          def add_entry(text, name, entry):
+              """Return the text with the entry in [Unreleased], or None without that heading."""
+              lines = text.split("\n")
+              start = next((i for i, l in enumerate(lines) if re.fullmatch(r"## \[Unreleased\]\s*", l, re.I)), None)
+              if start is None:
+                  return None
+              end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+
+              preamble, blocks, order, current = [], {}, [], None
+              for line in lines[start + 1 : end]:
+                  match = re.match(r"^### (.+?)\s*$", line)
+                  if match:
+                      current = match.group(1)
+                      if current not in blocks:
+                          blocks[current] = []
+                          order.append(current)
+                  else:
+                      (preamble if current is None else blocks[current]).append(line)
+
+              if name not in blocks:
+                  rank = CATEGORIES.index(name)
+                  position = next(
+                      (i for i, h in enumerate(order) if h in CATEGORIES and CATEGORIES.index(h) > rank), len(order)
+                  )
+                  order.insert(position, name)
+                  blocks[name] = []
+              blocks[name] = strip_blank(blocks[name]) + [entry]
+
+              out = lines[: start + 1] + [""]
+              preamble = strip_blank(preamble)
+              if preamble:
+                  out += preamble + [""]
+              for header in order:
+                  body = strip_blank(blocks[header])
+                  out += [f"### {header}", ""] + (body + [""] if body else [])
+              return "\n".join(out + lines[end:])
+
+
+          def fail(message, title="Changelog failed"):
+              note("error", title, f"❌ {message}")
+              output(mode="failed", count=0)
+              sys.exit(1)
+
+
+          code, out, err = gh("api", f"repos/{repo}", "--jq", ".default_branch")
+          if code != 0 or not out.strip():
+              fail(f"The default branch could not be read: {err.strip()}", "Repository not found")
+          base = out.strip()
+
+          # Start one day before the last release (a prerelease counts too). Without a release, look back a week.
+          code, out, _ = gh("api", f"repos/{repo}/releases?per_page=1", "--jq", ".[0].created_at // empty")
+          if code == 0 and out.strip():
+              since = datetime.datetime.fromisoformat(out.strip().replace("Z", "+00:00"))
+          else:
+              since = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
+          since = (since - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+
+          code, out, err = gh(
+              "pr", "list", "--repo", repo, "--state", "merged", "--base", base,
+              "--search", f"merged:>={since}", "--limit", "200",
+              "--json", "number,title,author,mergedAt,mergeCommit",
+          )
+          if code != 0:
+              fail(f"The merged pull requests could not be read: {err.strip()}", "Pull requests not readable")
+          pulls = sorted(json.loads(out), key=lambda item: item["mergedAt"] or "")
+          note("notice", "Pull requests", f"🔍 {len(pulls)} pull requests merged into '{base}' since {since}")
+
+
+          def fetch(ref):
+              code, out, err = gh("api", f"repos/{repo}/contents/{path}?ref={ref}")
+              if code != 0:
+                  fail(f"{path} could not be read on '{ref}': {err.strip()}", "Changelog not readable")
+              data = json.loads(out)
+              return base64.b64decode(data["content"]).decode("utf-8"), data["sha"]
+
+
+          def build(text):
+              """Return the new text and the entries added to it, or None without an [Unreleased] heading."""
+              added = []
+              for pr in pulls:
+                  number = pr["number"]
+                  login = (pr.get("author") or {}).get("login") or "ghost"
+                  if (pr.get("author") or {}).get("is_bot") or login.endswith("[bot]"):
+                      continue
+                  sha = (pr.get("mergeCommit") or {}).get("oid") or ""
+                  if not sha:
+                      note("warning", "No commit", f"⚠️ Pull request #{number} has no merge commit, so it was skipped")
+                      continue
+                  # An entry of the older format ends with a plain (#16); a newer one links to the commit.
+                  if re.search(rf"\(#{number}\)", text) or f"/commit/{sha}" in text:
+                      continue
+                  title = " ".join(pr["title"].split())
+                  title = re.sub(r" \(#\d+\)$", "", title)
+                  match = SUBJECT.match(title)
+                  name = category(match["type"], match["scope"]) if match else "Changed"
+                  entry = (
+                      f"- {title} [{sha[:7]}](https://github.com/{repo}/commit/{sha})"
+                      f" by [@{login}](https://github.com/{login})"
+                  )
+                  text = add_entry(text, name, entry)
+                  if text is None:
+                      return None, added
+                  added.append(entry)
+              return text, added
+
+
+          def put(branch, text, sha, message):
+              body = {
+                  "message": message,
+                  "content": base64.b64encode(text.encode("utf-8")).decode(),
+                  "sha": sha,
+                  "branch": branch,
+              }
+              return gh("api", "--method", "PUT", f"repos/{repo}/contents/{path}", "--input", "-", body=body)
+
+
+          def pull_request(new_text, added, message):
+              branch = "chore/changelog-update"
+              code, out, err = gh("api", f"repos/{repo}/git/ref/heads/{base}", "--jq", ".object.sha")
+              if code != 0:
+                  note("error", "Base not found", f"❌ The branch '{base}' could not be read: {err.strip()}")
+                  return None
+              base_sha = out.strip()
+              # An open pull request of an earlier run holds entries that are not in main yet.
+              # They are in this run too, so the branch starts again from the base branch.
+              code, _, _ = gh("api", f"repos/{repo}/git/ref/heads/{branch}")
+              if code == 0:
+                  gh("api", "--method", "PATCH", f"repos/{repo}/git/refs/heads/{branch}", "-f", f"sha={base_sha}", "-F", "force=true")
+              else:
+                  code, _, err = gh("api", "--method", "POST", f"repos/{repo}/git/refs", "-f", f"ref=refs/heads/{branch}", "-f", f"sha={base_sha}")
+                  if code != 0:
+                      note("error", "Branch failed", f"❌ The branch {branch} could not be created: {err.strip()}")
+                      return None
+              _, sha = fetch(base)
+              code, _, err = put(branch, new_text, sha, message)
+              if code != 0:
+                  note("error", "Commit failed", f"❌ The entries could not be committed to {branch}: {err.strip()}")
+                  return None
+              # The description follows .github/pull_request_template.md.
+              described = "\n".join(
+                  [
+                      "Adds these pull requests to the `[Unreleased]` section of `CHANGELOG.md`:",
+                      "",
+                      *added,
+                  ]
+              )
+              result = subprocess.run(
+                  [
+                      "python3", ".github/scripts/pull_request_body.py",
+                      "--repo", repo,
+                      "--type", "chore",
+                      "--description", described,
+                      "--steps", "1. Open the **Files changed** tab.\n2. Check that every entry above is in the `[Unreleased]` section.",
+                      "--notes", f"Automatically generated by the [Update Changelog]({os.environ['RUN_URL']}) workflow.\n\n"
+                      f"`{base}` does not accept a direct commit, so this pull request carries the entries. "
+                      "Merge it to keep the changelog complete.",
+                  ],
+                  capture_output=True,
+                  text=True,
+              )
+              if result.returncode != 0:
+                  note("error", "Description failed", f"❌ The pull request description could not be built: {result.stderr.strip()}")
+                  return None
+              body = result.stdout
+              code, out, err = gh(
+                  "api", "--method", "POST", f"repos/{repo}/pulls", "--input", "-", "--jq", ".html_url",
+                  body={"title": message, "head": branch, "base": base, "body": body},
+              )
+              if code != 0 and "already exists" not in (out + err):
+                  note("error", "Pull request failed", f"❌ The pull request could not be created: {err.strip()}")
+                  return None
+              return out.strip() or branch
+
+
+          for attempt in range(1, 4):
+              text, sha = fetch(base)
+              new_text, added = build(text)
+              if new_text is None:
+                  fail(f"{path} has no '## [Unreleased]' heading, so nothing was added", "No Unreleased heading")
+              if not added:
+                  note("notice", "Up to date", f"ℹ️ Every merged pull request is already in {path}")
+                  output(mode="skipped", count=0)
+                  sys.exit(0)
+
+              if len(added) == 1:
+                  message = "chore(changelog): add 1 pull request"
+              else:
+                  message = f"chore(changelog): add {len(added)} pull requests"
+
+              code, out, err = put(base, new_text, sha, message)
+              if code == 0:
+                  for entry in added:
+                      note("notice", "Entry added", f"📖 Added to {path} on '{base}': {entry}")
+                  output(mode="direct", count=len(added))
+                  sys.exit(0)
+
+              problem = (out + err).lower()
+              if "does not match" in problem:
+                  note("warning", "Changelog changed", f"⚠️ {path} changed while the entries were written (attempt {attempt}); trying again")
+                  continue
+              if any(word in problem for word in ("protected", "rule", "pull request", "403")):
+                  note("warning", "Direct commit refused", f"⚠️ '{base}' does not accept a direct commit; opening a pull request instead")
+                  url = pull_request(new_text, added, message)
+                  if url is None:
+                      fail("The pull request with the entries could not be opened", "Pull request failed")
+                  note("notice", "Pull request opened", f"💾 The entries are in a pull request: {url}")
+                  output(mode="pull_request", count=len(added), url=url)
+                  sys.exit(0)
+
+              fail(f"The entries could not be committed: {err.strip()}", "Commit failed")
+
+          fail(f"{path} kept changing, so nothing was added. Run the workflow again", "Changelog busy")
+          PY
+
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ENTRY_STEP: ${{ steps.entry.outcome }}
+          MODE: ${{ steps.entry.outputs.mode }}
+          COUNT: ${{ steps.entry.outputs.count }}
+          PR_URL: ${{ steps.entry.outputs.url }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📊 Generating Summary Report"
+
+          status() {
+            case "$1" in
+              success) echo "✅ Success" ;;
+              failure) echo "❌ Failed" ;;
+              cancelled) echo "⚠️ Cancelled" ;;
+              *) echo "⏭️ Skipped" ;;
+            esac
+          }
+
+          OVERALL="${{ job.status == 'success' && '✅' || '❌' }}"
+
+          case "${MODE:-}" in
+            direct) RESULT="Committed to the default branch" ;;
+            pull_request) RESULT="Pull request: ${PR_URL}" ;;
+            skipped) RESULT="Already in the changelog" ;;
+            failed) RESULT="Not added" ;;
+            *) RESULT="Nothing to do" ;;
+          esac
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## ${OVERALL} Changelog Update Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Execution Results
+
+          | Step                | Result                  |
+          | :------------------ | :---------------------- |
+          | 📝 Add the entries  | $(status "$ENTRY_STEP") |
+
+          ### ⚙️ Runtime Configuration
+
+          - **Entries added:** ${COUNT:-0}
+          - **Result:** ${RESULT}
+
+          - Workflow Run: [View Details](${RUN_URL})
+          EOF
+
+          echo "::endgroup::"

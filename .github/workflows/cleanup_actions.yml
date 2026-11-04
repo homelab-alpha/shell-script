@@ -1,5 +1,8 @@
 ---
-name: 🧹 Housekeeping Cleanup
+name: 🧹 Clean Up Actions
+
+# Deletes old Actions caches (default: older than 7 days) and old workflow runs (default: older than 28
+# days). It runs every Sunday and by hand. A manual run can change both periods and has a dry run.
 
 on:
   schedule:
@@ -28,12 +31,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: housekeeping-${{ github.repository || github.run_id }}
+  group: cleanup-actions-${{ github.repository || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  housekeeping:
-    name: 🧹 Execute housekeeping tasks
+  cleanup:
+    name: 🧹 Execute cleanup tasks
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -52,7 +55,7 @@ jobs:
         ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.workflow_retention_days || '28' }}
 
     steps:
-      - name: 🏁 Initialize housekeeping environment
+      - name: 🏁 Initialize cleanup environment
         id: init
         shell: bash
         run: |
@@ -174,7 +177,7 @@ jobs:
 
           echo "count=$(cat "$COUNT_FILE")" >> "$GITHUB_OUTPUT"
 
-      - name: 📊 Generate housekeeping summary
+      - name: 📊 Generate cleanup summary
         if: always()
         shell: bash
         env:
@@ -212,7 +215,7 @@ jobs:
           RUN_PROCESSED="${RUN_COUNT:-0}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
-          ## 🧹 Housekeeping Summary
+          ## 🧹 Clean Up Actions Summary
 
           Execution completed at: $(date -u)
           Overall Status: $FINAL_STATUS

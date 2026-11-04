@@ -1,6 +1,12 @@
 ---
 name: 🛡️ CodeQL Security Analysis
 
+# CodeQL code scanning. It runs on pushes and pull requests to main, every Sunday, and by hand. It
+# analyzes the GitHub Actions workflows; add a language to the matrix when the repository has source
+# code for it, because CodeQL fails when it finds nothing to analyze. Code scanning must be available
+# for the repository (a private repository needs GitHub Code Security); switch this workflow off in the
+# Actions settings when it is not.
+
 on:
   push:
     branches:
@@ -31,9 +37,12 @@ jobs:
     runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
 
+    # Also skips the push that creates the repository from the template: the Initialize Repository
+    # workflow replaces that history, so nothing should run for it.
     if: |
       github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
+      !contains(github.actor, '[bot]') &&
+      github.event.created != true
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

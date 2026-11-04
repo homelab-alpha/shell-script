@@ -1,6 +1,11 @@
 ---
 name: 🔒 Dependency Review
 
+# Reviews the dependency changes of a pull request to main with actions/dependency-review-action. It
+# fails on vulnerabilities of moderate severity or higher and on licenses that are not in the
+# allow-licenses list below, and it comments on the pull request when it fails. Add the SPDX
+# identifier of a license to the list to allow it.
+
 on:
   pull_request:
     branches:

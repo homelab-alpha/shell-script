@@ -2,8 +2,8 @@
 
 # Filename:    generate_badges.py
 # Author:      Homelab-Alpha
-# Date:        2026-10-31
-# Version:     1.0.0
+# Date:        2026-10-29
+# Version:     1.1.0
 
 # Description: Generates the README badges as self-contained SVG files, in the
 #              Apple Human Interface Guidelines style described in
@@ -26,11 +26,17 @@
 #     "last_commit": "2026-10-31T09:15:00Z",   ISO 8601 timestamp
 #     "size_kb": 812,                           repository size in KB
 #     "license": "Apache-2.0",                  SPDX id or license name
-#     "super_linter": "success",                latest run conclusion (optional)
-#     "codeql": "failure"                       latest run conclusion (optional)
+#     "super_linter": "success",                workflow result (optional)
+#     "codeql": "failure"                       workflow result (optional)
 #   }
 #
-#   A run conclusion is "success", "failure", or anything else for unknown.
+#   A workflow result is one of:
+#     "success"   the latest run passed: the badge shows passing
+#     "failure"   the latest run failed: the badge shows failing
+#     "disabled"  the workflow exists but is turned off: the badge shows disabled
+#     "absent"    the workflow does not exist: the badge is empty, a
+#                 transparent image, so the README shows nothing
+#   Anything else, or a missing key, is unknown (no finished run yet).
 #
 # Environment Variables:
 #   GITHUB_ACTIONS — When "true", problems are also emitted as annotations.
@@ -133,6 +139,7 @@ class Badge:
     value: str
     dynamic: bool = False
     status: str = "now"  # dot of a live badge: now, ok, fail, or none
+    visible: bool = True  # an invisible badge is written as a blank image
 
 
 def gh_annotation(level: str, title: str, message: str) -> None:
@@ -164,12 +171,22 @@ def format_date(timestamp: str) -> str:
     return parsed.strftime("%Y-%m-%d")
 
 
-def run_status(conclusion: object) -> tuple[str, str]:
-    """Map a workflow run conclusion to a badge value and a dot status."""
-    if conclusion == "success":
+def render_blank() -> str:
+    """Render an empty badge: a transparent 1 px image that shows nothing."""
+    return (
+        '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" '
+        'viewBox="0 0 1 1" role="presentation" aria-hidden="true"/>\n'
+    )
+
+
+def run_status(result: object) -> tuple[str, str]:
+    """Map a workflow result to a badge value and a dot status."""
+    if result == "success":
         return "passing", "ok"
-    if conclusion in ("failure", "timed_out", "startup_failure"):
+    if result in ("failure", "timed_out", "startup_failure"):
         return "failing", "fail"
+    if result == "disabled":
+        return "disabled", "none"
     return "unknown", "none"
 
 
@@ -291,12 +308,25 @@ def build_badges(data: dict) -> list[Badge]:
     except (ValueError, TypeError) as error:
         fail("Invalid data", f"Could not read the badge data: {error}.")
 
-    linter, linter_status = run_status(data.get("super_linter"))
-    codeql, codeql_status = run_status(data.get("codeql"))
+    # A workflow that does not exist gets an empty badge. The file stays, so the
+    # README does not show a broken image.
+    workflow_badges = []
+    for key, icon, label in (
+        ("super_linter", "search", "Super Linter"),
+        ("codeql", "shield", "CodeQL"),
+    ):
+        result = data.get(key)
+        if result == "absent":
+            logger.info("The %s workflow does not exist: empty badge.", label)
+            workflow_badges.append(
+                Badge(key, icon, label, "absent", True, "none", visible=False)
+            )
+            continue
+        value, status = run_status(result)
+        workflow_badges.append(Badge(key, icon, label, value, True, status))
 
     return [
-        Badge("super_linter", "search", "Super Linter", linter, True, linter_status),
-        Badge("codeql", "shield", "CodeQL", codeql, True, codeql_status),
+        *workflow_badges,
         Badge("last_commit", "commit", "Last commit", last_commit, True),
         Badge("repo_size", "box", "Repo size", size, True),
         Badge("license", "scales", "License", str(data["license"]), True),
@@ -319,7 +349,8 @@ def main() -> int:
 
     for badge in badges:
         target = args.output / f"{badge.name}.svg"
-        target.write_text(render(badge), encoding="utf-8")
+        svg = render(badge) if badge.visible else render_blank()
+        target.write_text(svg, encoding="utf-8")
         logger.info("Wrote %s (%s: %s)", target, badge.label, badge.value)
 
     logger.info("Generated %d badge(s) in %s.", len(badges), args.output)

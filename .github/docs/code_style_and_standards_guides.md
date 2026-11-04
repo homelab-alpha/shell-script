@@ -25,8 +25,7 @@ important than personal preference — when in doubt, match the existing style.
       3. [Environment Files](#environment-files)
       4. [JSON](#json)
       5. [Shell Scripts](#shell-scripts)
-      6. [PowerShell Scripts](#powershell-scripts)
-      7. [GitHub Actions Workflows](#github-actions-workflows)
+      6. [GitHub Actions Workflows](#github-actions-workflows)
    7. [Linting](#linting)
       1. [Run Super Linter locally with Docker](#run-super-linter-locally-with-docker)
    8. [Dependency Management](#dependency-management)
@@ -68,9 +67,10 @@ General formatting rules that apply across all file types:
 
 ## File and Folder Conventions
 
-- File and folder names use **lowercase letters** and **hyphens** as separators
-  (e.g., File: `review_process.md`, `super_linter.env`; Folder: `docker`,
-  `docker-compose`).
+- File and folder names use **lowercase letters**. Files use **underscores** as
+  separators (e.g., `review_process.md`, `super_linter.env`); folders use
+  **hyphens** (e.g., `docker`, `docker-compose`). Root community files keep
+  their GitHub names (e.g., `README.md`).
 - Configuration files for tooling live in `.github/linters/`.
 - GitHub Actions workflows live in `.github/workflows/`.
 - Policy documents live in `.github/policies/`.
@@ -141,6 +141,8 @@ Always write commit messages in **English** and follow the
   - `test`: Test updates.
   - `chore`: General maintenance, build updates.
   - `revert`: Reverting a previous commit.
+  - `build`: Build tool or dependency changes.
+  - `ci`: CI configuration and workflow changes.
 - **Scope (Optional)**: The part of the codebase affected (e.g., `core`, `data`,
   `cli`, `docs`).
 - **Subject**: Written in **imperative mood** (e.g., "Add export", "Fix bug").
@@ -186,13 +188,16 @@ templates, label definitions, and linter configuration.
 - Prefer **explicit string quoting** where values could be ambiguous.
 - Boolean values must be `true` or `false` (lowercase); avoid `yes`/`no`.
 - Keep lines within a readable length; line-length enforcement is disabled in
-  `.yamllint.yml` but clarity is still expected.
+  `.yaml-lint.yml` but clarity is still expected.
 - Trailing spaces are not permitted.
 - Files must end with a newline.
 
-Linting is enforced via `.github/linters/.yaml-lint.yml` using the rules:
-anchors, braces, brackets, colons, commas, hyphens, indentation, key-duplicates,
-new-line-at-end-of-file, new-lines, and trailing-spaces.
+The yamllint hook of `.pre-commit-config.yaml` uses
+`.github/linters/.yaml-lint.yml` with the rules: anchors, brackets, colons,
+commas, empty-lines, hyphens, key-duplicates, new-line-at-end-of-file,
+new-lines, and trailing-spaces. The rules for braces and indentation are off,
+because Prettier decides those (in `labels.yml` it writes lists of mappings in a
+way that yamllint rejects).
 
 ### Markdown
 
@@ -219,9 +224,10 @@ Markdown is used for all documentation, policy files, and templates.
   > Warns of a potential risk or breaking change.
   ```
 
-Linting is enforced via `.github/linters/.markdown-lint.yml`. Key rules include:
-2-space list indentation (MD007), 80-character line length (MD013), and standard
-punctuation after headings (MD026).
+The markdownlint hook of `.pre-commit-config.yaml` uses
+`.github/linters/.markdown-lint.yml`. Key rules include: 2-space list
+indentation (MD007), 80-character line length (MD013), and standard punctuation
+after headings (MD026).
 
 ### Environment Files
 
@@ -269,42 +275,18 @@ tooling (for example, `init.sh`). The same conventions apply in both contexts.
 - Do not rely on features that require Bash 4+ (for example, `mapfile`,
   associative arrays) in contributor-facing scripts, because macOS still ships
   Bash 3.2 by default. Workflows running on Ubuntu runners may use Bash 4+
-  features freely.
-
-### PowerShell Scripts
-
-PowerShell scripts are provided as Windows-native equivalents of contributor
-shell scripts (for example, `init.ps1`). They must stay in sync with their Bash
-counterparts — identical placeholders, identical flags, identical behavior.
-
-- Target **Windows PowerShell 5.1** as the minimum version so the scripts run
-  out of the box on Windows 10 and 11 without requiring a PowerShell 7
-  installation.
-- Set `$ErrorActionPreference = 'Stop'` at the top of the script to fail fast on
-  unexpected errors.
-- Use `[CmdletBinding()]` and a `param(...)` block with typed parameters.
-- Provide a comment-based help block (`.SYNOPSIS`, `.DESCRIPTION`, `.EXAMPLE`)
-  at the top so `Get-Help .\script.ps1 -Detailed` works correctly.
-- Use `Write-Host` with colors for user-facing output; reserve `Write-Output`
-  for values that are intended to be consumed in a pipeline.
-- When reading or writing files that are expected to be consumed by Linux or
-  macOS tooling, write UTF-8 **without** a byte-order mark:
-
-  ```powershell
-  $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-  [System.IO.File]::WriteAllText($path, $content, $utf8NoBom)
-  ```
-
-- Avoid aliases (`ls`, `cat`, `%`, `?`) in committed scripts. Use the full
-  cmdlet name (`Get-ChildItem`, `Get-Content`, `ForEach-Object`, `Where-Object`)
-  for readability and portability across PowerShell editions.
+  features freely. The exception is `.github/scripts/lint.sh` (`npm run lint`):
+  it needs Bash 4 or higher, and it stops with a message when Bash is older.
 
 ### GitHub Actions Workflows
 
 - Workflow files live in `.github/workflows/` and use the `.yml` extension.
 - Every workflow must define explicit **permissions** at the job or workflow
   level, using the principle of least privilege.
-- Use **pinned versions** for all actions (e.g., `actions/checkout@v6.0.2`).
+- Pin every action to a full **commit SHA**, followed by a comment with the
+  version (e.g.,
+  `actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1`). Tags
+  such as `@v7` are not allowed.
 - Every workflow must include a **concurrency** block to prevent duplicate runs.
 - Workflows should include a **job summary** step using `$GITHUB_STEP_SUMMARY`.
 - Exclude bot-triggered runs using:
@@ -340,25 +322,30 @@ The following linters are currently active (configured in
 
 | Linter                     | Scope                                    |
 | :------------------------- | :--------------------------------------- |
+| Bash                       | Shell script validation                  |
+| Bash Exec                  | Executable bit of shell scripts          |
 | Checkov                    | Infrastructure-as-code security scanning |
 | ENV                        | Environment file validation              |
 | GitHub Actions             | Workflow file validation                 |
 | Gitleaks                   | Secret and credential detection          |
 | Git merge conflict markers | Unresolved merge conflict detection      |
-| Markdown                   | Markdown style and structure             |
+| JSON (Prettier)            | JSON formatting                          |
+| Markdown (Prettier)        | Markdown formatting                      |
 | Natural Language           | Terminology and grammar checking         |
 | Pre-commit                 | Pre-commit hook configuration validation |
 | Renovate                   | Dependency configuration validation      |
-| YAML                       | YAML structure and style                 |
+| YAML (Prettier)            | YAML formatting                          |
 
 Linting configuration files are stored in `.github/linters/`:
 
-| File                | Purpose                            |
-| :------------------ | :--------------------------------- |
-| `.checkov.yaml`     | Checkov skip rules                 |
-| `.markdownlint.yml` | Markdown linting rules             |
-| `.textlintrc`       | Natural language terminology rules |
-| `.yamllint.yml`     | YAML linting rules                 |
+| File                 | Purpose                                                    |
+| :------------------- | :--------------------------------------------------------- |
+| `.checkov.yaml`      | Checkov skip rules                                         |
+| `.gitleaks.toml`     | Gitleaks configuration                                     |
+| `.markdown-lint.yml` | Markdown linting rules (pre-commit hook)                   |
+| `.textlintrc`        | Natural language terminology rules                         |
+| `.yaml-lint.yml`     | YAML linting rules (pre-commit hook)                       |
+| `actionlint.yml`     | Ignored shellcheck messages in workflow files (actionlint) |
 
 > [!TIP]
 >
@@ -405,8 +392,9 @@ Dependencies are managed automatically by **Renovate** (see
 `.github/renovate.json`).
 
 - All direct dependencies are pinned to an exact version.
-- Renovate proposes updates on a schedule and at a controlled concurrency.
-- Patch, pin, and digest updates auto-merge during business hours.
+- Renovate proposes updates at any time, without a schedule or a limit on open
+  pull requests (the time zone is Europe/Amsterdam).
+- Patch, pin, and digest updates auto-merge when all checks pass.
 - Minor and major updates require manual review.
 - Security updates are prioritized and labelled automatically.
 - OSV vulnerability alerts are enabled.
@@ -418,8 +406,8 @@ is a specific reason. Let Renovate handle routine updates.
 
 - **No secrets in code**: Never commit API keys, passwords, tokens, or any
   sensitive credentials. Use environment variables or a secrets manager.
-- **Gitleaks** runs on every push to detect accidentally committed secrets.
-  False positives can be allowlisted in `.gitleaksignore`.
+- **Gitleaks** runs on every push to `main` to detect accidentally committed
+  secrets. False positives can be allowlisted in `.gitleaksignore`.
 - **Checkov** scans infrastructure-as-code files for misconfigurations.
 - Follow the [Security Policy](../../SECURITY.md) when reporting
   vulnerabilities.
@@ -431,9 +419,15 @@ is a specific reason. Let Renovate handle routine updates.
 ## Changelog Practices
 
 This project follows the
-[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. All
-contributors are expected to update `CHANGELOG.md` under the `[Unreleased]`
-section when submitting a pull request.
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format. The Update
+Changelog workflow runs every 8 hours (and by hand) and adds an entry to
+`CHANGELOG.md` under the `[Unreleased]` section for every pull request merged
+since the last release:
+`- type(scope): subject [1a2b3c4](commit link) by [@anna](profile link)`. The
+title of the pull request is the text, so write it as a conventional commit. The
+entry can be corrected by hand afterwards. An entry is skipped when its commit
+link (or an older `(#N)`) is already in the file, and for pull requests of a
+bot. All entries of one run go in one commit.
 
 **Categories to use (in order):**
 
@@ -452,10 +446,45 @@ section when submitting a pull request.
   developer's perspective.
 - Use imperative mood: "Add export command", not "Added export command".
 - Keep entries concise; one line per change where possible.
-- Reference the relevant issue or pull request number where applicable (e.g.,
+- In an entry that you write by hand, reference the relevant issue or pull
+  request number where applicable (e.g.,
   `Fix null reference in retrieval (#42)`).
-- Do not delete the empty category headers in `[Unreleased]` — they signal
-  intent and are cleaned up automatically at release time.
+- Empty category headers in `[Unreleased]` are fine: Release Manager leaves the
+  categories without entries out of the released section.
+
+**Release notes:** the Release Manager workflow writes the section of a release
+and the notes of the GitHub release from the text under `[Unreleased]`. When
+that text has no entries, it lists the pull requests that were merged since the
+last tag, one entry per pull request. The title of the pull request is the text,
+so write it as a conventional commit (`feat(app): add export`). An entry has the
+same format as an entry of `CHANGELOG.md`:
+`- feat(app): add export [1a2b3c4](commit link) by [@anna](profile link)`. The
+type decides the category:
+
+| Type of the title                               | Category   |
+| :---------------------------------------------- | :--------- |
+| `feat`                                          | `Added`    |
+| `fix`                                           | `Fixed`    |
+| `fix(security)`                                 | `Security` |
+| `refactor`, `perf`, `revert`                    | `Changed`  |
+| `docs`, `chore`, `ci`, `build`, `test`, `style` | `Changed`  |
+| any other type                                  | `Changed`  |
+| no type                                         | `Changed`  |
+
+The last three rows only count for pull requests of a person. Pull requests of a
+bot (the release, the contributors list, dependency updates) are left out. A `!`
+after the type marks a breaking change. A commit that was pushed to `main`
+without a pull request is listed on its own, under `Changed` when its subject
+has no type.
+
+The pull request list is only used when `[Unreleased]` has no entries. Text that
+you write under `[Unreleased]` replaces it, so add every change by hand in that
+case. Because Update Changelog runs every 8 hours, start it by hand before you
+run Release Manager; a pull request that was merged a few hours earlier is
+otherwise missing from the release. **Squash and merge** is the standard (see
+[the review process](../policies/review_process.md#merge-strategy)); **Create a
+merge commit** works too. **Rebase and merge** leaves no pull request in the
+history, so the pull request is not listed.
 
 ---
 

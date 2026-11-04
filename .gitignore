@@ -1,10 +1,5 @@
 # Git Ignore (Blocklist)
 
-# --- Tracked exceptions ---
-# Files matched by later patterns are explicitly tracked.
-!core
-!super_linter.env
-
 # --- Local development files ---
 # Notes and the local Super Linter log stay out of the repository.
 notes.md
@@ -107,3 +102,10 @@ __pycache__/
 # --- Claude Code ---
 # Personal settings stay local.
 .claude/settings.local.json
+
+# --- Tracked exceptions ---
+# A line that starts with ! only works after the pattern it undoes, so this
+# block stays at the end. These files are tracked even if a pattern above
+# matches them.
+!core
+!super_linter.env

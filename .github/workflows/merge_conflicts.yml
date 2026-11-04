@@ -1,6 +1,12 @@
 ---
 name: ⚔️ Detect Merge Conflicts
 
+# Labels a pull request that has a merge conflict ("PR: please resolve merge conflict") and comments
+# on it. It runs when a pull request is updated and on pushes to main, because those can make other
+# pull requests conflict. It retries up to 5 times, 60 seconds apart, while GitHub works out whether
+# a pull request can be merged. It uses eps1lon/actions-label-merge-conflict, which the policy
+# approves.
+
 on:
   push:
     branches:
@@ -23,9 +29,12 @@ concurrency:
 jobs:
   detect-conflicts:
     name: 🔍 Detect merge conflicts
+    # Also skips the push that creates the repository from the template: the Initialize Repository
+    # workflow replaces that history, so nothing should run for it.
     if: |
       github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
+      !contains(github.actor, '[bot]') &&
+      github.event.created != true
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
