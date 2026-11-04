@@ -84,13 +84,20 @@ the pull request to communicate the delay and an estimated timeline.
 ### 1. Automated Checks
 
 Every pull request targeting `main` triggers the following automated checks. The
-full Super Linter (`super_linter.yml`) runs on `main` after the merge and adds
-actionlint, Gitleaks, Checkov, and the other linters:
+full Super Linter (`lint_repository.yml`) runs on `main` after the merge and
+adds actionlint, Gitleaks, Checkov, and the other linters:
 
 | Check               | Workflow                | Purpose                                                                                              |
 | :------------------ | :---------------------- | :--------------------------------------------------------------------------------------------------- |
 | Linting             | `lint_pull_request.yml` | Runs `npm run lint` on the changed files: Prettier, textlint terminology, and merge conflict markers |
-| Concurrency control | All workflows           | Cancels duplicate runs for the same branch or pull request                                           |
+| Pull request checks | `pull_request.yml`      | Validates the title and handles the labels and messages                                              |
+| Merge conflicts     | `merge_conflicts.yml`   | Labels a pull request that has a merge conflict                                                      |
+| Dependency review   | `dependency_review.yml` | Reviews the dependency changes of the pull request                                                   |
+| Code scanning       | `codeql.yml`            | CodeQL analysis of the changes                                                                       |
+| Concurrency control | The checks above        | Cancels duplicate lint, dependency review, and merge conflict runs for the same pull request         |
+
+A workflow that is switched off in the Actions settings does not run, and its
+check does not report. A branch rule must not require a check that is off.
 
 All automated checks must pass before a human review is requested or a merge is
 performed. If a check fails:
@@ -149,7 +156,9 @@ Reviewers assess pull requests against the following criteria:
 
 ### Documentation
 
-- Is the [CHANGELOG.md](../../CHANGELOG.md) updated under `[Unreleased]`?
+- Is the title of the pull request a conventional commit? It becomes the
+  [CHANGELOG.md](../../CHANGELOG.md) entry under `[Unreleased]` when it is
+  merged.
 - Is any affected documentation updated to reflect the change?
 - Are new features or behaviors documented clearly?
 
@@ -194,10 +203,10 @@ When a reviewer requests changes:
 
 ## Merge Strategy
 
-| Scenario                                | Strategy                                                                    |
-| :-------------------------------------- | :-------------------------------------------------------------------------- |
-| Standard pull requests                  | **Squash and merge** — combines all commits into one clean commit on `main` |
-| Automated dependency updates (Renovate) | **Squash and merge** — handled automatically via `automergeType: squash`    |
+| Scenario                                | Strategy                                                                     |
+| :-------------------------------------- | :--------------------------------------------------------------------------- |
+| Standard pull requests                  | **Squash and merge** — combines all commits into one clean commit on `main`  |
+| Automated dependency updates (Renovate) | **Squash and merge** — handled automatically via `automergeStrategy: squash` |
 
 Squash merging keeps the `main` branch history clean and linear, with one commit
 per logical change. The squash commit message must follow the
@@ -210,14 +219,14 @@ Dependency updates are handled automatically by
 review process:
 
 - **Patch, pin, and digest updates** are automerged without human review when
-  all checks pass, during business hours (Monday–Friday, 09:00–16:00 Amsterdam
-  time).
+  all checks pass. Renovate is not limited to a schedule.
 - **Major and minor updates** are never automerged and require manual review by
   a maintainer.
 - **Security vulnerability updates** are prioritized and labeled `security`.
 
-Automated pull requests are labeled `automerge` and the relevant dependency
-name, making them easy to filter in the pull request list.
+Automated pull requests are labeled with the update type and the dependency
+name, and the ones that are automerged also with `automerge`, making them easy
+to filter in the pull request list.
 
 ## Escalation
 

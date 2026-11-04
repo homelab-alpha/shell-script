@@ -65,6 +65,8 @@ Select the type of change this pull request introduces by replacing [ ] with
 - [ ] 🧪 `test` — Adding or updating tests
 - [ ] 🔧 `chore` — Maintenance, build updates, or dependency changes
 - [ ] ⏪ `revert` — Reverting a previous commit
+- [ ] 🏗️ `build` — Build tool or dependency changes
+- [ ] 👷 `ci` — CI configuration and workflow changes
 
 ---
 
@@ -129,7 +131,7 @@ without review.
 ### Documentation
 
 - [ ] I have updated the relevant documentation to reflect my changes.
-- [ ] I have updated the [CHANGELOG.md](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md) under `[Unreleased]` with a brief description of my changes.
+- [ ] The title of this pull request is a conventional commit, because it becomes the [CHANGELOG.md](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md) entry when it is merged.
 
 ### Git Hygiene
 

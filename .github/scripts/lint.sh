@@ -2,7 +2,7 @@
 
 # Filename:    lint.sh
 # Author:      Homelab-Alpha
-# Date:        2026-10-25
+# Date:        2026-10-29
 # Version:     1.1.0
 
 # Description: Fast, local-first lint that follows the same rules as the Super
@@ -17,6 +17,9 @@
 #              terminology that textlint can fix) are repaired in place; check
 #              the result with `git diff` before you commit.
 #
+#              Requires Bash 4 or higher (it uses `mapfile`). The default
+#              Bash of macOS is 3.2: install a newer one with `brew install bash`.
+#
 # Usage:
 #   # Lint every tracked file
 #   npm run lint
@@ -29,6 +32,11 @@
 #   npm run lint:fix -- origin/main
 
 set -Eeuo pipefail
+
+if [ "${BASH_VERSINFO[0]}" -lt 4 ]; then
+  echo "lint.sh needs Bash 4 or higher, found ${BASH_VERSION}. On macOS, run 'brew install bash'." >&2
+  exit 1
+fi
 
 cd "$(git rev-parse --show-toplevel)"
 

@@ -15,7 +15,7 @@
 This document defines the semantic color strategy and categorization rules for
 GitHub labels used across the repository. Labels are managed automatically via
 `.github/labels.yml` and synchronized by the
-[Labels workflow](./../workflows/labels.yml).
+[Synchronize Repository Labels workflow](./../workflows/sync_labels.yml).
 
 <details>
   <summary>Table of Contents (click to expand)</summary>
@@ -67,25 +67,30 @@ family. Labels within the same category use the same or very similar hex values.
 
 ### 🔴 Critical / Errors / Blockers
 
-- **For:** `bug`, `security`, `P0: critical`, `blocked`, `releaseblocker`,
-  `test failures`, `security vulnerability`
+- **For:** `bug`, `security`, `P0: critical`, `P1: high`, `blocked`,
+  `blocked upstream`, `releaseblocker`, `test failures`,
+  `security vulnerability`
 - **Tone:** Eye-catching, high urgency. Use red-spectrum values.
 
 ### 🟠 High Risk / Regressions
 
-- **For:** `breaking change`, `major`, `performance regression`
+- **For:** `breaking change`, `major`, `performance`, `performance regression`
 - **Tone:** Less aggressive than red, but still highly important. Use orange.
 
 ### 🟡 Status / Triage / Waiting
 
-- **For:** `in progress`, `needs input`, `triage`, `in review`, `needs design`,
-  `needs testing`, `followed up`, `PR: needs review`,
-  `PR: please address review comments`, `PR: depends on other`
+- **For:** `in progress`, `needs input`, `needs more info`, `triage`,
+  `in review`, `needs design`, `needs testing`, `followed up`, `on hold`,
+  `help`, `feedback`, `external feedback`, `reopen`, `under development`,
+  `ready for review`, `pull request`, `P2: moderate`, `PR: needs review`,
+  `PR: please address review comments`, `PR: please resolve merge conflict`,
+  `PR: depends on other`
 - **Tone:** Neutral, process-focused. Use yellow/amber.
 
 ### 🟢 Positive / Completed / Resolved
 
-- **For:** `fix`, `automerge`, `question-answered`, `minor`, `patch`, `P3: low`
+- **For:** `fix`, `automerge`, `approved`, `resolved`, `question-answered`,
+  `minor`, `patch`, `good first issue`, `help wanted`, `P3: low`
 - **Tone:** Clearly "good / done". Use green.
 
 ### 🔵 Tooling / CI/CD / Dependencies
@@ -95,23 +100,28 @@ family. Labels within the same category use the same or very similar hex values.
   - All `docker.io/*` image labels
   - All `ghcr.io/*` image labels
   - `dependencies`, `dev dependencies`, `gomod`, `go`, `node`
+  - `contributors`, `github-pages`, `release`
   - Specific tool labels: `eslint`, `prettier`, `vite`, `vue`, `typescript`,
-    `renovate`, `super-linter/super-linter`
+    `hugo`, `renovate`, `super-linter/super-linter`
+  - All other dependency labels that are named after a package or an action (for
+    example `actions/checkout`, `vue-router`, and `dotenv`)
+  - The `scope: *` labels, in a lighter blue (`c5def5`)
 - **Tone:** Consistent blue spectrum. Labels in the same subcategory (e.g., all
   Docker image labels) use the same hex value.
 
 ### 🟣 Conceptual / Discussion / Features
 
-- **For:** `enhancement`, `feature request`, `discussion`, `question`, `a11y`,
-  `refactor`, `code quality`, `migration`, `integration`, `localized`,
-  `external`, `breaking change`
+- **For:** `enhancement`, `feature request`, `feature parity`, `discussion`,
+  `discussion required`, `question`, `faq`, `documentation`, `a11y`, `refactor`,
+  `code quality`, `migration`, `integration`, `localized`, `i18n`,
+  `announcement`, `external`
 - **Tone:** Creative, non-urgent. Use purple.
 
 ### ⚫⚪ Neutral / Closed / No Action
 
-- **For:** `wontfix`, `duplicate`, `stale`, `invalid`, `spam`,
-  `cannot reproduce`, `user error`, `deprecated`, `YANKED`, `revert`,
-  `conversation lock`
+- **For:** `wontfix`, `duplicate`, `stale`, `invalid`, `invalid format`, `spam`,
+  `AI slop`, `cannot reproduce`, `user error`, `deprecated`, `YANKED`, `revert`,
+  `conversation lock`, `backlog`, `housekeeping`, `P4: negligible`
 - **Tone:** Muted, low visual priority. Use gray.
 
 ## Priority Labels
@@ -162,8 +172,8 @@ To add a new label:
    existing format.
 2. Assign a color that matches the semantic category above.
 3. Write a clear, concise `description` (one sentence).
-4. Open a pull request. The Labels workflow will apply the change automatically
-   on merge to `main`.
+4. Open a pull request. The Synchronize Repository Labels workflow will apply
+   the change automatically on merge to `main`.
 
 ## Revision History
 

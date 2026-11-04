@@ -1,6 +1,10 @@
 ---
 name: 🏷️ Synchronize Repository Labels
 
+# Synchronizes the labels of the repository with .github/labels.yml: it creates and updates the
+# listed labels and DELETES every label that is not in the file. It runs on pushes to main that
+# change .github/labels.yml, and by hand. A manual run has a dry run.
+
 on:
   push:
     branches:
@@ -30,9 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # Also skips the push that creates the repository from the template: the Initialize Repository
+    # workflow replaces that history, so nothing should run for it.
     if: |
       github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
+      !contains(github.actor, '[bot]') &&
+      github.event.created != true
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

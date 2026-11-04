@@ -1,6 +1,11 @@
 ---
 name: 🤖 Issue Automation
 
+# Issue automation. It posts a welcome message on a new issue, labels a reopened issue, moves an
+# issue to the backlog when it gets that label, closes an issue labeled wontfix, and removes the
+# priority labels when an issue is closed. It runs on issue events (opened, reopened, labeled,
+# closed) and by hand.
+
 on:
   issues:
     types:
@@ -41,7 +46,7 @@ jobs:
       LABEL_P1_HIGH: "P1: high"
       LABEL_P2_MODERATE: "P2: moderate"
       LABEL_P3_LOW: "P3: low"
-      LABEL_P4_NEGLEGIBLE: "P4: negligible"
+      LABEL_P4_NEGLIGIBLE: "P4: negligible"
       LABEL_REOPEN: "reopen"
       LABEL_SECURITY_VULNERABILITY: "security vulnerability"
       LABEL_SECURITY: "security"
@@ -146,7 +151,7 @@ jobs:
             --remove-label "$LABEL_P0_CRITICAL" \
             --remove-label "$LABEL_P1_HIGH" \
             --remove-label "$LABEL_P2_MODERATE" \
-            --remove-label "$LABEL_P4_NEGLEGIBLE" \
+            --remove-label "$LABEL_P4_NEGLIGIBLE" \
             --remove-label "$LABEL_WONTFIX" \
             --add-label "$LABEL_BACKLOG" \
             --add-label "$LABEL_P3_LOW"; then
@@ -181,7 +186,7 @@ jobs:
             --remove-label "$LABEL_P1_HIGH" \
             --remove-label "$LABEL_P2_MODERATE" \
             --remove-label "$LABEL_P3_LOW" \
-            --remove-label "$LABEL_P4_NEGLEGIBLE" \
+            --remove-label "$LABEL_P4_NEGLIGIBLE" \
             --add-label "$LABEL_WONTFIX"; then
 
             echo "::error title=Label update failed::❌ Unable to update labels for issue #$ISSUE_NUMBER"
@@ -212,7 +217,7 @@ jobs:
             --remove-label "$LABEL_P1_HIGH" \
             --remove-label "$LABEL_P2_MODERATE" \
             --remove-label "$LABEL_P3_LOW" \
-            --remove-label "$LABEL_P4_NEGLEGIBLE"; then
+            --remove-label "$LABEL_P4_NEGLIGIBLE"; then
 
             echo "::error title=Cleanup failed::❌ Unable to clean up labels for issue #$ISSUE_NUMBER"
             exit 1

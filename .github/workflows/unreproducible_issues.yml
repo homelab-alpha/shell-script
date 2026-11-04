@@ -1,6 +1,11 @@
 ---
 name: 🕵️ Manage Unreproducible Issues
 
+# Manages issues that have the label "cannot reproduce". Every Sunday and by hand it adds the label
+# "needs input" and a comment, and closes the issue when nobody answers within close_after_days
+# (default 7) days. When someone comments on or edits such an issue, the label "needs input" is
+# removed again. A manual run can change the periods and has a dry run.
+
 on:
   issues:
     types:

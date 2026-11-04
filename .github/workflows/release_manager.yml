@@ -1,6 +1,15 @@
 ---
 name: 🚀 Release Manager
 
+# Publishes a release (README.md, "Option A", step 7). The inputs bump_type (testing, patch, minor,
+# major) and release_type (alpha, beta, rc, release) decide the version, counted from the last tag;
+# alpha, beta, and rc are prereleases. It writes the release notes from the text under [Unreleased]
+# in CHANGELOG.md or, when that is empty, from the pull requests merged since the last tag. It
+# creates the GitHub release and posts an announcement to GitHub Discussions (category
+# "Announcements"). For release_type release it also opens a pull request that updates CHANGELOG.md
+# and the version in package.json and package-lock.json; merge it after the release. Start Update
+# Changelog by hand first. It runs by hand only, and has a dry run.
+
 on:
   workflow_dispatch:
     inputs:
@@ -15,14 +24,15 @@ on:
           - minor
           - major
       release_type:
-        description: "Release type (suffix)"
+        description: "Release type: alpha, beta, and rc are prereleases, release is Latest"
         required: true
         type: choice
         default: alpha
         options:
           - alpha
           - beta
-          - final
+          - rc
+          - release
       post_announcement:
         description: "Post announcement to GitHub Discussions"
         required: true
@@ -37,7 +47,6 @@ on:
 permissions:
   contents: write
   discussions: write
-  id-token: write
   pull-requests: write
 
 concurrency:
@@ -85,8 +94,29 @@ jobs:
           set -Eeuo pipefail
           echo "::group::🔄 Version calculation"
 
-          LAST_TAG=$(git tag --sort=-version:refname \
-            | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -n 1 || true)
+          # The last tag by version, with a prerelease (v0.1.0-rc.1) below its release
+          # (v0.1.0) and alpha below beta below rc. The init baseline v0.0.0 is no release:
+          # it ranks below every prerelease, so v0.0.0-alpha.1 is the last tag after it.
+          LAST_TAG=$(git tag | python3 -c '
+          import re
+          import sys
+
+          best, best_key = "", None
+          for tag in sys.stdin.read().split():
+              match = re.fullmatch(r"v?(\d+)\.(\d+)\.(\d+)(?:-([a-zA-Z]+)\.(\d+))?", tag)
+              if not match:
+                  continue
+              version = tuple(int(match[i]) for i in (1, 2, 3))
+              if match[4]:
+                  rank = (0, match[4], int(match[5]))
+              elif version == (0, 0, 0):
+                  rank = (-1, "", 0)
+              else:
+                  rank = (1, "", 0)
+              if best_key is None or (version, rank) > best_key:
+                  best, best_key = tag, (version, rank)
+          print(best)
+          ')
           [[ -z "$LAST_TAG" ]] && LAST_TAG="v0.0.0"
 
           echo "Current tag: $LAST_TAG"
@@ -95,17 +125,30 @@ jobs:
             MAJOR="${BASH_REMATCH[1]}"
             MINOR="${BASH_REMATCH[2]}"
             PATCH="${BASH_REMATCH[3]}"
+            STAGE_NAME="${BASH_REMATCH[5]:-}"
             STAGE_NUM="${BASH_REMATCH[6]:-0}"
           else
             echo "::warning title=Tag Format::⚠️ Tag $LAST_TAG is non-standard. Resetting to v0.0.0 logic."
-            MAJOR=0; MINOR=0; PATCH=0; STAGE_NUM=0
+            MAJOR=0; MINOR=0; PATCH=0; STAGE_NAME=""; STAGE_NUM=0
           fi
 
           case "$BUMP_TYPE" in
             major)   MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0; STAGE_NUM=0 ;;
             minor)   MINOR=$((MINOR + 1)); PATCH=0; STAGE_NUM=0 ;;
             patch)   PATCH=$((PATCH + 1)); STAGE_NUM=0 ;;
-            testing) STAGE_NUM=$((STAGE_NUM + 1)) ;;
+            testing)
+              # Continue the prerelease of the last tag. A new stage (alpha to beta)
+              # starts again at 1. Without a prerelease there is nothing to continue.
+              if [[ -z "$STAGE_NAME" && "${MAJOR}${MINOR}${PATCH}" != "000" ]]; then
+                echo "::error title=No prerelease::❌ The last tag $LAST_TAG is not a prerelease, so 'testing' has nothing to continue. Use patch, minor, or major."
+                exit 1
+              fi
+              if [[ "$STAGE_NAME" == "$RELEASE_TYPE" ]]; then
+                STAGE_NUM=$((STAGE_NUM + 1))
+              else
+                STAGE_NUM=1
+              fi
+              ;;
             *)
               echo "::error title=Invalid Bump Type::❌ Unknown bump type: $BUMP_TYPE"
               exit 1
@@ -113,7 +156,7 @@ jobs:
           esac
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-          if [[ "$RELEASE_TYPE" != "final" ]]; then
+          if [[ "$RELEASE_TYPE" != "release" ]]; then
             [[ "$STAGE_NUM" -eq 0 ]] && STAGE_NUM=1
             NEW_VERSION="${NEW_VERSION}-${RELEASE_TYPE}.${STAGE_NUM}"
           fi
@@ -143,11 +186,14 @@ jobs:
             exit 1
           fi
 
-          OPEN_PRS=$(gh api "repos/${REPO}/pulls?state=open&head=${REPO%%/*}:${BRANCH}" \
-            --jq 'length')
-          if [[ "$OPEN_PRS" != "0" ]]; then
-            echo "::error title=Changelog pull request open::❌ A pull request from ${BRANCH} is still open. Merge or close it, then run the workflow again."
-            exit 1
+          # Only a release opens the changelog pull request, so only a release can be blocked by one.
+          if [[ "$RELEASE_TYPE" == "release" ]]; then
+            OPEN_PRS=$(gh api "repos/${REPO}/pulls?state=open&head=${REPO%%/*}:${BRANCH}" \
+              --jq 'length')
+            if [[ "$OPEN_PRS" != "0" ]]; then
+              echo "::error title=Changelog pull request open::❌ A pull request from ${BRANCH} is still open. Merge or close it, then run the workflow again."
+              exit 1
+            fi
           fi
 
           echo "::notice title=Preflight::✅ ${NEW_TAG} can be released"
@@ -156,120 +202,124 @@ jobs:
       - name: 📝 Generate release notes
         id: release_notes
         shell: bash
+        env:
+          OLD_TAG: ${{ steps.versioning.outputs.old_tag }}
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
         run: |
           set -Eeuo pipefail
           echo "::group::📝 Creating release notes"
 
-          OLD_TAG="${{ steps.versioning.outputs.old_tag }}"
-          NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
+          python3 - <<'PY'
+          import datetime
+          import os
+          import re
+          import subprocess
 
-          if git rev-parse --verify "$OLD_TAG" >/dev/null 2>&1; then
-            COMMITS=$(git log "${OLD_TAG}..HEAD" \
-              --pretty=format:"%s|%H|%ae" 2>/dev/null || true)
-          else
-            COMMITS=$(git log HEAD \
-              --pretty=format:"%s|%H|%ae" 2>/dev/null || true)
-          fi
+          repo = os.environ["REPO"]
+          old_tag = os.environ["OLD_TAG"]
+          new_tag = os.environ["NEW_TAG"]
 
-          {
-            echo "## ${NEW_TAG} ($(date +'%Y-%m-%d'))"
-            echo ""
-          } | tee release_notes.md changelog_entry.tmp > /dev/null
+          # An entry reads like an entry of CHANGELOG.md: the title of the pull request, the
+          # commit on main, and the author, each with a link. The notes follow Keep a Changelog,
+          # in the order of the style guide. feat is
+          # Added, fix is Fixed (Security for fix(security)), and refactor, perf, and
+          # revert are Changed. Every other type (docs, chore, ci, build, test, style,
+          # or one that is not in the list) and a title without a type are Changed too,
+          # but only when a person made the pull request: the pull requests of a bot
+          # (the release, the contributors list, dependency updates) are left out.
+          CATEGORIES = ("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security")
+          SUBJECT = re.compile(
+              r"^(?P<type>[a-z]+)(?:\((?P<scope>[^)]*)\))?(?P<bang>!)?: (?P<text>.+)$"
+          )
 
-          write_section() {
-            local icon="$1"
-            local title="$2"
-            local regex="$3"
-            local matched_file="$RUNNER_TEMP/matched_$$.txt"
-            local unmatched_file="$RUNNER_TEMP/unmatched_$$.txt"
 
-            true > "$matched_file"
-            true > "$unmatched_file"
+          def category(kind, scope, bot):
+              if kind == "feat":
+                  return "Added"
+              if kind == "fix":
+                  return "Security" if scope == "security" else "Fixed"
+              if kind in ("refactor", "perf", "revert"):
+                  return "Changed"
+              return None if bot else "Changed"
 
-            while IFS='|' read -r subject hash email; do
-              [[ -z "$subject" ]] && continue
-              if echo "$subject" | grep -Eiq "$regex"; then
-                echo "${subject}|${hash}|${email}" >> "$matched_file"
-              else
-                echo "${subject}|${hash}|${email}" >> "$unmatched_file"
-              fi
-            done < "$RUNNER_TEMP/remaining_$$.txt"
 
-            mv "$unmatched_file" "$RUNNER_TEMP/remaining_$$.txt"
+          def run(*args):
+              result = subprocess.run(args, capture_output=True, text=True)
+              return result.returncode, result.stdout
 
-            if [[ -s "$matched_file" ]]; then
-              {
-                echo "### ${icon} ${title}"
-                echo ""
-              } | tee -a release_notes.md changelog_entry.tmp > /dev/null
 
-              while IFS='|' read -r subject hash email; do
-                [[ -z "$subject" ]] && continue
-                SHORT_HASH="${hash:0:7}"
-                CLEAN_SUBJECT=$(echo "$subject" | sed -E 's/ \(#[0-9]+\)//')
+          has_tag = run("git", "rev-parse", "--verify", "--quiet", f"refs/tags/{old_tag}")[0] == 0
+          rev_range = f"{old_tag}..HEAD" if has_tag else "HEAD"
 
-                GH_USER=$(gh api "repos/${REPO}/commits/${hash}" \
-                  --jq '.author.login // ""' 2>/dev/null || true)
+          # Every change reaches main through a pull request, so the list has one entry per
+          # merged pull request: a merge commit ("Merge pull request #12") or a squash commit
+          # ("feat(app): add export (#12)") on the first-parent line of main. A commit without
+          # a pull request (a direct push) is listed on its own. The title of the pull request
+          # is the text of the entry.
+          log = run("git", "log", rev_range, "--first-parent", "--pretty=format:%H%x1f%s%x1f%an%x1f%P%x1f%b%x1e")[1]
 
-                PR_NUM=$(echo "$subject" | grep -oP '\(#\K[0-9]+(?=\))' || true)
+          entries = {name: [] for name in CATEGORIES}
+          seen = 0
+          for record in [item.strip("\n") for item in log.split("\x1e") if item.strip()]:
+              sha, subject, author_name, parents, body = (record.split("\x1f") + [""] * 5)[:5]
+              seen += 1
+              merge = re.match(r"^Merge pull request #(\d+)\b", subject)
+              squash = re.search(r" \(#(\d+)\)$", subject)
+              number = (merge or squash).group(1) if (merge or squash) else None
 
-                if [[ -n "$PR_NUM" && -n "$GH_USER" ]]; then
-                  echo "- ${subject} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash})) by [@${GH_USER}](https://github.com/${GH_USER})" \
-                    >> release_notes.md
-                else
-                  echo "- ${subject} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash}))" \
-                    >> release_notes.md
-                fi
+              title = subject
+              login = ""
+              bot = author_name.endswith("[bot]")
+              if number:
+                  code, out = run("gh", "api", f"repos/{repo}/pulls/{number}", "--jq", '[.title, .user.login, .user.type] | join("\u001f")')
+                  fields = out.strip("\n").split("\x1f") if code == 0 else []
+                  if len(fields) == 3 and fields[0]:
+                      title, login, user_type = fields
+                      bot = user_type == "Bot" or login.endswith("[bot]")
+                  elif merge:
+                      title = body.strip().splitlines()[0] if body.strip() else subject
+                  title = re.sub(r" \(#\d+\)$", "", title)
+              elif len(parents.split()) > 1:
+                  continue
 
-                echo "- ${CLEAN_SUBJECT} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash}))" \
-                  >> changelog_entry.tmp
+              match = SUBJECT.match(title)
+              if match:
+                  name = category(match["type"], match["scope"], bot)
+              else:
+                  # A title without a conventional type is a change of a person, unless a bot made it.
+                  name = None if bot else "Changed"
+              if name is None:
+                  continue
 
-              done < "$matched_file"
+              commit = f"[{sha[:7]}](https://github.com/{repo}/commit/{sha})"
+              by = f" by [@{login}](https://github.com/{login})" if login and not bot else ""
+              entries[name].append(f"- {title} {commit}{by}")
 
-              printf "\n" | tee -a release_notes.md changelog_entry.tmp > /dev/null
-            fi
 
-            rm -f "$matched_file"
-          }
+          def render():
+              lines = [f"## {new_tag} ({datetime.date.today():%Y-%m-%d})", ""]
+              listed = False
+              for name in CATEGORIES:
+                  if entries[name]:
+                      listed = True
+                      lines += [f"### {name}", ""] + entries[name] + [""]
+              if not listed:
+                  lines += ["- No notable changes.", ""]
+              return lines
 
-          echo "$COMMITS" > "$RUNNER_TEMP/remaining_$$.txt"
 
-          write_section "🚀" "Breaking Changes"  "^(\* )?.*(\!):|BREAKING CHANGE:"
-          write_section "✨" "Features"          "^(\* )?feat(\([^)]+\))?:"
-          write_section "🐛" "Fixes"             "^(\* )?fix(\([^)]+\))?:"
-          write_section "🧹" "Chores"            "^(\* )?chore(\([^)]+\))?:"
-          write_section "🛠️" "Refactors"         "^(\* )?refactor(\([^)]+\))?:"
-          write_section "🔄" "Reverts"           "^(\* )?revert(\([^)]+\))?:"
-          write_section "🔒" "Security"          "^(\* )?fix\(security\)!?:"
-          write_section "🧰" "Maintenance"       "^(\* )?(build|ci|test)(\([^)]+\))?:"
-          write_section "📝" "Documentation"     "^(\* )?docs(\([^)]+\))?:"
-          write_section "🗑️" "Removals"          "^(\* )?(\* \(rm\))(\([^)]+\))?:"
+          changelog = render()
+          notes = render()
+          if has_tag:
+              notes.append(f"##### Full Diff: https://github.com/{repo}/compare/{old_tag}...{new_tag}")
 
-          if [[ -s "$RUNNER_TEMP/remaining_$$.txt" ]]; then
-            LEFTOVER=$(grep -v '^\s*$' "$RUNNER_TEMP/remaining_$$.txt" || true)
-            if [[ -n "$LEFTOVER" ]]; then
-              {
-                echo "### 🔍 Other"
-                echo ""
-              } | tee -a release_notes.md changelog_entry.tmp > /dev/null
+          with open("changelog_entry.tmp", "w", encoding="utf-8") as handle:
+              handle.write("\n".join(changelog).rstrip("\n") + "\n")
+          with open("release_notes.md", "w", encoding="utf-8") as handle:
+              handle.write("\n".join(notes).rstrip("\n") + "\n")
 
-              while IFS='|' read -r subject hash email; do
-                [[ -z "$subject" ]] && continue
-                SHORT_HASH="${hash:0:7}"
-                echo "- ${subject} ([${SHORT_HASH}](https://github.com/${REPO}/commit/${hash}))" \
-                  | tee -a release_notes.md changelog_entry.tmp > /dev/null
-              done <<< "$LEFTOVER"
-
-              printf "\n" | tee -a release_notes.md changelog_entry.tmp > /dev/null
-            fi
-          fi
-
-          rm -f "$RUNNER_TEMP/remaining_$$.txt"
-
-          if git rev-parse --verify "$OLD_TAG" >/dev/null 2>&1; then
-            echo "##### Full Diff: https://github.com/${REPO}/compare/${OLD_TAG}...${NEW_TAG}" \
-              >> release_notes.md
-          fi
+          print(f"Entries in range: {seen}; listed: {sum(len(v) for v in entries.values())}")
+          PY
 
           echo "::notice title=Release Notes::📝 Release notes generated for ${NEW_TAG}"
           echo "::endgroup::"
@@ -309,7 +359,22 @@ jobs:
               head, unreleased, rest = lines[:start], lines[start + 1:end], lines[end:]
 
           # The text written by the maintainer in [Unreleased] wins; the commit list is the fallback.
-          curated = "\n".join(unreleased).strip("\n")
+          # Category headers without entries are removed, so a released section
+          # lists only the categories that have entries.
+          def drop_empty_sections(text):
+              blocks = []
+              head, body = None, []
+              for line in text.splitlines() + ["### "]:
+                  if line.startswith("### "):
+                      content = "\n".join(body).strip("\n")
+                      if content.strip():
+                          blocks.append((head + "\n\n" if head else "") + content)
+                      head, body = line.rstrip(), []
+                  else:
+                      body.append(line)
+              return "\n\n".join(blocks)
+
+          curated = drop_empty_sections("\n".join(unreleased).strip("\n"))
           generated = pathlib.Path("changelog_entry.tmp").read_text(encoding="utf-8").splitlines()
           if curated.strip():
               source, body = "the [Unreleased] text", curated
@@ -343,14 +408,98 @@ jobs:
           echo "::notice title=Changelog Updated::📖 CHANGELOG.md updated successfully"
           echo "::endgroup::"
 
+      - name: 📦 Update package versions
+        id: package_versions
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📦 Updating package.json and package-lock.json"
+
+          # Each file is optional: a repository can have one, both, or none.
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+
+          version = os.environ["NEW_TAG"].removeprefix("v")
+          changed = []
+
+
+          def note(level, title, message):
+              print(f"::{level} title={title}::{message}")
+
+
+          for path in ("package.json", "package-lock.json"):
+              if not os.path.isfile(path):
+                  note("notice", "Not present", f"ℹ️ {path} is not present, so there is no version to update")
+                  continue
+
+              with open(path, encoding="utf-8") as handle:
+                  text = handle.read()
+              try:
+                  before = json.loads(text)
+              except json.JSONDecodeError as error:
+                  note("warning", "Invalid JSON", f"⚠️ {path} is not valid JSON, so it was skipped: {error}")
+                  continue
+
+              new_text, count = re.subn(
+                  r'^(  "version": ")[^"]*(")', rf"\g<1>{version}\g<2>", text, count=1, flags=re.MULTILINE
+              )
+              expected = json.loads(text)
+              if count != 1 or "version" not in expected:
+                  note("warning", "No version", f"⚠️ {path} has no top-level version, so it was skipped")
+                  continue
+              expected["version"] = version
+
+              if path == "package-lock.json":
+                  root = before.get("packages", {}).get("")
+                  if root is not None and "version" in root:
+                      marker = re.search(r'^    "": \{$', new_text, flags=re.MULTILINE)
+                      if marker is None:
+                          note("warning", "No root package", f"⚠️ The root package in {path} was not found, so it was skipped")
+                          continue
+                      head, tail = new_text[: marker.end()], new_text[marker.end():]
+                      tail, count = re.subn(
+                          r'^(      "version": ")[^"]*(")', rf"\g<1>{version}\g<2>", tail, count=1, flags=re.MULTILINE
+                      )
+                      if count != 1:
+                          note("warning", "No root version", f"⚠️ The root package in {path} has no version, so it was skipped")
+                          continue
+                      new_text = head + tail
+                      expected["packages"][""]["version"] = version
+
+              if json.loads(new_text) != expected:
+                  note("warning", "Unexpected change", f"⚠️ Updating {path} would change more than the version, so it was skipped")
+                  continue
+
+              if new_text == text:
+                  note("notice", "Already current", f"ℹ️ {path} already has version {version}")
+                  continue
+
+              with open(path, "w", encoding="utf-8") as handle:
+                  handle.write(new_text)
+              changed.append(path)
+              note("notice", "Version updated", f"📦 {path} now has version {version}")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"files={' '.join(changed)}\n")
+          PY
+
+          echo "::endgroup::"
+
       - name: 💾 Create pull request for CHANGELOG.md changes
-        if: inputs.dry_run == false
+        # A prerelease (alpha, beta, or rc) does not open a pull request: [Unreleased] stays as it is
+        # and the next release moves its entries to the section of that release.
+        if: inputs.dry_run == false && inputs.release_type == 'release'
         id: changelog_pr
         # The release does not depend on this pull request, so a failure here must not stop the release.
         continue-on-error: true
         shell: bash
         env:
           NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+          PACKAGE_FILES: ${{ steps.package_versions.outputs.files }}
           BASE_BRANCH: ${{ github.ref_name }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -359,9 +508,6 @@ jobs:
 
           BRANCH="chore/changelog-${NEW_TAG}"
 
-          SHA=$(gh api "repos/${REPO}/contents/CHANGELOG.md?ref=${BASE_BRANCH}" \
-            --jq '.sha' 2>/dev/null || true)
-          CONTENT=$(base64 --wrap=0 < CHANGELOG.md)
           BASE_SHA=$(gh api "repos/${REPO}/git/ref/heads/${BASE_BRANCH}" \
             --jq '.object.sha')
 
@@ -376,13 +522,42 @@ jobs:
               -f sha="${BASE_SHA}" >/dev/null
           fi
 
-          COMMIT_RESPONSE=$(gh api --method PUT "/repos/${REPO}/contents/CHANGELOG.md" \
-            -f message="chore(release): ${NEW_TAG}" \
-            -f content="${CONTENT}" \
-            -f sha="${SHA}" \
-            -f branch="${BRANCH}")
+          # One commit holds CHANGELOG.md and the package files that exist, so the
+          # version in package.json and package-lock.json follows the release.
+          export BASE_SHA BRANCH
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
 
-          COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.commit.sha')
+          files = ["CHANGELOG.md", *os.environ["PACKAGE_FILES"].split()]
+          additions = []
+          for path in files:
+              with open(path, "rb") as handle:
+                  additions.append({"path": path, "contents": base64.b64encode(handle.read()).decode()})
+
+          query = (
+              "mutation($input: CreateCommitOnBranchInput!) "
+              "{ createCommitOnBranch(input: $input) { commit { oid } } }"
+          )
+          payload = {
+              "query": query,
+              "variables": {
+                  "input": {
+                      "branch": {"repositoryNameWithOwner": os.environ["REPO"], "branchName": os.environ["BRANCH"]},
+                      "message": {"headline": f"chore(release): {os.environ['NEW_TAG']}"},
+                      "expectedHeadOid": os.environ["BASE_SHA"],
+                      "fileChanges": {"additions": additions},
+                  }
+              },
+          }
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "release_commit.json"), "w", encoding="utf-8") as handle:
+              json.dump(payload, handle)
+          print("Files in the commit: " + ", ".join(files))
+          PY
+
+          COMMIT_RESPONSE=$(gh api graphql --input "$RUNNER_TEMP/release_commit.json")
+          COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.data.createCommitOnBranch.commit.oid')
           echo "::notice title=Commit created::🔏 Commit ${COMMIT_SHA:0:7} created by github-actions[bot] at $(date -u)"
 
           VERIFIED=$(gh api "repos/${REPO}/commits/${COMMIT_SHA}" \
@@ -394,15 +569,19 @@ jobs:
             echo "::notice title=Signature Verified::🔏 Commit ${COMMIT_SHA:0:7} is verified"
           fi
 
-          PR_BODY="## 📋 Changelog update
-
-          This pull request updates \`CHANGELOG.md\` for release **${NEW_TAG}**.
-
-          Automatically generated by the [Release Manager](${RUN_URL}) workflow.
+          # The description follows .github/pull_request_template.md.
+          PR_BODY=$(python3 .github/scripts/pull_request_body.py \
+            --repo "${REPO}" \
+            --type chore \
+            --description "Updates \`CHANGELOG.md\` and the version in the package files for release **${NEW_TAG}**." \
+            --steps "1. Open the **Files changed** tab.
+          2. Check that the section for **${NEW_TAG}** in \`CHANGELOG.md\` lists the right changes.
+          3. Check that \`package.json\` and \`package-lock.json\` (where present) have the version of **${NEW_TAG}**." \
+            --notes "Automatically generated by the [Release Manager](${RUN_URL}) workflow.
 
           > [!IMPORTANT]
           >
-          > Merge this pull request **after** the release has been published."
+          > Merge this pull request **after** the release has been published.")
 
           if ! PR_RESPONSE=$(gh api --method POST "/repos/${REPO}/pulls" \
             -f title="chore(release): ${NEW_TAG}" \
@@ -430,12 +609,13 @@ jobs:
 
           NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
 
+          # Alpha, beta, and rc are prereleases and never Latest. A release is Latest.
           PRERELEASE_FLAG=""
           LATEST_FLAG="--latest"
-          case "$RELEASE_TYPE" in
-            alpha|beta|dev) PRERELEASE_FLAG="--prerelease"; LATEST_FLAG="--latest=false" ;;
-            final)          LATEST_FLAG="--latest" ;;
-          esac
+          if [[ "$RELEASE_TYPE" != "release" ]]; then
+            PRERELEASE_FLAG="--prerelease"
+            LATEST_FLAG="--latest=false"
+          fi
 
           gh release create "$NEW_TAG" \
             --target "${{ github.ref_name }}" \
@@ -546,11 +726,11 @@ jobs:
             PR_STATUS="⏭️ Skipped (dry run)"
             REL_STATUS="⏭️ Skipped (dry run)"
           else
-            if [[ "${{ steps.changelog_pr.outcome }}" == "success" ]]; then
-              PR_STATUS="✅ Success"
-            else
-              PR_STATUS="❌ Failed"
-            fi
+            case "${{ steps.changelog_pr.outcome }}" in
+              success) PR_STATUS="✅ Success" ;;
+              skipped) PR_STATUS="⏭️ Skipped (prerelease)" ;;
+              *) PR_STATUS="❌ Failed" ;;
+            esac
 
             if [[ "${{ steps.push_step.outcome }}" == "success" ]]; then
               REL_STATUS="✅ Success"

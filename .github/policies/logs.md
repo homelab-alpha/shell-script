@@ -1,7 +1,7 @@
 # Logs
 
 - **Policy ID:** ENG-LOG-001
-- **Version:** 1.0.0
+- **Version:** 1.1.0
 - **Status:** Active
 - **Effective Date:** 2026-10-29
 - **Owner:** Homelab-Alpha
@@ -196,9 +196,23 @@ Python scripts invoked by workflows **must** follow these logging conventions:
 
 ### Standard Library `logging` Module
 
-All Python scripts **must** use the `logging` module from the standard library.
-Direct `print()` statements for status output are **not permitted** in scripts
-that are invoked by workflows.
+All Python script files in `.github/scripts/` **must** use the `logging` module
+from the standard library. Direct `print()` statements for status output are
+**not permitted** in scripts that are invoked by workflows.
+
+`print()` is allowed for these three things only:
+
+- **Workflow commands** that GitHub reads from standard output: annotations
+  (`::notice::`, `::warning::`, `::error::`) and log groups (`::group::`,
+  `::endgroup::`).
+- **The data a script exists to produce** on standard output, for example the
+  pull request description that `pull_request_body.py` writes with
+  `sys.stdout.write`.
+- **Python blocks inside a workflow step** (a heredoc such as
+  `python3 - <<'PY'`). They have no logging setup of their own, so they print
+  their status lines inside a log group and their annotations as workflow
+  commands. A Python block that grows into a script of its own moves to
+  `.github/scripts/` and uses `logging`.
 
 ```python
 import logging
@@ -306,13 +320,13 @@ echo "::error title=Verification failed::❌ Commit ${COMMIT_SHA:0:7} is not ver
 ## Log Retention
 
 Workflow run logs are automatically cleaned up by the
-[Housekeeping workflow](../../.github/workflows/housekeeping.yml), which runs
-every Sunday at 03:00 UTC. The default retention period is **28 days** for
+[Clean Up Actions workflow](../../.github/workflows/cleanup_actions.yml), which
+runs every Sunday at 03:00 UTC. The default retention period is **28 days** for
 workflow runs and **7 days** for Actions caches.
 
-These values can be adjusted when triggering the housekeeping workflow manually
-via `workflow_dispatch`. A dry-run mode is available to preview what would be
-deleted before taking any action.
+These values can be adjusted when triggering the Clean Up Actions workflow
+manually via `workflow_dispatch`. A dry-run mode is available to preview what
+would be deleted before taking any action.
 
 ## What Not to Log
 
@@ -334,6 +348,7 @@ environments.
 
 ## Revision History
 
-| Version | Date       | Author        | Changes          |
-| :------ | :--------- | :------------ | :--------------- |
-| 1.0.0   | 2026-10-29 | Homelab-Alpha | Initial release. |
+| Version | Date       | Author        | Changes                                    |
+| :------ | :--------- | :------------ | :----------------------------------------- |
+| 1.0.0   | 2026-10-29 | Homelab-Alpha | Initial release.                           |
+| 1.1.0   | 2026-10-29 | Homelab-Alpha | State when `print()` is allowed in Python. |

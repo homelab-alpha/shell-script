@@ -1,6 +1,11 @@
 ---
 name: 🧹 Lint Pull Request
 
+# Runs npm run lint on the files that a pull request to main changes: Prettier, textlint
+# terminology, and merge conflict markers, with the same configuration as Super Linter. First it
+# installs the dev tooling with npm ci and checks it with npm audit and npm audit signatures. The
+# full Super Linter runs on main after the merge (lint_repository.yml).
+
 on:
   pull_request:
     branches:
@@ -48,7 +53,7 @@ jobs:
           persist-credentials: false
 
       - name: 🟢 Set up Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: package.json
           cache: npm

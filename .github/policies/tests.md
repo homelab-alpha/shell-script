@@ -50,7 +50,8 @@ is expected to include appropriate test coverage.
 
 ## Test Location
 
-All tests live in the `tests/` directory at the root of the repository.
+All tests live in the `tests/` directory at the root of the repository. Create
+the directory when the project gets its first tests.
 
 ```treeview
 tests/
@@ -58,12 +59,6 @@ tests/
 ├── integration/   # Integration tests for combined components
 └── fixtures/      # Shared test data and mock files
 ```
-
-> [!NOTE]
->
-> The `tests/` directory currently contains only a `.placeholder` file while the
-> project is in its early stages. This structure will be populated as the core
-> logic in `core/` is developed.
 
 ## Test Types
 
@@ -204,24 +199,29 @@ be asked to add coverage before the review is completed.
 
 ## Linting and Static Analysis
 
-In addition to functional tests, the following automated quality checks run on
-every pull request and are considered part of the overall testing posture:
+In addition to functional tests, the following automated quality checks are
+considered part of the overall testing posture. Pull requests run
+`npm run lint`, the full Super Linter runs on every push to `main`, and the
+pre-commit hooks run on your own computer:
 
-| Check                     | Tool                    | Scope                     |
-| :------------------------ | :---------------------- | :------------------------ |
-| Code style and formatting | Super Linter / Prettier | All file types            |
-| Markdown structure        | markdownlint            | `.md` files               |
-| YAML validity             | yamllint                | `.yml` / `.yaml` files    |
-| Secret detection          | Gitleaks                | All files                 |
-| Infrastructure security   | Checkov                 | Workflow and config files |
-| Grammar and terminology   | textlint                | `.md` files               |
-| Workflow syntax           | GitHub Actions linter   | `.github/workflows/`      |
-| Dependency config         | Renovate validator      | `.github/renovate.json`   |
+| Check                     | Tool                    | Scope                     | Runs on                 |
+| :------------------------ | :---------------------- | :------------------------ | :---------------------- |
+| Code style and formatting | Prettier                | JS, JSON, Markdown, YAML  | Pull requests, `main`   |
+| Grammar and terminology   | textlint                | `.md` and `.txt` files    | Pull requests, `main`   |
+| Merge conflict markers    | `lint.sh`, Super Linter | All files                 | Pull requests, `main`   |
+| Secret detection          | Gitleaks                | All files                 | `main`                  |
+| Infrastructure security   | Checkov                 | Workflow and config files | `main`                  |
+| Workflow syntax           | actionlint              | `.github/workflows/`      | `main`                  |
+| Dependency config         | Renovate validator      | `.github/renovate.json`   | `main`                  |
+| Markdown structure        | markdownlint            | `.md` files               | Pre-commit hook (local) |
+| YAML validity             | yamllint                | `.yml` / `.yaml` files    | Pre-commit hook (local) |
 
 These checks are configured in
-[`.github/super_linter.env`](./../super_linter.env) and the corresponding linter
-config files in `.github/linters/`. All checks must pass before a pull request
-can be merged.
+[`.github/super_linter.env`](./../super_linter.env),
+[`.github/scripts/lint.sh`](./../scripts/lint.sh),
+[`.pre-commit-config.yaml`](../../.pre-commit-config.yaml), and the
+corresponding linter config files in `.github/linters/`. The checks that run on
+a pull request must pass before it can be merged.
 
 For more details on the linting setup, see
 [code_style_and_standards_guides.md](../docs/code_style_and_standards_guides.md#linting).

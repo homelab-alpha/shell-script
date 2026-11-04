@@ -1,7 +1,7 @@
 # GitHub Actions
 
 - **Policy ID:** ENG-CI-001
-- **Version:** 1.0.0
+- **Version:** 1.4.0
 - **Status:** Active
 - **Effective Date:** 2026-10-29
 - **Owner:** Homelab-Alpha
@@ -150,6 +150,27 @@ if: |
   !contains(github.actor, '[bot]')
 ```
 
+### First Push of a New Repository
+
+A repository that is created from the template gets its files in one push to
+`main`, and its workflows are on. That push must not start the workflows that
+run on a push, because the **Initialize Repository** workflow replaces the
+history of `main` afterwards. These workflows **must** add this condition to the
+bot filter of their first job:
+
+```yaml
+if: |
+  github.event.sender.type != 'Bot' &&
+  !contains(github.actor, '[bot]') &&
+  github.event.created != true
+```
+
+`github.event.created` is only `true` for the push that creates the branch, so
+every later push is not affected. A workflow that starts when another workflow
+has finished (`workflow_run`) **must** skip a run when that workflow was
+skipped: `github.event.workflow_run.conclusion != 'skipped'`. A job that needs a
+skipped job is skipped as well.
+
 ## Approved Tooling
 
 Workflows **must** use only the following tools for repository operations,
@@ -159,13 +180,16 @@ dependencies.
 
 ### Permitted Tools
 
-| Tool               | Usage                                                         |
-| :----------------- | :------------------------------------------------------------ |
-| `gh` (GitHub CLI)  | Repository operations: PRs, issues, releases, labels, caches. |
-| GitHub REST API    | Advanced operations via `curl` or `wget` with `$GH_TOKEN`.    |
-| GitHub GraphQL API | Complex queries and batch mutations via `gh api graphql`.     |
-| `bash`             | Scripting, orchestration, and control flow.                   |
-| `python3`          | Complex logic, data transformations, and utility scripts.     |
+| Tool               | Usage                                                          |
+| :----------------- | :------------------------------------------------------------- |
+| `gh` (GitHub CLI)  | Repository operations: PRs, issues, releases, labels, caches.  |
+| GitHub REST API    | Advanced operations via `curl` or `wget` with `$GH_TOKEN`.     |
+| GitHub GraphQL API | Complex queries and batch mutations via `gh api graphql`.      |
+| `bash`             | Scripting, orchestration, and control flow.                    |
+| `python3`          | Complex logic, data transformations, and utility scripts.      |
+| `jq`               | Reading and building JSON, preinstalled on the runner.         |
+| `yq`               | Converting YAML to JSON, preinstalled on the runner.           |
+| `npm`              | Repository dev tooling from `package.json` (see Restrictions). |
 
 ### Approved External Actions
 
@@ -173,22 +197,37 @@ The following GitHub-maintained or explicitly approved actions **may** be used.
 They are exempt from the general restriction because they provide functionality
 that cannot be replicated with the permitted tools above:
 
-| Action                             | Purpose                          |
-| :--------------------------------- | :------------------------------- |
-| `actions/checkout`                 | Repository checkout.             |
-| `actions/upload-artifact`          | Artifact upload.                 |
-| `actions/download-artifact`        | Artifact download.               |
-| `github/codeql-action/*`           | CodeQL security analysis.        |
-| `actions/dependency-review-action` | Dependency vulnerability review. |
-| `super-linter/super-linter`        | Multi-language linting.          |
+| Action                                 | Purpose                          |
+| :------------------------------------- | :------------------------------- |
+| `actions/checkout`                     | Repository checkout.             |
+| `actions/upload-artifact`              | Artifact upload.                 |
+| `actions/download-artifact`            | Artifact download.               |
+| `actions/setup-node`                   | Node.js for the dev tooling.     |
+| `github/codeql-action/*`               | CodeQL security analysis.        |
+| `actions/dependency-review-action`     | Dependency vulnerability review. |
+| `super-linter/super-linter`            | Multi-language linting.          |
+| `actions/stale`                        | Stale issue and PR management.   |
+| `actions/configure-pages`              | GitHub Pages configuration.      |
+| `actions/upload-pages-artifact`        | GitHub Pages artifact upload.    |
+| `actions/deploy-pages`                 | GitHub Pages deployment.         |
+| `eps1lon/actions-label-merge-conflict` | Merge conflict labeling.         |
 
 ### Restrictions
 
 - **No other external actions** may be used without explicit written approval
   from the Owner and documentation in the repository `README.md`.
-- **No `npm`, `npx`, or package manager invocations** in workflow steps unless
-  the package is part of an approved action's internal toolchain.
-- **No downloading or executing arbitrary binaries** from external sources.
+- **`npm` is allowed only for the repository dev tooling** declared in
+  `package.json`. Install it with `npm ci` from the lockfile with install
+  scripts off (`--ignore-scripts`, or `ignore-scripts=true` in `.npmrc`), then
+  run the package scripts or `npm audit`. Set up Node.js with
+  `actions/setup-node` and `node-version-file: package.json`.
+- **No `npx`, `npm install`, global installs, or other package managers** in
+  workflow steps unless the package is part of an approved action's internal
+  toolchain.
+- **No downloading or executing arbitrary binaries** from external sources. The
+  only exception is `hugo.yml`: it installs a pinned release of Hugo (extended)
+  from the Hugo releases on GitHub and Dart Sass with `snap`, because the build
+  of the site needs both.
 - Requests for new tooling exceptions **must** include a justification
   explaining why the task cannot be accomplished with the permitted tools.
 
@@ -347,14 +386,95 @@ gh api --method POST "repos/$REPO/pulls" \
 
 The PR title **must** follow the Conventional Commits format.
 
+The PR body **must** follow `.github/pull_request_template.md`. Build it with
+`.github/scripts/pull_request_body.py`, which keeps every heading and comment of
+the template, fills in the sections, and ticks only the boxes that are true. The
+workflow needs the `.github` folder for this, through a checkout:
+
+```bash
+PR_BODY=$(python3 .github/scripts/pull_request_body.py \
+  --repo "$REPO" \
+  --type chore \
+  --description "Updates \`CHANGELOG.md\` for release **v1.0.0**." \
+  --steps "1. Open the **Files changed** tab." \
+  --notes "Automatically generated by the Release Manager workflow.")
+```
+
+### Multi-file Commits via GraphQL
+
+When one commit must change several files, or add and delete files together, use
+the GraphQL `createCommitOnBranch` mutation through `gh api graphql`. As with
+the Contents API PUT, GitHub signs the commit when `GITHUB_TOKEN` authenticates
+the request. The commit is **verified**, including a commit that deletes files,
+and no GPG keys are needed.
+
+**Compliant pattern:**
+
+```bash
+# payload.json is built with python3; file contents are base64 encoded
+gh api graphql --input payload.json
+```
+
+```json
+{
+  "query": "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid url } } }",
+  "variables": {
+    "input": {
+      "branch": {
+        "repositoryNameWithOwner": "owner/repo",
+        "branchName": "example"
+      },
+      "message": { "headline": "feat(app): initial commit" },
+      "expectedHeadOid": "<current head SHA of the branch>",
+      "fileChanges": {
+        "additions": [{ "path": "README.md", "contents": "<base64>" }],
+        "deletions": [{ "path": "init.sh" }]
+      }
+    }
+  }
+}
+```
+
+Requirements:
+
+- Set `expectedHeadOid` to the current head of the branch, so the commit fails
+  instead of overwriting a newer commit.
+- Verify the signature of the new commit as described in
+  [Signing Verification](#signing-verification).
+- Compare the tree of the new commit with the local result. This catches lost
+  content and lost file modes:
+
+  ```bash
+  LOCAL_TREE=$(git write-tree)
+  REMOTE_TREE=$(gh api "repos/$REPO/git/commits/$COMMIT_SHA" --jq '.tree.sha')
+  [[ "$LOCAL_TREE" == "$REMOTE_TREE" ]]
+  ```
+
+- The branch must already exist. The mutation cannot create a merge commit.
+
+The reference implementation is `.github/workflows/release_manager.yml`.
+
+`.github/workflows/init_repository.yml` is a deliberate exception. It makes a
+commit without a parent, which `createCommitOnBranch` cannot do. It creates the
+blobs, the tree, and the commit through the Git Data API with `GITHUB_TOKEN`,
+verifies the signature of the commit, and only then points the branch to it.
+
+### Workflow Files
+
+The `GITHUB_TOKEN` cannot create, change, or delete files in
+`.github/workflows/`, with any of the methods above. A workflow **must not**
+change workflow files. A change to them goes through a pull request by a
+maintainer. A token with the `workflows` permission is a personal access token
+and needs the approval described in
+[Secrets and Security](#secrets-and-security).
+
 ### Fallback Method: GPG Signing (Local Git Operations)
 
-In rare cases where the API cannot be used (e.g., multi-file commits that
-require a Git Tree + Commit object), local `git commit` or `git tag` may be used
-with GPG signing. This is the **only** scenario where local Git configuration is
-permitted.
+In rare cases where the API cannot be used (e.g., a merge commit, or a signed
+annotated tag), local `git commit` or `git tag` may be used with GPG signing.
+This is the **only** scenario where local Git configuration is permitted.
 
-Use the `.github/scripts/setup_gpg.sh --gpg` helper to configure signing:
+Use the `.github/scripts/setup_signing.sh --gpg` helper to configure signing:
 
 1. Store the GPG private key as `GPG_PRIVATE_KEY` (armor-exported, base64
    encoded) in repository or organization secrets.
@@ -363,7 +483,7 @@ Use the `.github/scripts/setup_gpg.sh --gpg` helper to configure signing:
 3. Call the setup script in the workflow:
 
 ```bash
-source .github/scripts/setup_gpg.sh --gpg
+source .github/scripts/setup_signing.sh --gpg
 ```
 
 > [!CAUTION]
@@ -427,14 +547,15 @@ For comprehensive verification, use `.github/scripts/verify_signatures.sh`:
 
 ### Known Platform Behaviors
 
-| API Method          | Object Created  | Verified? | Notes                                                   |
-| :------------------ | :-------------- | :-------: | :------------------------------------------------------ |
-| Contents API PUT    | Commit          |  ✅ Yes   | Standard method for single-file changes.                |
-| Contents API DELETE | Commit          |   ❌ No   | Produces `unsigned` commits. Avoid.                     |
-| Git Tags API POST   | Annotated Tag   |   ❌ No   | Tag object is `unsigned`. Commit may still be verified. |
-| `gh release create` | Lightweight Tag |    N/A    | Inherits verified status from the target commit.        |
-| Git Refs API POST   | Branch/Ref      |    N/A    | No signature applicable.                                |
-| Pulls API POST      | Pull Request    |    N/A    | No signature applicable.                                |
+| API Method                     | Object Created  | Verified? | Notes                                                               |
+| :----------------------------- | :-------------- | :-------: | :------------------------------------------------------------------ |
+| Contents API PUT               | Commit          |  ✅ Yes   | Standard method for single-file changes.                            |
+| Contents API DELETE            | Commit          |   ❌ No   | Produces `unsigned` commits. Avoid.                                 |
+| GraphQL `createCommitOnBranch` | Commit          |  ✅ Yes   | Several files; adds and deletes in one commit. File modes are kept. |
+| Git Tags API POST              | Annotated Tag   |   ❌ No   | Tag object is `unsigned`. Commit may still be verified.             |
+| `gh release create`            | Lightweight Tag |    N/A    | Inherits verified status from the target commit.                    |
+| Git Refs API POST              | Branch/Ref      |    N/A    | No signature applicable.                                            |
+| Pulls API POST                 | Pull Request    |    N/A    | No signature applicable.                                            |
 
 ## Reusable Workflows
 
@@ -787,21 +908,25 @@ Use this checklist when authoring or reviewing a workflow:
       value.
 - [ ] All jobs set `timeout-minutes`.
 - [ ] Bot-triggered runs are filtered where appropriate.
+- [ ] Workflows that run on a push skip the push that creates the repository.
 
 ### Tooling
 
-- [ ] Only approved tools are used (`gh`, GitHub API, `bash`, `python3`).
+- [ ] Only approved tools are used (`gh`, GitHub API, `bash`, `python3`, `jq`,
+      `yq`).
 - [ ] All external actions are from the approved list.
-- [ ] All external actions use a pinned tagged version.
+- [ ] All external actions are pinned to a full commit SHA with a version
+      comment.
 - [ ] No unapproved binaries are downloaded or executed.
 
 ### Signing
 
-- [ ] Automated commits use the GitHub Contents API PUT (not local
+- [ ] Automated commits use the GitHub Contents API PUT, or the GraphQL
+      `createCommitOnBranch` mutation for several files (not local
       `git commit`).
 - [ ] Tags are created via `gh release create` targeting a verified commit.
 - [ ] The target commit is verified (visible in GitHub UI).
-- [ ] GPG signing is only used as fallback for multi-file commits.
+- [ ] GPG signing is only used as fallback for operations that need local Git.
 
 ### Logging and Reporting
 
@@ -814,9 +939,13 @@ Use this checklist when authoring or reviewing a workflow:
 
 ## Revision History
 
-| Version | Date       | Author        | Changes          |
-| :------ | :--------- | :------------ | :--------------- |
-| 1.0.0   | 2026-10-29 | Homelab-Alpha | Initial release. |
+| Version | Date       | Author        | Changes                                                                                                 |
+| :------ | :--------- | :------------ | :------------------------------------------------------------------------------------------------------ |
+| 1.0.0   | 2026-10-29 | Homelab-Alpha | Initial release.                                                                                        |
+| 1.1.0   | 2026-10-29 | Homelab-Alpha | Add multi-file commits via GraphQL, the workflow files restriction, and `npm` and `actions/setup-node`. |
+| 1.2.0   | 2026-10-29 | Homelab-Alpha | Require the pull request template for the pull requests of a workflow.                                  |
+| 1.3.0   | 2026-10-29 | Homelab-Alpha | Add `jq` and `yq`, and name `release_manager.yml` as the reference for multi-file commits.              |
+| 1.4.0   | 2026-10-29 | Homelab-Alpha | Skip the push that creates a repository from the template.                                              |
 
 ## 🏁 Final Statement
 

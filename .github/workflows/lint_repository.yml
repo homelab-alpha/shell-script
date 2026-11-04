@@ -1,6 +1,10 @@
 ---
 name: 🔍 Lint Repository
 
+# Runs Super Linter on the whole repository on pushes to main and by hand. The linters and their
+# settings are in .github/super_linter.env and .github/linters/. Pull requests run the lighter
+# lint_pull_request.yml instead.
+
 on:
   push:
     branches:
@@ -28,9 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
+    # Also skips the push that creates the repository from the template: the Initialize Repository
+    # workflow replaces that history, so nothing should run for it.
     if: |
       github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
+      !contains(github.actor, '[bot]') &&
+      github.event.created != true
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

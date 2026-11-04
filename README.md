@@ -7,7 +7,7 @@
   </picture>
 </p>
 
-[![Super Linter](https://github.com/homelab-alpha/shell-script/raw/badges/super_linter.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/super_linter.yml)
+[![Super Linter](https://github.com/homelab-alpha/shell-script/raw/badges/super_linter.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/lint_repository.yml)
 [![CodeQL](https://github.com/homelab-alpha/shell-script/raw/badges/codeql.svg)](https://github.com/homelab-alpha/shell-script/actions/workflows/codeql.yml)
 [![Last commit](https://github.com/homelab-alpha/shell-script/raw/badges/last_commit.svg)](https://github.com/homelab-alpha/shell-script/commits/main/)
 [![Repo size](https://github.com/homelab-alpha/shell-script/raw/badges/repo_size.svg)](https://github.com/homelab-alpha/shell-script/tree/main)
@@ -223,25 +223,27 @@ shell-script/
 │   ├── scripts/                                # Repository tooling (not project code)
 │   │   ├── generate_badges.py                  # Renders the README badges as SVG files
 │   │   ├── lint.sh                             # Local lint (Prettier, textlint, conflict markers)
-│   │   ├── setup_gpg.sh                        # Configures API or GPG signing for Git operations
+│   │   ├── pull_request_body.py                # Builds a pull request description from the template
+│   │   ├── setup_signing.sh                    # Configures API or GPG signing for Git operations
 │   │   └── verify_signatures.sh                # Verifies commit and tag signatures
 │   ├── workflows/                              # GitHub Actions workflows
 │   │   ├── badges.yml                          # Self-hosted README badges
+│   │   ├── cleanup_actions.yml                 # Cache and run cleanup
 │   │   ├── codeql.yml                          # CodeQL security analysis
 │   │   ├── contributors.yml                    # Contributors list generator
 │   │   ├── dependency_review.yml               # Dependency review
-│   │   ├── housekeeping.yml                    # Cache and run cleanup
 │   │   ├── issues.yml                          # Issue automation
-│   │   ├── labels.yml                          # Label synchronization
 │   │   ├── lint_pull_request.yml               # npm linting for pull requests
+│   │   ├── lint_repository.yml                 # Super Linter
 │   │   ├── merge_conflicts.yml                 # Merge conflict detection
 │   │   ├── milestone_manager.yml               # Milestone automation
 │   │   ├── pull_request.yml                    # Pull request automation
 │   │   ├── release_manager.yml                 # Release automation
 │   │   ├── signing_test.yml                    # Test API-based commit and tag signing
 │   │   ├── stale_issues_and_pull_requests.yml  # Stale issue management
-│   │   ├── super_linter.yml                    # Super Linter
-│   │   └── unreproducible_issues.yml           # Unreproducible issue management
+│   │   ├── sync_labels.yml                     # Label synchronization
+│   │   ├── unreproducible_issues.yml           # Unreproducible issue management
+│   │   └── update_changelog.yml                # Changelog entry for merged pull requests
 │   ├── CODEOWNERS                              # Code ownership definitions
 │   ├── labels.yml                              # Repository label definitions
 │   ├── pull_request_template.md                # Pull request template
@@ -316,24 +318,25 @@ on push, pull request, and scheduled triggers.
 
 ### Workflows
 
-| Workflow                             | Trigger                 | Purpose                                              |
-| :----------------------------------- | :---------------------- | :--------------------------------------------------- |
-| `badges.yml`                         | Workflow run, daily     | Renders the README badges to the `badges` branch     |
-| `codeql.yml`                         | Push, PR, schedule      | CodeQL static analysis for security vulnerabilities  |
-| `contributors.yml`                   | Push to `main`          | Auto-generates `CONTRIBUTORS.md`                     |
-| `dependency_review.yml`              | PR                      | Reviews dependency changes for known vulnerabilities |
-| `housekeeping.yml`                   | Weekly schedule, manual | Cleans up old workflow runs and Actions caches       |
-| `issues.yml`                         | Issue events            | Automates issue labeling and triage                  |
-| `labels.yml`                         | Push, manual            | Synchronizes repository labels from `labels.yml`     |
-| `lint_pull_request.yml`              | PR, manual              | Runs `npm run lint` on the changed files             |
-| `merge_conflicts.yml`                | Push, PR                | Detects merge conflicts in open pull requests        |
-| `milestone_manager.yml`              | Manual                  | Automates milestone creation and lifecycle           |
-| `pull_request.yml`                   | PR events               | Pull request automation and validation               |
-| `release_manager.yml`                | Manual                  | Automates GitHub Releases                            |
-| `signing_test.yml`                   | Manual                  | Tests API-based commit and tag signing               |
-| `stale_issues_and_pull_requests.yml` | Schedule                | Marks and closes stale issues and pull requests      |
-| `super_linter.yml`                   | Push to `main`, manual  | Runs Super Linter across the codebase                |
-| `unreproducible_issues.yml`          | Schedule                | Manages issues that cannot be reproduced             |
+| Workflow                             | Trigger                      | Purpose                                                       |
+| :----------------------------------- | :--------------------------- | :------------------------------------------------------------ |
+| `badges.yml`                         | Workflow run, daily, manual  | Renders the README badges to the `badges` branch              |
+| `cleanup_actions.yml`                | Weekly schedule, manual      | Cleans up old workflow runs and Actions caches                |
+| `codeql.yml`                         | Push, PR, weekly, manual     | CodeQL static analysis for security vulnerabilities           |
+| `contributors.yml`                   | Push to `main`, manual       | Auto-generates `CONTRIBUTORS.md`                              |
+| `dependency_review.yml`              | PR, manual                   | Reviews dependency changes for known vulnerabilities          |
+| `issues.yml`                         | Issue events, manual         | Automates issue labeling and triage                           |
+| `lint_pull_request.yml`              | PR, manual                   | Runs `npm run lint` on the changed files                      |
+| `lint_repository.yml`                | Push to `main`, manual       | Runs Super Linter across the codebase                         |
+| `merge_conflicts.yml`                | Push, PR                     | Detects merge conflicts in open pull requests                 |
+| `milestone_manager.yml`              | Manual                       | Automates milestone creation and lifecycle                    |
+| `pull_request.yml`                   | PR events, reviews, manual   | Pull request automation and validation                        |
+| `release_manager.yml`                | Manual                       | Automates GitHub Releases                                     |
+| `signing_test.yml`                   | Manual                       | Tests API-based commit and tag signing                        |
+| `stale_issues_and_pull_requests.yml` | Daily schedule, manual       | Marks and closes stale issues and pull requests               |
+| `sync_labels.yml`                    | Push, manual                 | Synchronizes repository labels from `.github/labels.yml`      |
+| `unreproducible_issues.yml`          | Issue events, weekly, manual | Manages issues that cannot be reproduced                      |
+| `update_changelog.yml`               | Every 8 hours, manual        | Adds an entry to `CHANGELOG.md` for every merged pull request |
 
 All workflows follow the standards documented in
 [`.github/policies/github_actions.md`](./.github/policies/github_actions.md),
@@ -343,15 +346,18 @@ bot filtering, and structured job summaries.
 The README badges are not fetched from a third-party service. `badges.yml`
 renders them with `.github/scripts/generate_badges.py` (Python standard library
 only) and publishes the SVG files to the `badges` branch, which the README links
-to through `github.com/<owner>/<repo>/raw/badges/`. The Super Linter and CodeQL
-badges show the latest run on the default branch. The workflow does not start on
-a push: it starts when Lint Repository or CodeQL finishes (the `workflow_run`
-trigger lists their names, so update it when you rename them), and the
-`check-workflows` job lets it continue only when both workflows ran and passed
-for that commit. A failed, cancelled, or skipped run (the workflows skip bot
-commits) leaves the badges as they are, and so does a repository where either
-workflow is disabled. The workflow creates the branch on its first run. The
-badges follow the colors in
+to through `github.com/<owner>/<repo>/raw/badges/`, which also works in a
+private repository for signed-in viewers with access. The Super Linter and
+CodeQL badges show the latest finished run on the default branch: passing or
+failing. A workflow that exists but is turned off shows disabled. A workflow
+that does not exist gets an empty badge, a transparent image, so the README
+shows nothing and no broken image. Remove its badge line from this README when
+you no longer need it. A cancelled or skipped run (the workflows skip bot
+commits) is ignored, and a workflow without a finished run shows unknown. The
+workflow does not start on a push: it starts when Lint Repository or CodeQL
+finishes, whatever the result (the `workflow_run` trigger lists their names, so
+update it when you rename them), and once a day. It creates the branch on its
+first run. The badges follow the colors in
 [`.github/branding/brand_guide.md`](./.github/branding/brand_guide.md) and
 switch to a dark variant with the system theme.
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Filename:    setup_gpg.sh
+# Filename:    setup_signing.sh
 # Author:      Homelab-Alpha
 # Date:        2026-10-29
 # Version:     1.0.0
@@ -16,18 +16,18 @@
 #                 configuration is needed.
 #
 #              2. GPG signing — For workflows that require local git commit or
-#                 git tag (e.g., multi-file commits via Git Tree objects).
+#                 git tag (e.g., a merge commit or a signed annotated tag).
 #                 Imports a GPG private key from secrets and configures Git
 #                 accordingly.
 #
 # Usage:
 #   API mode (default — just validates prerequisites):
-#     source .github/scripts/setup_gpg.sh --api
+#     source .github/scripts/setup_signing.sh --api
 #
 #   GPG mode (requires GPG_PRIVATE_KEY and optionally GPG_PASSPHRASE):
 #     export GPG_PRIVATE_KEY="<base64-encoded-armored-key>"
 #     export GPG_PASSPHRASE="<passphrase>"
-#     source .github/scripts/setup_gpg.sh --gpg
+#     source .github/scripts/setup_signing.sh --gpg
 #
 # Environment Variables:
 #   GH_TOKEN / GITHUB_TOKEN — Required for API mode.
@@ -38,7 +38,7 @@
 set -Eeuo pipefail
 
 # ── Constants ────────────────────────────────────────────────────────────────
-readonly SCRIPT_NAME="setup_gpg.sh"
+readonly SCRIPT_NAME="setup_signing.sh"
 
 # ── Functions ────────────────────────────────────────────────────────────────
 
