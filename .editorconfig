@@ -1,6 +1,5 @@
 # EditorConfig — https://editorconfig.org
 # Ensures consistent coding style across editors and IDEs.
-# Remove the 'EditorConfig' line from .gitignore to commit this file.
 
 root = true
 
