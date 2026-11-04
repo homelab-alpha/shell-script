@@ -54,7 +54,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Override the transitive dev dependencies `glob` (14.0.3) and `minimatch`
   (11.0.3) to fix Dependabot alerts, which textlint pulls in
-
-[Unreleased]: https://github.com/homelab-alpha/shell-script/compare/main...HEAD
-
----
