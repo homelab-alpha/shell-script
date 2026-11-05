@@ -66,6 +66,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
+      REVIEWER: "homelab-alpha"
       BUMP_TYPE: ${{ inputs.bump_type }}
       RELEASE_TYPE: ${{ inputs.release_type }}
       DRY_RUN: ${{ inputs.dry_run }}
@@ -594,9 +595,19 @@ jobs:
           fi
 
           PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url')
+          PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number')
 
           echo "::notice title=PR Created::✅ Pull request created: ${PR_URL}"
           echo "pr_url=${PR_URL}" >> "$GITHUB_OUTPUT"
+
+          # The pull request author cannot review its own pull request, so a refusal is only a warning.
+          if REVIEW_RESPONSE=$(gh api --method POST "/repos/${REPO}/pulls/${PR_NUMBER}/requested_reviewers" \
+            -f "reviewers[]=${REVIEWER}" 2>&1); then
+            echo "::notice title=Reviewer requested::👀 Review requested from ${REVIEWER}"
+          else
+            echo "${REVIEW_RESPONSE}"
+            echo "::warning title=Reviewer not requested::⚠️ Review could not be requested from ${REVIEWER} on #${PR_NUMBER}."
+          fi
           echo "::endgroup::"
 
       - name: 🚀 Create GitHub release

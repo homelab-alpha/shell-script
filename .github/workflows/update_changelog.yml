@@ -53,6 +53,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
+      REVIEWER: "homelab-alpha"
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
@@ -301,7 +302,20 @@ jobs:
               if code != 0 and "already exists" not in (out + err):
                   note("error", "Pull request failed", f"❌ The pull request could not be created: {err.strip()}")
                   return None
-              return out.strip() or branch
+              url = out.strip()
+              number = url.rsplit("/", 1)[-1]
+              # The pull request author cannot review its own pull request, so a refusal is only a warning.
+              if code == 0 and number.isdigit():
+                  reviewer = os.environ["REVIEWER"]
+                  code, _, err = gh(
+                      "api", "--method", "POST", f"repos/{repo}/pulls/{number}/requested_reviewers",
+                      "-f", f"reviewers[]={reviewer}",
+                  )
+                  if code == 0:
+                      note("notice", "Reviewer requested", f"👀 Review requested from {reviewer}")
+                  else:
+                      note("warning", "Reviewer not requested", f"⚠️ Review could not be requested from {reviewer} on #{number}: {err.strip()}")
+              return url or branch
 
 
           for attempt in range(1, 4):
