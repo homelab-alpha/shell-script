@@ -38,7 +38,7 @@ concurrency:
 jobs:
   pr-automation:
     name: 🤖 Process pull request events
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     if: |

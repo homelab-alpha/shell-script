@@ -59,7 +59,7 @@ concurrency:
 jobs:
   milestone-manager:
     name: 🎯 Execute Milestone Action
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     if: |
       github.event.sender.type != 'Bot' &&

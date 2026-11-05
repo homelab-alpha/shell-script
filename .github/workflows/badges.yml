@@ -37,7 +37,7 @@ concurrency:
 jobs:
   update-badges:
     name: 🏷️ Regenerate badges
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 10
 
     # Also skips the run that follows a skipped Lint Repository or CodeQL run, such as the one for the push that

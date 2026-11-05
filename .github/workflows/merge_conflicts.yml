@@ -35,7 +35,7 @@ jobs:
       github.event.sender.type != 'Bot' &&
       !contains(github.actor, '[bot]') &&
       github.event.created != true
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     env:

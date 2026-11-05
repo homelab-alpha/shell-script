@@ -49,7 +49,7 @@ concurrency:
 jobs:
   scan_and_cleanup:
     name: 🔍 Detect and handle unreproducible issues
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     if: |
@@ -241,7 +241,7 @@ jobs:
 
   reset_on_activity:
     name: 🔄 Remove needs input on activity
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     if: |

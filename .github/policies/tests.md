@@ -223,6 +223,9 @@ These checks are configured in
 corresponding linter config files in `.github/linters/`. The checks that run on
 a pull request must pass before it can be merged.
 
+The hook revisions in `.pre-commit-config.yaml` are pinned to a full commit SHA,
+with the version in a `# frozen:` comment. Renovate keeps both in sync.
+
 For more details on the linting setup, see
 [code_style_and_standards_guides.md](../docs/code_style_and_standards_guides.md#linting).
 

@@ -372,18 +372,19 @@ Checkov, ENV, GitHub Actions (actionlint), Gitleaks, Git merge conflict markers,
 JSON (Prettier), Markdown (Prettier), Natural Language (textlint), Pre-commit,
 Renovate, and YAML (Prettier).
 
-Linter-specific configuration files are stored in `.github/linters/` and include
-rules for Checkov, Gitleaks, markdownlint, textlint, yamllint, actionlint, and
-PowerShell.
+Super Linter reads its configuration files from `.github/linters/`: the rules
+for Checkov, Gitleaks, textlint, actionlint, and PowerShell. The same folder
+holds the rules for markdownlint and yamllint, which only the local pre-commit
+hooks use.
 
 ### Dependency Management
 
 Dependency updates are managed by [Renovate](https://github.com/apps/renovate).
 The configuration in `.github/renovate.json` pins GitHub Actions to commit SHAs
-and npm packages to exact versions, waits 7 days before it proposes a new
-release, merges patch, pin, and digest updates automatically with squash, and
-prioritizes security updates. Major and minor updates are never merged
-automatically. Renovate also keeps a dependency dashboard issue.
+and npm packages to exact versions, pins container images and pre-commit hooks
+to digests or commit SHAs, waits 7 days before it proposes a new release, and
+prioritizes security updates. Renovate does not automerge: a maintainer reviews
+every update. Renovate also keeps a dependency dashboard issue.
 
 ## Policies and Standards
 

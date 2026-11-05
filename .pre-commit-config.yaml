@@ -6,7 +6,7 @@
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # frozen: v6.0.0
     hooks:
       - id: trailing-whitespace
         name: Trim trailing whitespace
@@ -28,14 +28,14 @@ repos:
         name: Detect accidentally committed private keys
 
   - repo: https://github.com/adrienverge/yamllint
-    rev: v1.38.0
+    rev: cba56bcde1fdd01c1deb3f945e69764c291a6530 # frozen: v1.38.0
     hooks:
       - id: yamllint
         name: Lint YAML files
         args: [--config-file, .github/linters/.yaml-lint.yml]
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.48.0
+    rev: cbcdc463be5464e25e3e955a511599a67b9b987f # frozen: v0.50.0
     hooks:
       - id: markdownlint
         name: Lint Markdown files

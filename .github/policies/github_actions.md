@@ -138,6 +138,9 @@ jobs:
 - Version updates are managed automatically by Renovate
   (`helpers:pinGitHubActionDigests`), which keeps the SHA and the comment in
   sync.
+- A runner image cannot be pinned to a SHA. Use a versioned label such as
+  `ubuntu-26.04` in `runs-on`, never `ubuntu-latest` or `macos-latest`, so a
+  change of the image is a reviewed change and not a silent migration.
 
 ### Bot Filtering
 
@@ -777,7 +780,7 @@ concurrency:
 jobs:
   cleanup:
     name: 🔍 Process stale items
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     if: |
