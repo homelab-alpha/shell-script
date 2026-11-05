@@ -226,8 +226,10 @@ that cannot be replicated with the permitted tools above:
   toolchain.
 - **No downloading or executing arbitrary binaries** from external sources. The
   only exception is `hugo.yml`: it installs a pinned release of Hugo (extended)
-  from the Hugo releases on GitHub and Dart Sass with `snap`, because the build
-  of the site needs both.
+  and of Dart Sass from their releases on GitHub, because the build of the site
+  needs both. The workflow **must** verify each download with SHA-256 before it
+  installs it: Hugo against the checksums file of the release, and Dart Sass
+  against a SHA-256 that is set in the workflow next to its version.
 - Requests for new tooling exceptions **must** include a justification
   explaining why the task cannot be accomplished with the permitted tools.
 
@@ -963,6 +965,7 @@ Use this checklist when authoring or reviewing a workflow:
 | 1.2.0   | 2026-10-29 | Homelab-Alpha | Require the pull request template for the pull requests of a workflow.                                  |
 | 1.3.0   | 2026-10-29 | Homelab-Alpha | Add `jq` and `yq`, and name `release_manager.yml` as the reference for multi-file commits.              |
 | 1.4.0   | 2026-10-29 | Homelab-Alpha | Skip the push that creates a repository from the template.                                              |
+| 1.5.0   | 2026-11-05 | Homelab-Alpha | Request the maintainer as reviewer, and verify the Hugo and Dart Sass downloads.                        |
 
 ## 🏁 Final Statement
 

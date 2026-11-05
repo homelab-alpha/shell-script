@@ -94,6 +94,18 @@
       "datasourceTemplate": "github-releases",
       "versioningTemplate": "semver",
       "packageNameTemplate": "gohugoio/hugo"
+    },
+    {
+      "description": "Track Dart Sass version in GitHub Actions workflows",
+      "customType": "regex",
+      "managerFilePatterns": ["/.github/workflows/.*\\.ya?ml$/"],
+      "matchStrings": [
+        "DART_SASS_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "dart-sass",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "semver",
+      "packageNameTemplate": "sass/dart-sass"
     }
   ]
 }
