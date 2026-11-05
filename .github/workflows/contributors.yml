@@ -37,6 +37,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
+      REVIEWER: "homelab-alpha"
       TARGET_FILE: CONTRIBUTORS.md
       BRANCH: chore/update-contributors
 
@@ -232,7 +233,17 @@ jobs:
               -f base="${{ github.ref_name }}" \
               -f body="$PR_BODY")
             PR_URL=$(echo "$PR_RESPONSE" | jq -r '.html_url')
+            PR_NUMBER=$(echo "$PR_RESPONSE" | jq -r '.number')
             echo "::notice title=PR created::ℹ️ $PR_URL"
+
+            # The pull request author cannot review its own pull request, so a refusal is only a warning.
+            if REVIEW_RESPONSE=$(gh api --method POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
+              -f "reviewers[]=$REVIEWER" 2>&1); then
+              echo "::notice title=Reviewer requested::👀 Review requested from $REVIEWER"
+            else
+              echo "$REVIEW_RESPONSE"
+              echo "::warning title=Reviewer not requested::⚠️ Review could not be requested from $REVIEWER on #$PR_NUMBER."
+            fi
           fi
 
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"

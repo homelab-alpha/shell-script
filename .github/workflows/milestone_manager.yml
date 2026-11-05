@@ -67,6 +67,7 @@ jobs:
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
+      REVIEWER: "homelab-alpha"
       ACTION: ${{ github.event.inputs.action }}
       MILESTONE_TITLE: ${{ github.event.inputs.milestone_title }}
       MILESTONE_DESC: ${{ github.event.inputs.milestone_description }}
@@ -388,8 +389,18 @@ jobs:
               -f body="${PR_BODY}")
 
             PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url')
+            PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number')
             echo "::notice title=PR Created::✅ Pull request created: ${PR_URL}"
             echo "::notice title=Audit::🔏 PR created by github-actions[bot] at $(date -u)"
+
+            # The pull request author cannot review its own pull request, so a refusal is only a warning.
+            if REVIEW_RESPONSE=$(gh api --method POST "/repos/${REPO}/pulls/${PR_NUMBER}/requested_reviewers" \
+              -f "reviewers[]=${REVIEWER}" 2>&1); then
+              echo "::notice title=Reviewer requested::👀 Review requested from ${REVIEWER}"
+            else
+              echo "${REVIEW_RESPONSE}"
+              echo "::warning title=Reviewer not requested::⚠️ Review could not be requested from ${REVIEWER} on #${PR_NUMBER}."
+            fi
           fi
 
           echo "committed=true" >> "$GITHUB_OUTPUT"
