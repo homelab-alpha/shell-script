@@ -3,6 +3,8 @@
   "extends": [
     "config:recommended",
     "helpers:pinGitHubActionDigests",
+    "docker:pinDigests",
+    ":enablePreCommit",
     ":semanticCommits",
     ":rebaseStalePrs"
   ],
@@ -20,9 +22,7 @@
   "ignorePaths": [],
   "assignees": ["homelab-alpha"],
   "reviewers": ["homelab-alpha"],
-  "automergeSchedule": [],
-  "automergeType": "pr",
-  "automergeStrategy": "squash",
+  "automerge": false,
   "packageRules": [
     {
       "description": "Pin npm dependencies to exact versions, but not the engines range",
@@ -31,16 +31,16 @@
       "matchDepTypes": ["dependencies", "devDependencies"]
     },
     {
-      "description": "Never automerge major/minor",
-      "matchUpdateTypes": ["major", "minor"],
-      "automerge": false
+      "description": "Group the first digest pins of all container images in one pull request",
+      "matchDatasources": ["docker"],
+      "matchUpdateTypes": ["pin"],
+      "groupName": "container image digests"
     },
     {
-      "description": "Automerge non-major updates (patch, pin, digest)",
-      "matchUpdateTypes": ["patch", "pin", "digest"],
-      "automerge": true,
-      "platformAutomerge": true,
-      "addLabels": ["automerge"]
+      "description": "Update indirect Go modules (Hugo modules), so go.mod and go.sum stay current",
+      "matchManagers": ["gomod"],
+      "matchDepTypes": ["indirect"],
+      "enabled": true
     },
     {
       "description": "Prioritize security updates",

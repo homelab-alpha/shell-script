@@ -1,4 +1,9 @@
 ---
+# The actionlint in Super Linter v9.0.0 does not know the runner label
+# ubuntu-26.04 yet. List it here. Remove it when Super Linter knows the label.
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
 paths:
   .github/workflows/**/*.{yml,yaml}:
     ignore:

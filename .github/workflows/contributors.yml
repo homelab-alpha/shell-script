@@ -24,7 +24,7 @@ concurrency:
 jobs:
   update-contributors:
     name: 👥 Regenerate contributors list
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
 
     # Also skips the push that creates the repository from the template: the Initialize Repository

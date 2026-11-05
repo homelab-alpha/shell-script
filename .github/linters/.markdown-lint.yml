@@ -2,10 +2,9 @@
 MD004: false
 MD007:
   indent: 2
-MD013:
-  line_length: 80
-  code_block_line_length: 120
-  tables: false
+# Prettier wraps the prose at 80 characters. The rule only flagged long links
+# and commands that cannot be wrapped.
+MD013: false
 MD024: false
 MD025: false
 MD026:

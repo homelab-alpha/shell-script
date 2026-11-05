@@ -183,6 +183,27 @@ Feature/AddExport   (wrong casing)
 update              (too vague)
 ```
 
+#### Development branches (maintainer only)
+
+The maintainer works on a planned version in a development branch. Contributors
+do not use these branches; they use the `type/short-description` format above.
+
+```none
+dev/v<major>.<minor>.<patch>/short-description
+```
+
+- Create the branch from `main`, with one branch per planned version and topic.
+- Use **lowercase** letters and **hyphens** in the description.
+- Use a concrete version. Wildcards such as `v1.2.*` are not allowed.
+- The pull request still goes into `main`.
+
+**Valid examples:**
+
+```none
+dev/v1.2.0/add-dry-run-option
+dev/v1.2.1/fix-deprecated-params
+```
+
 ### Commit Messages
 
 All commit messages must be written in **English** and follow the
@@ -330,9 +351,9 @@ and consistency. Here is what to expect:
 - Straightforward contributions are typically reviewed within **two weeks**.
   Complex changes may take longer, and we will communicate any delays.
 
-Dependency updates (patch, pin, digest) are handled automatically by
-[Renovate](https://docs.renovatebot.com/) and are automerged when all checks
-pass. Major and minor dependency updates require manual review.
+Dependency updates are opened automatically by
+[Renovate](https://docs.renovatebot.com/). They are not automerged: a maintainer
+reviews and merges every update.
 
 For a detailed overview of the review workflow, see
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).

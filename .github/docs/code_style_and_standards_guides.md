@@ -226,8 +226,9 @@ Markdown is used for all documentation, policy files, and templates.
 
 The markdownlint hook of `.pre-commit-config.yaml` uses
 `.github/linters/.markdown-lint.yml`. Key rules include: 2-space list
-indentation (MD007), 80-character line length (MD013), and standard punctuation
-after headings (MD026).
+indentation (MD007) and standard punctuation after headings (MD026). The rule
+for line length (MD013) is off, because Prettier wraps the prose at 80
+characters.
 
 ### Environment Files
 
@@ -394,8 +395,14 @@ Dependencies are managed automatically by **Renovate** (see
 - All direct dependencies are pinned to an exact version.
 - Renovate proposes updates at any time, without a schedule or a limit on open
   pull requests (the time zone is Europe/Amsterdam).
-- Patch, pin, and digest updates auto-merge when all checks pass.
-- Minor and major updates require manual review.
+- Renovate does not automerge. A maintainer reviews and merges every update.
+- Indirect Go modules (such as Hugo modules) are updated too, so that `go.mod`
+  and `go.sum` stay current.
+- Container images are pinned to a digest (`docker:pinDigests`). The first
+  digest pins of all images arrive in one pull request.
+- The hook revisions in `.pre-commit-config.yaml` are pinned to a full commit
+  SHA, with the version in a `# frozen:` comment. Renovate keeps both in sync
+  (`:enablePreCommit`).
 - Security updates are prioritized and labelled automatically.
 - OSV vulnerability alerts are enabled.
 

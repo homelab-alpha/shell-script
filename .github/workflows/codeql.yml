@@ -34,7 +34,7 @@ concurrency:
 jobs:
   analyze:
     name: 🔍 Analyze (${{ matrix.language }})
-    runs-on: ${{ (matrix.language == 'swift' && 'macos-latest') || 'ubuntu-latest' }}
+    runs-on: ${{ (matrix.language == 'swift' && 'macos-26') || 'ubuntu-26.04' }}
     timeout-minutes: ${{ (matrix.language == 'swift' && 120) || 360 }}
 
     # Also skips the push that creates the repository from the template: the Initialize Repository

@@ -203,10 +203,10 @@ When a reviewer requests changes:
 
 ## Merge Strategy
 
-| Scenario                                | Strategy                                                                     |
-| :-------------------------------------- | :--------------------------------------------------------------------------- |
-| Standard pull requests                  | **Squash and merge** — combines all commits into one clean commit on `main`  |
-| Automated dependency updates (Renovate) | **Squash and merge** — handled automatically via `automergeStrategy: squash` |
+| Scenario                                | Strategy                                                                    |
+| :-------------------------------------- | :-------------------------------------------------------------------------- |
+| Standard pull requests                  | **Squash and merge** — combines all commits into one clean commit on `main` |
+| Automated dependency updates (Renovate) | **Squash and merge** — merged by a maintainer after review                  |
 
 Squash merging keeps the `main` branch history clean and linear, with one commit
 per logical change. The squash commit message must follow the
@@ -218,15 +218,12 @@ Dependency updates are handled automatically by
 [Renovate](../../.github/renovate.json) and follow a separate, lightweight
 review process:
 
-- **Patch, pin, and digest updates** are automerged without human review when
-  all checks pass. Renovate is not limited to a schedule.
-- **Major and minor updates** are never automerged and require manual review by
-  a maintainer.
+- **All updates** (patch, pin, digest, minor, and major) are never automerged. A
+  maintainer reviews and merges each one. Renovate is not limited to a schedule.
 - **Security vulnerability updates** are prioritized and labeled `security`.
 
 Automated pull requests are labeled with the update type and the dependency
-name, and the ones that are automerged also with `automerge`, making them easy
-to filter in the pull request list.
+name, making them easy to filter in the pull request list.
 
 ## Escalation
 

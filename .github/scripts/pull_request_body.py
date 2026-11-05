@@ -35,7 +35,7 @@
 #   --description  Text of the Description section.
 #   --related      Text of the Related Issues section (default: None.).
 #   --environment  Text of the Test Environment section
-#                  (default: GitHub Actions on ubuntu-latest.).
+#                  (default: GitHub Actions on ubuntu-26.04.).
 #   --steps        Text of the Steps to Test section.
 #   --notes        Text of the Additional Notes section.
 #   --check        Part of the text of one more checklist item to tick. It can
@@ -128,7 +128,7 @@ def main():
     parser.add_argument("--type", required=True, dest="kind")
     parser.add_argument("--description", required=True)
     parser.add_argument("--related", default="None.")
-    parser.add_argument("--environment", default="GitHub Actions on `ubuntu-latest`.")
+    parser.add_argument("--environment", default="GitHub Actions on `ubuntu-26.04`.")
     parser.add_argument("--steps", required=True)
     parser.add_argument("--notes", required=True)
     parser.add_argument("--check", action="append", default=[])
