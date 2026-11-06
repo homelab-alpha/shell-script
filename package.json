@@ -20,7 +20,7 @@
     "textlint-rule-terminology": "5.2.16"
   },
   "overrides": {
-    "glob": "14.0.3",
+    "glob": "14.0.4",
     "minimatch": "11.0.5"
   },
   "engines": {
