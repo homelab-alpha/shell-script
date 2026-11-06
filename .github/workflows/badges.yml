@@ -10,8 +10,7 @@ on:
   # push to the default branch does not start this workflow itself. The names
   # must match the `name` of the workflows exactly. The badges show a passing,
   # failing, or disabled workflow, and an empty badge for a workflow that does not
-  # exist. A run that a bot started is skipped, as the policy requires; the
-  # nightly run catches up.
+  # exist.
   workflow_run:
     workflows:
       - 🔍 Lint Repository
@@ -43,8 +42,6 @@ jobs:
     # Also skips the run that follows a skipped Lint Repository or CodeQL run, such as the one for the push that
     # creates the repository from the template.
     if: |
-      github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]') &&
       github.event.workflow_run.conclusion != 'skipped'
 
     env:

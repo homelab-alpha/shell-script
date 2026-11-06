@@ -290,13 +290,8 @@ tooling (for example, `init.sh`). The same conventions apply in both contexts.
   such as `@v7` are not allowed.
 - Every workflow must include a **concurrency** block to prevent duplicate runs.
 - Workflows should include a **job summary** step using `$GITHUB_STEP_SUMMARY`.
-- Exclude bot-triggered runs using:
-
-  ```yaml
-  if: |
-    github.event.sender.type != 'Bot' &&
-    !contains(github.actor, '[bot]')
-  ```
+- Do not skip bot-triggered runs: workflows run for bots in the same way as for
+  people.
 
 - Set a `timeout-minutes` on all jobs to prevent runaway executions.
 - Infrastructure-as-code security checks (Checkov) skip `CKV_TF_1` and

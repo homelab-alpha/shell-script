@@ -142,29 +142,25 @@ jobs:
   `ubuntu-26.04` in `runs-on`, never `ubuntu-latest` or `macos-latest`, so a
   change of the image is a reviewed change and not a silent migration.
 
-### Bot Filtering
+### Bots
 
-Workflows that should not run on automated commits **must** include a bot filter
-at the job level:
-
-```yaml
-if: |
-  github.event.sender.type != 'Bot' &&
-  !contains(github.actor, '[bot]')
-```
+Workflows run for bots (Renovate, `github-actions[bot]`, and others) in the same
+way as for people. A workflow **must not** skip a run because of its actor or
+its sender type: do not add `github.event.sender.type` or `github.actor`
+conditions to `if`. A workflow that must treat bot content differently (for
+example, a changelog that leaves out the pull requests of a bot) does this in
+its own steps, not by skipping the run.
 
 ### First Push of a New Repository
 
 A repository that is created from the template gets its files in one push to
 `main`, and its workflows are on. That push must not start the workflows that
 run on a push, because the **Initialize Repository** workflow replaces the
-history of `main` afterwards. These workflows **must** add this condition to the
-bot filter of their first job:
+history of `main` afterwards. These workflows **must** add this condition to
+their first job:
 
 ```yaml
 if: |
-  github.event.sender.type != 'Bot' &&
-  !contains(github.actor, '[bot]') &&
   github.event.created != true
 ```
 
@@ -781,11 +777,7 @@ jobs:
   cleanup:
     name: 🔍 Process stale items
     runs-on: ubuntu-26.04
-    timeout-minutes: 15
-
-    if: |
-      github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
+        timeout-minutes: 15
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -929,7 +921,7 @@ Use this checklist when authoring or reviewing a workflow:
 - [ ] A `concurrency` block is present with an appropriate `cancel-in-progress`
       value.
 - [ ] All jobs set `timeout-minutes`.
-- [ ] Bot-triggered runs are filtered where appropriate.
+- [ ] No `if` condition skips a run because of a bot actor or sender.
 - [ ] Workflows that run on a push skip the push that creates the repository.
 
 ### Tooling

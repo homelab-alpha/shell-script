@@ -52,10 +52,6 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 15
 
-    if: |
-      github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
-
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
@@ -245,8 +241,6 @@ jobs:
     timeout-minutes: 15
 
     if: |
-      github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]') &&
       github.event.issue.state == 'open' &&
       (
         github.event_name == 'issues' ||
