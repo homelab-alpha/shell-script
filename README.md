@@ -341,7 +341,7 @@ on push, pull request, and scheduled triggers.
 All workflows follow the standards documented in
 [`.github/policies/github_actions.md`](./.github/policies/github_actions.md),
 including actions pinned to a commit SHA, concurrency controls, timeout limits,
-bot filtering, and structured job summaries.
+and structured job summaries.
 
 The README badges are not fetched from a third-party service. `badges.yml`
 renders them with `.github/scripts/generate_badges.py` (Python standard library
@@ -352,14 +352,13 @@ CodeQL badges show the latest finished run on the default branch: passing or
 failing. A workflow that exists but is turned off shows disabled. A workflow
 that does not exist gets an empty badge, a transparent image, so the README
 shows nothing and no broken image. Remove its badge line from this README when
-you no longer need it. A cancelled or skipped run (the workflows skip bot
-commits) is ignored, and a workflow without a finished run shows unknown. The
-workflow does not start on a push: it starts when Lint Repository or CodeQL
-finishes, whatever the result (the `workflow_run` trigger lists their names, so
-update it when you rename them), and once a day. It creates the branch on its
-first run. The badges follow the colors in
-[`.github/branding/brand_guide.md`](./.github/branding/brand_guide.md) and
-switch to a dark variant with the system theme.
+you no longer need it. A cancelled or skipped run is ignored, and a workflow
+without a finished run shows unknown. The workflow does not start on a push: it
+starts when Lint Repository or CodeQL finishes, whatever the result (the
+`workflow_run` trigger lists their names, so update it when you rename them),
+and once a day. It creates the branch on its first run. The badges follow the
+colors in [`.github/branding/brand_guide.md`](./.github/branding/brand_guide.md)
+and switch to a dark variant with the system theme.
 
 ### Linting
 

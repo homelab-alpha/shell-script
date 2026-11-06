@@ -31,10 +31,6 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
 
-    if: |
-      github.event.sender.type != 'Bot' &&
-      !contains(github.actor, '[bot]')
-
     steps:
       - name: 🏁 Notify start of process
         run: |
