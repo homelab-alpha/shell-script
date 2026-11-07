@@ -85,6 +85,7 @@
   }
 - { name: "contributors", color: "1f6feb", description: "Related to the contributors list or contributors workflow." }
 - { name: "conversation lock", color: "8b949e", description: "Thread has been locked to prevent further comments." }
+- { name: "dart-sass", color: "1f6feb", description: "Dependency: Dart Sass stylesheet compiler updates." }
 - { name: "dependencies", color: "1f6feb", description: "Updates one or more runtime dependencies." }
 - {
     name: "deprecated",
@@ -92,6 +93,7 @@
     description: "Marks functionality that is outdated and scheduled for removal in a future release.",
   }
 - { name: "dev dependencies", color: "1f6feb", description: "Updates one or more development-only dependencies." }
+- { name: "digest", color: "1f6feb", description: "Dependency: Digest updates for pinned container images or actions." }
 - {
     name: "discussion",
     color: "8250df",
@@ -130,6 +132,7 @@
     color: "1f6feb",
     description: "Dependency: Portainer EE Docker image updates.",
   }
+- { name: "docker.io/postgres", color: "1f6feb", description: "Dependency: PostgreSQL Docker image updates." }
 - { name: "docker.io/valkey/valkey", color: "1f6feb", description: "Dependency: Valkey Docker image updates." }
 - {
     name: "docker.io/ronivay/xen-orchestra",
@@ -239,6 +242,7 @@
     color: "1f6feb",
     description: "Dependency: GitHub CodeQL security analysis action updates.",
   }
+- { name: "glob", color: "1f6feb", description: "Dependency: glob file pattern matching library updates." }
 - {
     name: "globals",
     color: "1f6feb",
@@ -260,6 +264,11 @@
 - { name: "housekeeping", color: "8b949e", description: "Maintenance, cleanup, or chore tasks." }
 - { name: "hugo", color: "1f6feb", description: "Dependency: Hugo static site generator updates." }
 - { name: "i18n", color: "8250df", description: "Internationalization or translation issue; see also localized." }
+- {
+    name: "igorshubovych/markdownlint-cli",
+    color: "1f6feb",
+    description: "Dependency: markdownlint-cli Markdown linter updates.",
+  }
 - { name: "in progress", color: "f2cc60", description: "Actively being worked on by an assigned contributor." }
 - { name: "in review", color: "f2cc60", description: "Currently under review; awaiting feedback or approval." }
 - {
@@ -284,6 +293,7 @@
     color: "8250df",
     description: "Involves migrating data, infrastructure, or code to a new structure or platform.",
   }
+- { name: "minimatch", color: "1f6feb", description: "Dependency: minimatch glob matching library updates." }
 - { name: "minor", color: "2ea44f", description: "Small, backward-compatible improvement or addition." }
 - {
     name: "needs design",
@@ -335,6 +345,8 @@
     color: "d97706",
     description: "Introduces a measurable degradation in performance compared to a previous version.",
   }
+- { name: "pinDigest", color: "1f6feb", description: "Dependency: Pins a dependency to its immutable digest." }
+- { name: "playwright-core", color: "1f6feb", description: "Dependency: Playwright core automation library updates." }
 - {
     name: "PR: depends on other",
     color: "f2cc60",
@@ -439,6 +451,7 @@
     color: "1f6feb",
     description: "Dependency: typescript-eslint parser and plugin updates.",
   }
+- { name: "ubuntu", color: "1f6feb", description: "Dependency: Ubuntu base image or runner updates." }
 - {
     name: "under development",
     color: "f2cc60",
