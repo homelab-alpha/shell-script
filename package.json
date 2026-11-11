@@ -21,7 +21,7 @@
   },
   "overrides": {
     "glob": "14.0.4",
-    "minimatch": "11.0.7"
+    "minimatch": "11.0.8"
   },
   "engines": {
     "node": "^24.22.2"
