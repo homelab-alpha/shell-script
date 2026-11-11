@@ -20,7 +20,7 @@
   "rangeStrategy": "bump",
   "ignoreDeps": [],
   "ignorePaths": [],
-  "assignees": ["homelab-alpha"],
+  "assignees": [],
   "reviewers": ["homelab-alpha"],
   "automerge": false,
   "packageRules": [
