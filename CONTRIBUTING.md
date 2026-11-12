@@ -355,7 +355,8 @@ Dependency updates are opened automatically by
 [Renovate](https://docs.renovatebot.com/), grouped by update type. Patch, pin,
 and digest updates of GitHub Actions, pre-commit hooks, and npm dev dependencies
 are automerged when the checks pass. A maintainer reviews and merges every other
-update.
+update. Pull Request Automation leaves these pull requests open for review, as a
+draft cannot automerge.
 
 For a detailed overview of the review workflow, see
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).

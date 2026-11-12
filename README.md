@@ -385,7 +385,9 @@ to digests or commit SHAs, waits 7 days before it proposes a new release, and
 prioritizes security updates. Renovate groups updates by kind. Renovate
 automerges patch, pin, and digest updates of GitHub Actions, pre-commit hooks,
 and npm dev dependencies once the checks pass. A maintainer reviews every other
-update. Renovate also keeps a dependency dashboard issue.
+update. Pull Request Automation does not put the pull requests of Renovate back
+to draft, because a draft cannot automerge. Renovate also keeps a dependency
+dashboard issue.
 
 ## Policies and Standards
 

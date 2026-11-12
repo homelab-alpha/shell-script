@@ -2,11 +2,11 @@
 name: 🤖 Pull Request Automation
 
 # Automation for pull requests to main: it puts a pull request back to draft when it is opened,
-# reopened, or needs changes, sets up a new pull request (welcome message and labels), validates
-# that the title is a conventional commit, labels changes requested and external review feedback,
-# marks a pull request ready for review, moves it to the backlog, closes it and deletes its branch
-# when it gets the label wontfix, and cleans up the labels when it is closed. It runs on pull
-# request events and on reviews, and by hand.
+# reopened, or needs changes (but not a new pull request of Renovate, which can automerge), sets up
+# a new pull request (welcome message and labels), validates that the title is a conventional commit,
+# labels changes requested and external review feedback, marks a pull request ready for review, moves
+# it to the backlog, closes it and deletes its branch when it gets the label wontfix, and cleans up
+# the labels when it is closed. It runs on pull request events and on reviews, and by hand.
 
 on:
   pull_request:
@@ -179,8 +179,13 @@ jobs:
           (
             github.event_name == 'pull_request' &&
             (
-              github.event.action == 'opened' ||
-              github.event.action == 'reopened' ||
+              (
+                (
+                  github.event.action == 'opened' ||
+                  github.event.action == 'reopened'
+                ) &&
+                github.event.pull_request.user.login != 'renovate[bot]'
+              ) ||
               (
                 github.event.action == 'labeled' &&
                 github.event.label.name == 'PR: please address review comments'
