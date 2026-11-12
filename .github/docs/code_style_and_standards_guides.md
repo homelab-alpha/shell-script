@@ -390,7 +390,11 @@ Dependencies are managed automatically by **Renovate** (see
 - All direct dependencies are pinned to an exact version.
 - Renovate proposes updates at any time, without a schedule or a limit on open
   pull requests (the time zone is Europe/Amsterdam).
-- Renovate does not automerge. A maintainer reviews and merges every update.
+- Renovate groups updates by kind (for example `github actions (minor)`), so a
+  week of updates is a few pull requests. Major updates stay separate.
+- Renovate automerges patch, pin, and digest updates of GitHub Actions,
+  pre-commit hooks, and npm dev dependencies once the checks pass. A maintainer
+  reviews and merges every other update. Security updates are never automerged.
 - Indirect Go modules (such as Hugo modules) are updated too, so that `go.mod`
   and `go.sum` stay current.
 - Container images are pinned to a digest (`docker:pinDigests`). The first

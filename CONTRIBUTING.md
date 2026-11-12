@@ -352,8 +352,10 @@ and consistency. Here is what to expect:
   Complex changes may take longer, and we will communicate any delays.
 
 Dependency updates are opened automatically by
-[Renovate](https://docs.renovatebot.com/). They are not automerged: a maintainer
-reviews and merges every update.
+[Renovate](https://docs.renovatebot.com/), grouped by update type. Patch, pin,
+and digest updates of GitHub Actions, pre-commit hooks, and npm dev dependencies
+are automerged when the checks pass. A maintainer reviews and merges every other
+update.
 
 For a detailed overview of the review workflow, see
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).

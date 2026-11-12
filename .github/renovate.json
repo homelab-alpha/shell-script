@@ -5,8 +5,7 @@
     "helpers:pinGitHubActionDigests",
     "docker:pinDigests",
     ":enablePreCommit",
-    ":semanticCommits",
-    ":rebaseStalePrs"
+    ":semanticCommits"
   ],
   "dependencyDashboard": true,
   "osvVulnerabilityAlerts": true,
@@ -37,15 +36,80 @@
       "groupName": "container image digests"
     },
     {
+      "description": "Group GitHub Actions patch, pin, and digest updates in one pull request, and automerge it",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch", "pin", "pinDigest", "digest"],
+      "groupName": "github actions (patch and digest)",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "rebaseWhen": "behind-base-branch"
+    },
+    {
+      "description": "Group pre-commit hook patch, pin, and digest updates in one pull request, and automerge it",
+      "matchManagers": ["pre-commit"],
+      "matchUpdateTypes": ["patch", "pin", "pinDigest", "digest"],
+      "groupName": "pre-commit hooks (patch and digest)",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "rebaseWhen": "behind-base-branch"
+    },
+    {
+      "description": "Group npm dev dependency patch and pin updates in one pull request, and automerge it",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "pin", "pinDigest", "digest"],
+      "groupName": "npm dev dependencies (patch and pin)",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "rebaseWhen": "behind-base-branch"
+    },
+    {
+      "description": "Group GitHub Actions minor updates in one pull request, reviewed by a maintainer",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "github actions (minor)"
+    },
+    {
+      "description": "Group pre-commit hook minor updates in one pull request, reviewed by a maintainer",
+      "matchManagers": ["pre-commit"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "pre-commit hooks (minor)"
+    },
+    {
+      "description": "Group npm minor updates in one pull request, reviewed by a maintainer",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "matchUpdateTypes": ["minor"],
+      "groupName": "npm (minor)"
+    },
+    {
+      "description": "Group Hugo and Dart Sass minor and patch updates in one pull request, reviewed by a maintainer",
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["hugo", "dart-sass"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "hugo toolchain"
+    },
+    {
       "description": "Update indirect Go modules (Hugo modules), so go.mod and go.sum stay current",
       "matchManagers": ["gomod"],
       "matchDepTypes": ["indirect"],
       "enabled": true
     },
     {
-      "description": "Prioritize security updates",
+      "description": "Group Go module minor and patch updates in one pull request, reviewed by a maintainer",
+      "matchManagers": ["gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "go modules"
+    },
+    {
+      "description": "Prioritize security updates, keep them out of groups, and never automerge them",
       "matchPackageNames": ["*"],
       "isVulnerabilityAlert": true,
+      "groupName": null,
+      "automerge": false,
       "prPriority": 100,
       "minimumReleaseAge": "0 days"
     },

@@ -206,7 +206,7 @@ When a reviewer requests changes:
 | Scenario                                | Strategy                                                                    |
 | :-------------------------------------- | :-------------------------------------------------------------------------- |
 | Standard pull requests                  | **Squash and merge** — combines all commits into one clean commit on `main` |
-| Automated dependency updates (Renovate) | **Squash and merge** — merged by a maintainer after review                  |
+| Automated dependency updates (Renovate) | **Squash and merge** — automerged or merged by a maintainer (see below)     |
 
 Squash merging keeps the `main` branch history clean and linear, with one commit
 per logical change. The squash commit message must follow the
@@ -218,9 +218,17 @@ Dependency updates are handled automatically by
 [Renovate](../../.github/renovate.json) and follow a separate, lightweight
 review process:
 
-- **All updates** (patch, pin, digest, minor, and major) are never automerged. A
-  maintainer reviews and merges each one. Renovate is not limited to a schedule.
-- **Security vulnerability updates** are prioritized and labeled `security`.
+- **Grouping**: updates of the same kind arrive in one pull request, for example
+  "github actions (minor)" or "npm (minor)". Major updates stay in their own
+  pull request.
+- **Automerge**: patch, pin, and digest updates of GitHub Actions, pre-commit
+  hooks, and npm dev dependencies are merged by Renovate (squash) once all
+  required checks pass.
+- **Maintainer review**: minor updates, major updates, and every other update
+  are never automerged. A maintainer reviews and merges each one.
+- **Security vulnerability updates** are prioritized, labeled `security`, kept
+  out of groups, and never automerged.
+- Renovate is not limited to a schedule.
 
 Automated pull requests are labeled with the update type and the dependency
 name, making them easy to filter in the pull request list.
