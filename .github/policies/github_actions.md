@@ -149,7 +149,9 @@ way as for people. A workflow **must not** skip a run because of its actor or
 its sender type: do not add `github.event.sender.type` or `github.actor`
 conditions to `if`. A workflow that must treat bot content differently (for
 example, a changelog that leaves out the pull requests of a bot) does this in
-its own steps, not by skipping the run.
+its own steps, not by skipping the run. For example, `pull_request.yml` puts a
+new pull request back to draft, except one of `renovate[bot]` (a draft cannot
+automerge); the condition is on that step only, and the other steps still run.
 
 ### First Push of a New Repository
 

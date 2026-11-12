@@ -228,6 +228,9 @@ review process:
   are never automerged. A maintainer reviews and merges each one.
 - **Security vulnerability updates** are prioritized, labeled `security`, kept
   out of groups, and never automerged.
+- **No draft**: Pull Request Automation (`pull_request.yml`) puts the pull
+  requests of people back to draft when they are opened or reopened, but not the
+  pull requests of Renovate, because a draft cannot automerge.
 - Renovate is not limited to a schedule.
 
 Automated pull requests are labeled with the update type and the dependency
