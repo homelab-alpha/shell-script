@@ -72,7 +72,7 @@ Before contributing, make sure you have the following set up:
 2. Clone your fork locally:
 
    ```bash
-   git clone https://github.com/ < your-username > /shell-script.git
+   git clone https://github.com/<your-username>/shell-script.git
    cd shell-script
    ```
 
@@ -170,7 +170,7 @@ type/short-description
 
 ```none
 feat/add-json-export
-fix/retrieval-null-reference
+fix/null-reference-on-empty-list
 docs/update-readme-installation
 chore/update-dependencies
 ```
@@ -233,14 +233,14 @@ type(scope): brief subject
 **Examples:**
 
 ```git
-feat(core): add JSON export for archived memories
+feat(cli): add JSON export command
 ```
 
 ```git
-fix(retrieval): handle null reference on empty archive
+fix(parser): handle null reference on empty input
 
-- Added a null check before iterating over memory entries.
-- Updated unit tests to cover the empty-archive edge case.
+- Added a null check before iterating over the entries.
+- Updated unit tests to cover the empty-input edge case.
 ```
 
 ```git
@@ -272,7 +272,8 @@ quality. The following linters are active:
 - **Bash** and **Bash Exec** — shell script validation and executable bits
 - **Checkov** — infrastructure-as-code security scanning
 - **ENV** — environment file validation
-- **GitHub Actions** — workflow file validation
+- **GitHub Actions** — workflow file validation (actionlint)
+- **zizmor** — security audit of workflow files
 - **Gitleaks** — secret detection
 - **Git merge conflict markers** — conflict detection
 - **JSON** — JSON formatting (Prettier)

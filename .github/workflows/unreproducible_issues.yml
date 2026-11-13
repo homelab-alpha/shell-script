@@ -39,8 +39,8 @@ on:
         default: 7
         type: number
 
-permissions:
-  issues: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: unreproducible-${{ github.run_id }}
@@ -51,6 +51,9 @@ jobs:
     name: 🔍 Detect and handle unreproducible issues
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+
+    permissions:
+      issues: write # Label, comment on, and close unreproducible issues.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -96,7 +99,7 @@ jobs:
           echo "Dry Run: $DRY_RUN"
           echo "Wait Days: $WAIT_DAYS"
           echo "Close After Days: $CLOSE_AFTER_DAYS"
-          echo "Event: ${{ github.event_name }}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
           echo "::endgroup::"
 
       - name: 🔍 Scan unreproducible issues
@@ -107,6 +110,12 @@ jobs:
           (github.event_name == 'issues' && github.event.action == 'labeled')
         run: |
           set -Eeuo pipefail
+
+          # The periods are used in arithmetic, where the shell evaluates the text of a variable as an expression.
+          if [[ ! "$WAIT_DAYS" =~ ^[0-9]+$ || ! "$CLOSE_AFTER_DAYS" =~ ^[0-9]+$ ]]; then
+            echo "::error title=Invalid input::❌ wait_days and close_after_days must be whole numbers"
+            exit 1
+          fi
 
           echo "::group::🔍 API Query & Configuration"
           echo "Wait days: $WAIT_DAYS"
@@ -139,8 +148,8 @@ jobs:
             number=$(echo "$issue" | jq -r '.number')
             updated_at=$(echo "$issue" | jq -r '.updatedAt')
             locked=$(echo "$issue" | jq -r '.isLocked')
-            has_needs_input=$(echo "$issue" | jq -r \
-              '.labels | any(.name == "'"$LABEL_NEEDS_INPUT"'")')
+            has_needs_input=$(echo "$issue" | jq -r --arg label "$LABEL_NEEDS_INPUT" \
+              '.labels | any(.name == $label)')
 
             if [ "$locked" = "true" ]; then
               echo "::debug::Skipping #$number - Issue is locked"
@@ -203,10 +212,15 @@ jobs:
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          SCAN_STATUS:
+            ${{ steps.scan.outcome == 'success' && '✅ Success' || (steps.scan.outcome == 'skipped' && '⏭️ Skipped' ||
+            '❌ Failed') }}
+          STEP_SCAN_NEEDS_INPUT_ADDED: ${{ steps.scan.outputs.needs_input_added || 0 }}
+          STEP_SCAN_CLOSED: ${{ steps.scan.outputs.closed || 0 }}
+          STEP_SCAN_SKIPPED: ${{ steps.scan.outputs.skipped || 0 }}
         run: |
           echo "::group::📊 Generating Summary Report"
-
-          SCAN_STATUS="${{ steps.scan.outcome == 'success' && '✅ Success' || (steps.scan.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed') }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🔍 Unreproducible Issues Summary
@@ -215,11 +229,11 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Metric                   | Value                                            | Result       |
-          | :----------------------- | :----------------------------------------------- | :----------- |
-          | ℹ️ Needs input requested | ${{ steps.scan.outputs.needs_input_added || 0 }} | $SCAN_STATUS |
-          | 🗑️ Issues closed         | ${{ steps.scan.outputs.closed || 0 }}            | $SCAN_STATUS |
-          | ⏭️ Issues skipped        | ${{ steps.scan.outputs.skipped || 0 }}           | $SCAN_STATUS |
+          | Metric                   | Value                          | Result       |
+          | :----------------------- | :----------------------------- | :----------- |
+          | ℹ️ Needs input requested | ${STEP_SCAN_NEEDS_INPUT_ADDED} | $SCAN_STATUS |
+          | 🗑️ Issues closed         | ${STEP_SCAN_CLOSED}            | $SCAN_STATUS |
+          | ⏭️ Issues skipped        | ${STEP_SCAN_SKIPPED}           | $SCAN_STATUS |
 
           ### ⚙️ Runtime Configuration
 
@@ -230,7 +244,7 @@ jobs:
 
           ### 🧩 Notes
 
-          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - Workflow Run: [View Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
           EOF
 
           echo "::endgroup::"
@@ -248,7 +262,7 @@ jobs:
       )
 
     permissions:
-      issues: write
+      issues: write # Remove the "needs input" label when someone reacts.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -263,9 +277,9 @@ jobs:
         run: |
           echo "::notice title=Workflow started::🔄 Checking activity on issue #$ISSUE_NUMBER"
           echo "::group::ℹ️ Context"
-          echo "Event: ${{ github.event_name }}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
           echo "Issue: #$ISSUE_NUMBER"
-          echo "Actor: ${{ github.actor }}"
+          echo "Actor: ${GITHUB_ACTOR}"
           echo "Repository: $REPO"
           echo "::endgroup::"
 
@@ -305,10 +319,11 @@ jobs:
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          RESET_STATUS:
+            ${{ steps.reset_label.outputs.reset_performed == 'true' && '🧹 Label Removed' || 'ℹ️ No Action' }}
         run: |
           echo "::group::📊 Generating Summary Report"
-
-          RESET_STATUS="${{ steps.reset_label.outputs.reset_performed == 'true' && '🧹 Label Removed' || 'ℹ️ No Action' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🔄 Activity Reset Summary
@@ -323,12 +338,12 @@ jobs:
 
           ### 🧩 Context
 
-          - **Triggered by:** ${{ github.actor }}
-          - **Event:** ${{ github.event_name }}
+          - **Triggered by:** ${GITHUB_ACTOR}
+          - **Event:** ${GITHUB_EVENT_NAME}
 
           ### ⚙️ Runtime Configuration
 
-          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - **Workflow Run:** [View Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
           EOF
 
           echo "::endgroup::"

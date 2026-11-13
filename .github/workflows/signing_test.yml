@@ -14,8 +14,8 @@ on:
         type: boolean
         default: true
 
-permissions:
-  contents: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: signing-test-${{ github.ref }}
@@ -26,6 +26,9 @@ jobs:
     name: 🔏 Test API-based commit and tag signing
     runs-on: ubuntu-26.04
     timeout-minutes: 10
+
+    permissions:
+      contents: write # Create the test commit, release, and tag, and delete them afterwards.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,13 +42,14 @@ jobs:
           echo "::group::ℹ️ Execution context"
           echo "Repository: $REPO"
           echo "Dry run:    $DRY_RUN"
-          echo "Runner OS:  ${{ runner.os }}"
+          echo "Runner OS:  ${RUNNER_OS}"
           echo "::endgroup::"
 
       - name: 📥 Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🔏 Validate API signing prerequisites
         run: |
@@ -61,7 +65,7 @@ jobs:
           TEST_BRANCH="test/signing-$(date +%s)"
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          BASE_SHA=$(gh api "repos/$REPO/git/ref/heads/${{ github.ref_name }}" \
+          BASE_SHA=$(gh api "repos/$REPO/git/ref/heads/${GITHUB_REF_NAME}" \
             --jq '.object.sha')
 
           gh api --method POST "repos/$REPO/git/refs" \
@@ -88,11 +92,11 @@ jobs:
       - name: 🔍 Verify commit signature via API
         if: github.event.inputs.dry_run == 'false'
         id: verify_commit
+        env:
+          COMMIT_SHA: ${{ steps.test_commit.outputs.commit_sha }}
         run: |
           set -Eeuo pipefail
           echo "::group::🔍 Verifying commit signature"
-
-          COMMIT_SHA="${{ steps.test_commit.outputs.commit_sha }}"
 
           VERIFICATION=$(gh api "repos/$REPO/commits/$COMMIT_SHA" \
             --jq '[(.commit.verification.verified | tostring), .commit.verification.reason] | @tsv')
@@ -116,12 +120,13 @@ jobs:
       - name: 🏷️ Create test release and tag via gh release create
         if: github.event.inputs.dry_run == 'false'
         id: test_tag
+        env:
+          TEST_BRANCH: ${{ steps.test_commit.outputs.test_branch }}
         run: |
           set -Eeuo pipefail
           echo "::group::🏷️ Creating release and tag via gh release create"
 
           TEST_TAG="test-signing-$(date +%s)"
-          TEST_BRANCH="${{ steps.test_commit.outputs.test_branch }}"
 
           gh release create "$TEST_TAG" \
             --repo "$REPO" \
@@ -139,11 +144,11 @@ jobs:
       - name: 🔍 Verify tag via underlying commit
         if: github.event.inputs.dry_run == 'false'
         id: verify_tag
+        env:
+          TEST_TAG: ${{ steps.test_tag.outputs.test_tag }}
         run: |
           set -Eeuo pipefail
           echo "::group::🔍 Verifying tag via underlying commit"
-
-          TEST_TAG="${{ steps.test_tag.outputs.test_tag }}"
 
           REF_DATA=$(gh api "repos/$REPO/git/ref/tags/$TEST_TAG" \
             --jq '[.object.type, .object.sha] | @tsv')
@@ -185,12 +190,12 @@ jobs:
 
       - name: 🧹 Cleanup test objects
         if: github.event.inputs.dry_run == 'false'
+        env:
+          TEST_TAG: ${{ steps.test_tag.outputs.test_tag }}
+          TEST_BRANCH: ${{ steps.test_commit.outputs.test_branch }}
         run: |
           set -Eeuo pipefail
           echo "::group::🧹 Cleaning up test release, tag, and branch"
-
-          TEST_TAG="${{ steps.test_tag.outputs.test_tag }}"
-          TEST_BRANCH="${{ steps.test_commit.outputs.test_branch }}"
 
           gh release delete "$TEST_TAG" --repo "$REPO" --yes 2>/dev/null || true
 
@@ -203,6 +208,15 @@ jobs:
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          OVERALL: ${{ job.status == 'success' && '✅' || '❌' }}
+          STEP_VERIFY_COMMIT_COMMIT_VERIFIED: ${{ steps.verify_commit.outputs.commit_verified || 'N/A' }}
+          STEP_VERIFY_TAG_TAG_VERIFIED: ${{ steps.verify_tag.outputs.tag_verified || 'N/A' }}
+          STEP_VERIFY_TAG_TAG_TYPE: ${{ steps.verify_tag.outputs.tag_type || 'N/A' }}
+          STEP_VERIFY_COMMIT_COMMIT_REASON: ${{ steps.verify_commit.outputs.commit_reason || 'unknown' }}
+          STEP_VERIFY_TAG_TAG_COMMIT_SHA: ${{ steps.verify_tag.outputs.tag_commit_sha || 'N/A' }}
+          STEP_TEST_COMMIT_COMMIT_SHA: ${{ steps.test_commit.outputs.commit_sha || 'N/A' }}
+          STEP_TEST_TAG_TEST_TAG: ${{ steps.test_tag.outputs.test_tag || 'N/A' }}
         run: |
           set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
@@ -211,11 +225,11 @@ jobs:
             COMMIT_STATUS="⏭️ Skipped (dry run)"
             TAG_STATUS="⏭️ Skipped (dry run)"
           else
-            COMMIT_VERIFIED="${{ steps.verify_commit.outputs.commit_verified || 'N/A' }}"
-            TAG_VERIFIED="${{ steps.verify_tag.outputs.tag_verified || 'N/A' }}"
-            TAG_TYPE="${{ steps.verify_tag.outputs.tag_type || 'N/A' }}"
-            COMMIT_REASON="${{ steps.verify_commit.outputs.commit_reason || 'unknown' }}"
-            TAG_COMMIT="${{ steps.verify_tag.outputs.tag_commit_sha || 'N/A' }}"
+            COMMIT_VERIFIED="${STEP_VERIFY_COMMIT_COMMIT_VERIFIED}"
+            TAG_VERIFIED="${STEP_VERIFY_TAG_TAG_VERIFIED}"
+            TAG_TYPE="${STEP_VERIFY_TAG_TAG_TYPE}"
+            COMMIT_REASON="${STEP_VERIFY_COMMIT_COMMIT_REASON}"
+            TAG_COMMIT="${STEP_VERIFY_TAG_TAG_COMMIT_SHA}"
 
             if [[ "$COMMIT_VERIFIED" == "true" ]]; then
               COMMIT_STATUS="✅ Verified ($COMMIT_REASON)"
@@ -229,8 +243,6 @@ jobs:
               TAG_STATUS="❌ Not verified ($TAG_TYPE → $TAG_COMMIT)"
             fi
           fi
-
-          OVERALL="${{ job.status == 'success' && '✅' || '❌' }}"
 
           cat << EOF >> "$GITHUB_STEP_SUMMARY"
           ## ${OVERALL} Signing Test Summary
@@ -247,9 +259,9 @@ jobs:
           ### ⚙️ Configuration
 
           - **Dry Run:** \`$DRY_RUN\`
-          - **Commit SHA:** \`${{ steps.test_commit.outputs.commit_sha || 'N/A' }}\`
-          - **Test Tag:** \`${{ steps.test_tag.outputs.test_tag || 'N/A' }}\`
-          - **Workflow Run:** [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - **Commit SHA:** \`${STEP_TEST_COMMIT_COMMIT_SHA}\`
+          - **Test Tag:** \`${STEP_TEST_TAG_TEST_TAG}\`
+          - **Workflow Run:** [View Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
 
           ### 🧩 How It Works
 

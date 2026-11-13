@@ -27,9 +27,8 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: pr-${{ github.event.pull_request.number || github.run_id }}
@@ -40,6 +39,10 @@ jobs:
     name: 🤖 Process pull request events
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+
+    permissions:
+      contents: write # Delete the branch of a pull request that is closed as wontfix.
+      pull-requests: write # Label, comment on, close, and mark pull requests as draft or ready.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -162,15 +165,17 @@ jobs:
     steps:
       - name: 🏁 Initialize workflow context
         id: init
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
         run: |
           set -Eeuo pipefail
           echo "::notice title=Workflow started::🤖 Automation triggered for PR #$PR_NUMBER"
           echo "::group::ℹ️ Context Analysis"
-          echo "Event: ${{ github.event_name }}"
-          echo "Action: ${{ github.event.action }}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
+          echo "Action: ${EVENT_ACTION}"
           echo "Pull Request: #$PR_NUMBER"
           echo "Repository: $REPO"
-          echo "Actor: ${{ github.actor }}"
+          echo "Actor: ${GITHUB_ACTOR}"
           echo "::endgroup::"
 
       - name: 🔍 Check and revert to draft if necessary
@@ -469,6 +474,8 @@ jobs:
         if: |
           github.event_name == 'pull_request' &&
           github.event.action == 'closed'
+        env:
+          EVENT_PULL_REQUEST_MERGED: ${{ github.event.pull_request.merged }}
         run: |
           set -Eeuo pipefail
           echo "::group::🧹 Final cleanup"
@@ -487,7 +494,7 @@ jobs:
               exit 1
             }
 
-          if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
+          if [ "${EVENT_PULL_REQUEST_MERGED}" = "true" ]; then
             gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$MERGED_PULL_REQUEST_MSG"
             echo "action_taken=Cleaned up after merge" >> "$GITHUB_ENV"
           else
@@ -500,23 +507,49 @@ jobs:
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          JOB_STATUS_EMOJI: ${{ job.status == 'success' && '✅' || '❌' }}
+          INIT_STATUS:
+            ${{ steps.init.outcome == 'success' && '✅ Success' || steps.init.outcome == 'skipped' && '⏭️ Skipped' ||
+            '❌ Failed' }}
+          DRAFT_STATUS:
+            ${{ steps.revert_draft.outcome == 'success' && '✅ Success' || steps.revert_draft.outcome == 'skipped' &&
+            '⏭️ Skipped' || '❌ Failed' }}
+          SETUP_STATUS:
+            ${{ steps.setup_new.outcome == 'success' && '✅ Success' || steps.setup_new.outcome == 'skipped' && '⏭️
+            Skipped' || '❌ Failed' }}
+          REOPEN_STATUS:
+            ${{ steps.reopen.outcome == 'success' && '✅ Success' || steps.reopen.outcome == 'skipped' && '⏭️ Skipped'
+            || '❌ Failed' }}
+          TITLE_STATUS:
+            ${{ steps.validate_title.outcome == 'success' && '✅ Success' || steps.validate_title.outcome == 'skipped'
+            && '⏭️ Skipped' || '❌ Failed' }}
+          CHANGES_STATUS:
+            ${{ steps.changes_requested.outcome == 'success' && '✅ Success' || steps.changes_requested.outcome ==
+            'skipped' && '⏭️ Skipped' || '❌ Failed' }}
+          EXTERNAL_STATUS:
+            ${{ steps.external_feedback.outcome == 'success' && '✅ Success' || steps.external_feedback.outcome ==
+            'skipped' && '⏭️ Skipped' || '❌ Failed' }}
+          READY_STATUS:
+            ${{ steps.ready_for_review.outcome == 'success' && '✅ Success' || steps.ready_for_review.outcome ==
+            'skipped' && '⏭️ Skipped' || '❌ Failed' }}
+          BACKLOG_STATUS:
+            ${{ steps.backlog.outcome == 'success' && '✅ Success' || steps.backlog.outcome == 'skipped' && '⏭️ Skipped'
+            || '❌ Failed' }}
+          WONTFIX_STATUS:
+            ${{ steps.wontfix.outcome == 'success' && '✅ Success' || steps.wontfix.outcome == 'skipped' && '⏭️ Skipped'
+            || '❌ Failed' }}
+          CLEANUP_STATUS:
+            ${{ steps.cleanup.outcome == 'success' && '✅ Success' || steps.cleanup.outcome == 'skipped' && '⏭️ Skipped'
+            || '❌ Failed' }}
+          JOB_STATUS: ${{ job.status }}
+          EVENT_ACTION: ${{ github.event.action }}
+          EVENT_PULL_REQUEST_HTML_URL:
+            ${{ github.event.pull_request.html_url || format('{0}/{1}/pull/{2}', github.server_url, github.repository,
+            env.PR_NUMBER) }}
         run: |
           set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
-
-          JOB_STATUS_EMOJI="${{ job.status == 'success' && '✅' || '❌' }}"
-
-          INIT_STATUS="${{ steps.init.outcome == 'success' && '✅ Success' || steps.init.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          DRAFT_STATUS="${{ steps.revert_draft.outcome == 'success' && '✅ Success' || steps.revert_draft.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          SETUP_STATUS="${{ steps.setup_new.outcome == 'success' && '✅ Success' || steps.setup_new.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          REOPEN_STATUS="${{ steps.reopen.outcome == 'success' && '✅ Success' || steps.reopen.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          TITLE_STATUS="${{ steps.validate_title.outcome == 'success' && '✅ Success' || steps.validate_title.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          CHANGES_STATUS="${{ steps.changes_requested.outcome == 'success' && '✅ Success' || steps.changes_requested.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          EXTERNAL_STATUS="${{ steps.external_feedback.outcome == 'success' && '✅ Success' || steps.external_feedback.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          READY_STATUS="${{ steps.ready_for_review.outcome == 'success' && '✅ Success' || steps.ready_for_review.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          BACKLOG_STATUS="${{ steps.backlog.outcome == 'success' && '✅ Success' || steps.backlog.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          WONTFIX_STATUS="${{ steps.wontfix.outcome == 'success' && '✅ Success' || steps.wontfix.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
-          CLEANUP_STATUS="${{ steps.cleanup.outcome == 'success' && '✅ Success' || steps.cleanup.outcome == 'skipped' && '⏭️ Skipped' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🤖 Pull Request Automation Summary
@@ -541,21 +574,21 @@ jobs:
 
           | Metric           | Value                                     |
           | :--------------- | :---------------------------------------- |
-          | **Overall**      | ${JOB_STATUS_EMOJI} ${{ job.status }}     |
+          | **Overall**      | ${JOB_STATUS_EMOJI} ${JOB_STATUS}         |
           | **Action Taken** | ${action_taken:-No state change required} |
           | **PR Number**    | #$PR_NUMBER                               |
 
           ### ⚙️ Runtime Configuration
 
-          - **Trigger Event:** ${{ github.event_name }}
-          - **Event Action:** ${{ github.event.action }}
+          - **Trigger Event:** ${GITHUB_EVENT_NAME}
+          - **Event Action:** ${EVENT_ACTION}
           - **Repository:** $REPO
-          - **Actor:** ${{ github.actor }}
+          - **Actor:** ${GITHUB_ACTOR}
 
           ### 🧩 Workflow Details
 
-          - [View Run Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-          - [View Pull Request](${{ github.event.pull_request.html_url || format('{0}/{1}/pull/{2}', github.server_url, github.repository, env.PR_NUMBER) }})
+          - [View Run Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
+          - [View Pull Request](${EVENT_PULL_REQUEST_HTML_URL})
           EOF
 
           echo "::endgroup::"

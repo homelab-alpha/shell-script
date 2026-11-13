@@ -16,8 +16,8 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  issues: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: issue-${{ github.event.issue.number || github.run_id }}
@@ -28,6 +28,9 @@ jobs:
     name: ℹ️ Automate issue management
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+
+    permissions:
+      issues: write # Comment on, label, and close issues.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,16 +92,18 @@ jobs:
 
     steps:
       - name: 🏁 Initialize workflow and context
+        env:
+          EVENT_ACTION: ${{ github.event.action }}
         run: |
           set -Eeuo pipefail
 
           echo "::notice title=Workflow started::🚀 Processing issue #$ISSUE_NUMBER"
 
           echo "::group::ℹ️ Context"
-          echo "Event: ${{ github.event.action }}"
+          echo "Event: ${EVENT_ACTION}"
           echo "Issue: #$ISSUE_NUMBER"
           echo "Repository: $REPO"
-          echo "Actor: ${{ github.actor }}"
+          echo "Actor: ${GITHUB_ACTOR}"
           echo "::endgroup::"
 
       - name: ✉️ Post welcome message to new issues
@@ -223,12 +228,18 @@ jobs:
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          FINAL_STATUS: ${{ job.status == 'success' && '✅ Success' || '❌ Failed' }}
+          EVENT_ACTION: ${{ github.event.action }}
+          STEP_WELCOME_STEP_OUTCOME: ${{ steps.welcome_step.outcome || '⏭️ Skipped' }}
+          STEP_REOPEN_STEP_OUTCOME: ${{ steps.reopen_step.outcome || '⏭️ Skipped' }}
+          STEP_BACKLOG_STEP_OUTCOME: ${{ steps.backlog_step.outcome || '⏭️ Skipped' }}
+          STEP_WONTFIX_STEP_OUTCOME: ${{ steps.wontfix_step.outcome || '⏭️ Skipped' }}
+          STEP_CLEANUP_STEP_OUTCOME: ${{ steps.cleanup_step.outcome || '⏭️ Skipped' }}
         run: |
           set -Eeuo pipefail
 
           echo "::group::📝 Generating summary report"
-
-          FINAL_STATUS="${{ job.status == 'success' && '✅ Success' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🤖 Issue Automation Summary
@@ -237,26 +248,26 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Metric              | Detail                         |
-          | :------------------ | :----------------------------- |
-          | 🎯 **Event Action** | \`${{ github.event.action }}\` |
-          | 🆔 **Issue Target** | #$ISSUE_NUMBER                 |
-          | 📂 **Repository**   | $REPO                          |
-          | 🚥 **Final Status** | $FINAL_STATUS                  |
+          | Metric              | Detail              |
+          | :------------------ | :------------------ |
+          | 🎯 **Event Action** | \`${EVENT_ACTION}\` |
+          | 🆔 **Issue Target** | #$ISSUE_NUMBER      |
+          | 📂 **Repository**   | $REPO               |
+          | 🚥 **Final Status** | $FINAL_STATUS       |
 
           ### 🧩 Step Outcomes
 
-          | Step                | Result                                            |
-          | :------------------ | :------------------------------------------------ |
-          | ✉️ Welcome Message  | ${{ steps.welcome_step.outcome || '⏭️ Skipped' }} |
-          | 🏷️ Reopen Label     | ${{ steps.reopen_step.outcome  || '⏭️ Skipped' }} |
-          | 🔄 Backlog Update   | ${{ steps.backlog_step.outcome || '⏭️ Skipped' }} |
-          | ❌ Wontfix          | ${{ steps.wontfix_step.outcome || '⏭️ Skipped' }} |
-          | 🧹 Priority Cleanup | ${{ steps.cleanup_step.outcome || '⏭️ Skipped' }} |
+          | Step                | Result                       |
+          | :------------------ | :--------------------------- |
+          | ✉️ Welcome Message  | ${STEP_WELCOME_STEP_OUTCOME} |
+          | 🏷️ Reopen Label     | ${STEP_REOPEN_STEP_OUTCOME}  |
+          | 🔄 Backlog Update   | ${STEP_BACKLOG_STEP_OUTCOME} |
+          | ❌ Wontfix          | ${STEP_WONTFIX_STEP_OUTCOME} |
+          | 🧹 Priority Cleanup | ${STEP_CLEANUP_STEP_OUTCOME} |
 
           ---
 
-          *Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})*
+          *Workflow Run: [View Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})*
           EOF
 
           echo "::endgroup::"

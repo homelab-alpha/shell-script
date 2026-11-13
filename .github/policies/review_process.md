@@ -85,7 +85,7 @@ the pull request to communicate the delay and an estimated timeline.
 
 Every pull request targeting `main` triggers the following automated checks. The
 full Super Linter (`lint_repository.yml`) runs on `main` after the merge and
-adds actionlint, Gitleaks, Checkov, and the other linters:
+adds actionlint, zizmor, Gitleaks, Checkov, and the other linters:
 
 | Check               | Workflow                | Purpose                                                                                              |
 | :------------------ | :---------------------- | :--------------------------------------------------------------------------------------------------- |

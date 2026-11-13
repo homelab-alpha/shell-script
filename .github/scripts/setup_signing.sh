@@ -108,7 +108,7 @@ setup_gpg_signing() {
   if [[ -n "${GPG_PASSPHRASE:-}" ]]; then
     import_output=$(echo "$GPG_PRIVATE_KEY" | base64 -d \
       | gpg --batch --yes --pinentry-mode loopback \
-            --passphrase "$GPG_PASSPHRASE" --import 2>&1) || {
+            --passphrase-fd 3 --import 3<<<"$GPG_PASSPHRASE" 2>&1) || {
       echo "::error title=GPG import failed::❌ Failed to import GPG key with passphrase."
       echo "$import_output"
       echo "::endgroup::"
@@ -164,14 +164,14 @@ AGENT_EOF
     # Preset the passphrase so git commit/tag won't prompt
     local keygrip
     keygrip=$(gpg --with-keygrip --list-secret-keys "$gpg_key_id" 2>/dev/null \
-      | grep -A1 '^sec' \
+      | grep -A2 '^sec' \
       | grep 'Keygrip' \
       | awk '{print $3}')
 
     if [[ -n "$keygrip" ]]; then
       local hex_passphrase
       hex_passphrase=$(echo -n "$GPG_PASSPHRASE" | xxd -p | tr -d '\n')
-      gpg-connect-agent "PRESET_PASSPHRASE $keygrip -1 $hex_passphrase" /bye 2>/dev/null || true
+      gpg-connect-agent <<<"PRESET_PASSPHRASE $keygrip -1 $hex_passphrase" >/dev/null 2>&1 || true
     fi
   fi
 

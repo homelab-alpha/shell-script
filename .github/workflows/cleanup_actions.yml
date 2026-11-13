@@ -26,9 +26,8 @@ on:
         default: 28
         type: number
 
-permissions:
-  actions: write
-  contents: read
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: cleanup-actions-${{ github.repository || github.run_id }}
@@ -39,6 +38,9 @@ jobs:
     name: 🧹 Execute cleanup tasks
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+
+    permissions:
+      actions: write # Delete old Actions caches and old workflow runs.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -44,10 +44,8 @@ on:
         type: boolean
         default: false
 
-permissions:
-  contents: write
-  discussions: write
-  pull-requests: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: release-${{ github.ref }}
@@ -59,10 +57,15 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 15
 
+    permissions:
+      contents: write # Commit the changelog change, and create the release and its tag.
+      discussions: write # Post the release announcement in Discussions.
+      pull-requests: write # Open the pull request for the CHANGELOG.md change.
+
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-      REVIEWER: "homelab-alpha"
+      REVIEWER: ${{ github.repository_owner }}
       BUMP_TYPE: ${{ inputs.bump_type }}
       RELEASE_TYPE: ${{ inputs.release_type }}
       DRY_RUN: ${{ inputs.dry_run }}
@@ -83,6 +86,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 🔢 Calculate new version
         id: versioning
@@ -610,11 +614,11 @@ jobs:
         if: inputs.dry_run == false
         id: push_step
         shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
         run: |
           set -Eeuo pipefail
           echo "::group::💾 Publishing release"
-
-          NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
 
           # Alpha, beta, and rc are prereleases and never Latest. A release is Latest.
           PRERELEASE_FLAG=""
@@ -625,7 +629,7 @@ jobs:
           fi
 
           gh release create "$NEW_TAG" \
-            --target "${{ github.ref_name }}" \
+            --target "${GITHUB_REF_NAME}" \
             --title "$NEW_TAG" \
             --notes-file release_notes.md \
             $PRERELEASE_FLAG \
@@ -639,11 +643,12 @@ jobs:
           inputs.dry_run == false && inputs.post_announcement == true && steps.push_step.outcome == 'success'
         id: announcement
         shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
         run: |
           set -Eeuo pipefail
           echo "::group::📣 Posting announcement to GitHub Discussions"
 
-          NEW_TAG="${{ steps.versioning.outputs.new_tag }}"
           RELEASE_URL="https://github.com/${REPO}/releases/tag/${NEW_TAG}"
 
           REPO_ID=$(gh api graphql \
@@ -722,59 +727,61 @@ jobs:
       - name: 📊 Generate job summary
         if: always()
         shell: bash
+        env:
+          VER_STATUS: ${{ steps.versioning.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          LOG_STATUS: ${{ steps.changelog.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          OVERALL_ICON: ${{ job.status == 'success' && steps.changelog_pr.outcome != 'failure' && '✅' || '❌' }}
+          DISCUSSION_URL: ${{ steps.announcement.outputs.discussion_url || '' }}
+          PR_URL: ${{ steps.changelog_pr.outputs.pr_url || '' }}
+          OLD_TAG: ${{ steps.versioning.outputs.old_tag || 'N/A' }}
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag || 'N/A' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          STEP_CHANGELOG_PR_OUTCOME: ${{ steps.changelog_pr.outcome }}
+          STEP_PUSH_STEP_OUTCOME: ${{ steps.push_step.outcome }}
+          STEP_ANNOUNCEMENT_OUTCOME: ${{ steps.announcement.outcome }}
         run: |
           set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
-
-          VER_STATUS="${{ steps.versioning.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
-          LOG_STATUS="${{ steps.changelog.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
           if [[ "$DRY_RUN" == "true" ]]; then
             PR_STATUS="⏭️ Skipped (dry run)"
             REL_STATUS="⏭️ Skipped (dry run)"
           else
-            case "${{ steps.changelog_pr.outcome }}" in
+            case "${STEP_CHANGELOG_PR_OUTCOME}" in
               success) PR_STATUS="✅ Success" ;;
               skipped) PR_STATUS="⏭️ Skipped (prerelease)" ;;
               *) PR_STATUS="❌ Failed" ;;
             esac
 
-            if [[ "${{ steps.push_step.outcome }}" == "success" ]]; then
+            if [[ "${STEP_PUSH_STEP_OUTCOME}" == "success" ]]; then
               REL_STATUS="✅ Success"
             else
               REL_STATUS="❌ Failed"
             fi
           fi
 
-          if [[ "${{ steps.announcement.outcome }}" == "success" ]]; then
+          if [[ "${STEP_ANNOUNCEMENT_OUTCOME}" == "success" ]]; then
             ANN_STATUS="✅ Success"
-          elif [[ "${{ steps.announcement.outcome }}" == "skipped" ]]; then
+          elif [[ "${STEP_ANNOUNCEMENT_OUTCOME}" == "skipped" ]]; then
             ANN_STATUS="⏭️ Skipped"
           else
             ANN_STATUS="❌ Failed"
           fi
 
-          OVERALL_ICON="${{ job.status == 'success' && steps.changelog_pr.outcome != 'failure' && '✅' || '❌' }}"
-
-          DISCUSSION_URL="${{ steps.announcement.outputs.discussion_url || '' }}"
           ANN_LINK=""
           if [[ -n "$DISCUSSION_URL" ]]; then
             ANN_LINK=" — [View Discussion](${DISCUSSION_URL})"
           fi
 
-          PR_URL="${{ steps.changelog_pr.outputs.pr_url || '' }}"
           PR_LINK=""
           if [[ -n "$PR_URL" ]]; then
             PR_LINK=" — [View PR](${PR_URL})"
           fi
 
-          OLD_TAG="${{ steps.versioning.outputs.old_tag || 'N/A' }}"
-          NEW_TAG="${{ steps.versioning.outputs.new_tag || 'N/A' }}"
           EXEC_TIME="$(date -u)"
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           PR_NOTE=""
-          if [[ "${{ steps.changelog_pr.outcome }}" == "failure" ]]; then
+          if [[ "${STEP_CHANGELOG_PR_OUTCOME}" == "failure" ]]; then
             PR_NOTE="- **Changelog pull request failed.** The release was still published. Check that Settings, Actions, General, Workflow permissions allows GitHub Actions to create pull requests, then open the pull request from the \`chore/changelog-${NEW_TAG}\` branch."
           fi
 
@@ -785,12 +792,12 @@ jobs:
 
           ### 📈 Pipeline Results
 
-          | Phase            |          Status          | Action              |
+          | Phase            | Status                   | Action              |
           | :--------------- | :----------------------: | :------------------ |
-          | 🔢 Versioning    |      ${VER_STATUS}       | Calculate New Tag   |
-          | 📖 Documentation |      ${LOG_STATUS}       | Generate Changelog  |
+          | 🔢 Versioning    | ${VER_STATUS}            | Calculate New Tag   |
+          | 📖 Documentation | ${LOG_STATUS}            | Generate Changelog  |
           | 💾 Pull Request  | ${PR_STATUS}${PR_LINK}   | Create Changelog PR |
-          | 🚀 Distribution  |      ${REL_STATUS}       | GH CLI Release      |
+          | 🚀 Distribution  | ${REL_STATUS}            | GH CLI Release      |
           | 📣 Announcement  | ${ANN_STATUS}${ANN_LINK} | Post to Discussions |
 
           ### ⚙️ Runtime Configuration

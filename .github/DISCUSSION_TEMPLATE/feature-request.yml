@@ -56,7 +56,7 @@ body:
       description: >
         Describe the problem or limitation you are experiencing. A clear problem statement helps us understand the motivation behind your request. Focus on the *why*, not the *what*.
       placeholder: |
-        e.g., I often find myself manually copying memory entries between sessions because there is no way to export them in bulk. This is time-consuming and error-prone.
+        e.g., I often copy entries between projects by hand because there is no way to export them in bulk. This is time-consuming and error-prone.
 
   - type: textarea
     id: feature-summary
@@ -67,7 +67,7 @@ body:
       description: >
         Provide a brief, clear summary of the feature or improvement you are proposing. What should it do?
       placeholder: |
-        e.g., Add a bulk export command that serializes all archived memories to a single JSON file.
+        e.g., Add a bulk export command that writes all entries to a single JSON file.
 
   - type: textarea
     id: proposed-solution
@@ -78,7 +78,7 @@ body:
       description: >
         If you have an idea of how this feature could be implemented, describe it here. Include technical details, mockups, or examples if possible. This field is optional — a well-described problem is enough.
       placeholder: |
-        e.g., A new CLI command `memory-archive export --output archive.json` that iterates over all entries in `data/` and writes them to a single file.
+        e.g., A new CLI command `export --output export.json` that reads all entries and writes them to a single file.
 
   - type: textarea
     id: alternatives-considered
@@ -89,7 +89,7 @@ body:
       description: >
         Have you considered any alternative solutions or workarounds? If so, describe them and explain why they do not fully address the problem.
       placeholder: |
-        e.g., I tried manually copying files from the `data/` directory, but this does not preserve metadata and is not scriptable.
+        e.g., I tried copying the files by hand, but this does not preserve metadata and is not scriptable.
 
   - type: dropdown
     id: scope

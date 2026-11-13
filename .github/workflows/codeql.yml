@@ -21,11 +21,8 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  security-events: write
-  packages: read
-  actions: read
-  contents: read
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: codeql-${{ github.ref || github.run_id }}
@@ -41,6 +38,12 @@ jobs:
     # workflow replaces that history, so nothing should run for it.
     if: |
       github.event.created != true
+
+    permissions:
+      security-events: write # Upload the CodeQL results to code scanning.
+      packages: read # Download CodeQL query packs (needed on a private repository).
+      actions: read # Read the workflow run details (needed on a private repository).
+      contents: read
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,18 +62,23 @@ jobs:
 
     steps:
       - name: 🏁 Notify start of analysis
+        env:
+          MATRIX_LANGUAGE: ${{ matrix.language }}
+          MATRIX_BUILD_MODE: ${{ matrix.build-mode }}
         run: |
-          echo "::notice title=CodeQL Started::🔍 Starting security scan for ${{ matrix.language }}"
+          echo "::notice title=CodeQL Started::🔍 Starting security scan for ${MATRIX_LANGUAGE}"
           echo "::group::ℹ️ Environment Details"
-          echo "Language: ${{ matrix.language }}"
-          echo "Build Mode: ${{ matrix.build-mode }}"
-          echo "Runner: ${{ runner.os }}"
-          echo "Repository: ${{ github.repository }}"
-          echo "Ref: ${{ github.ref }}"
+          echo "Language: ${MATRIX_LANGUAGE}"
+          echo "Build Mode: ${MATRIX_BUILD_MODE}"
+          echo "Runner: ${RUNNER_OS}"
+          echo "Repository: ${GITHUB_REPOSITORY}"
+          echo "Ref: ${GITHUB_REF}"
           echo "::endgroup::"
 
       - name: 📥 Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: 🏗️ Initialize CodeQL
         id: codeql_init
@@ -100,16 +108,20 @@ jobs:
 
       - name: 🚨 Log analysis failure
         if: failure()
+        env:
+          MATRIX_LANGUAGE: ${{ matrix.language }}
         run: |
-          echo "::error title=CodeQL Failed::❌ CodeQL analysis failed for ${{ matrix.language }}. Check the logs for details."
+          echo "::error title=CodeQL Failed::❌ CodeQL analysis failed for ${MATRIX_LANGUAGE}. Check the logs for details."
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          INIT_STATUS: ${{ steps.codeql_init.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          ANALYSIS_STATUS: ${{ steps.codeql_analysis.outcome == 'success' && '✅ Success' || '❌ Failed' }}
+          MATRIX_LANGUAGE: ${{ matrix.language }}
+          MATRIX_BUILD_MODE: ${{ matrix.build-mode }}
         run: |
           echo "::group::📊 Generating Summary Report"
-
-          INIT_STATUS="${{ steps.codeql_init.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
-          ANALYSIS_STATUS="${{ steps.codeql_analysis.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🛡️ CodeQL Analysis Summary
@@ -118,24 +130,24 @@ jobs:
 
           ### 📈 Scan Results
 
-          | Component         | Detail                   | Result           |
-          | :---------------- | :----------------------- | :--------------- |
-          | 🏗️ Initialization | CodeQL database setup    | $INIT_STATUS     |
-          | 🔐 Security Scan  | ${{ matrix.language }}   | $ANALYSIS_STATUS |
-          | ⚙️ Build Mode     | ${{ matrix.build-mode }} | ✅ Configured    |
+          | Component         | Detail                | Result           |
+          | :---------------- | :-------------------- | :--------------- |
+          | 🏗️ Initialization | CodeQL database setup | $INIT_STATUS     |
+          | 🔐 Security Scan  | ${MATRIX_LANGUAGE}    | $ANALYSIS_STATUS |
+          | ⚙️ Build Mode     | ${MATRIX_BUILD_MODE}  | ✅ Configured    |
 
           ### ⚙️ Runtime Configuration
 
-          - **Language:** ${{ matrix.language }}
-          - **Build Mode:** ${{ matrix.build-mode }}
-          - **Runner OS:** ${{ runner.os }}
-          - **Database Category:** /language:${{ matrix.language }}
-          - **Ref:** ${{ github.ref }}
+          - **Language:** ${MATRIX_LANGUAGE}
+          - **Build Mode:** ${MATRIX_BUILD_MODE}
+          - **Runner OS:** ${RUNNER_OS}
+          - **Database Category:** /language:${MATRIX_LANGUAGE}
+          - **Ref:** ${GITHUB_REF}
 
           ### 🧩 Notes
 
           - Results are uploaded to the **Security** tab under Code Scanning alerts.
-          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - Workflow Run: [View Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
           EOF
 
           echo "::endgroup::"

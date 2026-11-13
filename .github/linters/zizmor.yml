@@ -1,0 +1,18 @@
+---
+# Configuration of zizmor, the security linter for GitHub Actions workflows.
+# Run it by hand with:
+#   zizmor --offline --config .github/linters/zizmor.yml .github/workflows
+rules:
+  dangerous-triggers:
+    # zizmor reports every workflow_run and issue_comment trigger, because they run with the
+    # token of the repository and are often used with data of an outsider. These two workflows
+    # were reviewed and are safe. Review them again when the trigger or the steps change.
+    ignore:
+      # workflow_run: starts only after Lint Repository or CodeQL has finished for main. The job
+      # downloads no artifact and checks out no ref of the triggering run. It uses only the
+      # conclusion of that run, which is a fixed value.
+      - badges.yml
+      # issue_comment: any user can comment. The job uses only the issue number (through env) and
+      # the issue state. It uses no text of the comment, checks out no code, and has only
+      # issues: write, to remove the "needs input" label.
+      - unreproducible_issues.yml
