@@ -13,9 +13,8 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pull-requests: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: dependency-review-${{ github.event.pull_request.number || github.run_id }}
@@ -26,6 +25,10 @@ jobs:
     name: 🔒 Scan Dependencies for Vulnerabilities
     runs-on: ubuntu-26.04
     timeout-minutes: 15
+
+    permissions:
+      contents: read
+      pull-requests: write # Let the action comment the summary on the pull request when it fails.
 
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -93,10 +96,10 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Metric                | Value                                        | Result           |
-          | :-------------------- | :------------------------------------------- | :--------------- |
-          | 🔍 Vulnerability Scan | Severity threshold: moderate                 | ${REVIEW_RESULT} |
-          | 📜 License Check      | Allowlist enforced (see workflow)            | ${REVIEW_RESULT} |
+          | Metric                | Value                             | Result           |
+          | :-------------------- | :-------------------------------- | :--------------- |
+          | 🔍 Vulnerability Scan | Severity threshold: moderate      | ${REVIEW_RESULT} |
+          | 📜 License Check      | Allowlist enforced (see workflow) | ${REVIEW_RESULT} |
 
           ### ⚙️ Runtime Configuration
 

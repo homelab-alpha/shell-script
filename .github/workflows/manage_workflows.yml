@@ -1,0 +1,267 @@
+---
+name: 🎛️ Manage Workflows
+
+# Switches the other workflows on or off, one checkbox per workflow. A workflow that is switched off
+# does not start at all, so it costs no Actions minutes and shows no runs. It is the same as the
+# Enable and Disable buttons on the Actions tab, but for all workflows in one run.
+#
+# A checkbox is the state the workflow gets: ticked is on, empty is off. Every checkbox starts empty,
+# so a run without any tick switches every workflow off. Run it again with the full list whenever
+# you want to change it. The summary shows what changed.
+#
+# The state of a workflow (on or off) is a setting of GitHub, not part of the files, so a copy of the
+# template starts with all workflows on. The Initialize Repository workflow switches every workflow
+# off, except this one, when it initializes a repository that was created from the template. This
+# workflow itself stays on and is not in the list.
+#
+# The names of the checkboxes are the names of the files in .github/workflows without the extension.
+# A new workflow needs a checkbox here, otherwise the summary lists it as not managed. GitHub allows
+# 25 checkboxes per workflow, so this file has room for a few more.
+#
+# Some workflows depend on each other. Badges reads the results of Lint Repository and CodeQL. Release
+# Manager and Update Changelog work together on CHANGELOG.md. A branch rule that requires the checks of
+# a workflow that is off blocks every pull request, because those checks never report.
+
+on:
+  workflow_dispatch:
+    inputs:
+      # Releases and the changelog
+      release_manager:
+        description: "🚀 Release Manager: releases, tags, and announcements"
+        type: boolean
+        default: false
+      update_changelog:
+        description: "📖 Update Changelog: adds merged pull requests to CHANGELOG.md (every 8 hours)"
+        type: boolean
+        default: false
+      milestone_manager:
+        description: "🎯 Milestone Manager: milestones and ROADMAP.md"
+        type: boolean
+        default: false
+      contributors:
+        description: "👥 Update Contributors: CONTRIBUTORS.md"
+        type: boolean
+        default: false
+      # Pull requests
+      pull_request:
+        description: "🤖 Pull Request Automation: welcome, title check, and merge messages"
+        type: boolean
+        default: false
+      lint_pull_request:
+        description: "🧹 Lint Pull Request: Prettier, textlint, and conflict markers"
+        type: boolean
+        default: false
+      merge_conflicts:
+        description: "⚔️ Detect Merge Conflicts: labels pull requests with conflicts"
+        type: boolean
+        default: false
+      dependency_review:
+        description: "🔒 Dependency Review: checks the dependencies of a pull request"
+        type: boolean
+        default: false
+      # Code quality and security
+      lint_repository:
+        description: "🔍 Lint Repository: Super Linter on pushes to main"
+        type: boolean
+        default: false
+      codeql:
+        description: "🛡️ CodeQL Security Analysis (needs code scanning)"
+        type: boolean
+        default: false
+      badges:
+        description: "🏷️ Update Badges: README badges on the badges branch"
+        type: boolean
+        default: false
+      signing_test:
+        description: "🔏 Test Signing Verification"
+        type: boolean
+        default: false
+      # Issues and clean-up
+      issues:
+        description: "🤖 Issue Automation"
+        type: boolean
+        default: false
+      stale_issues_and_pull_requests:
+        description: "🕵️ Manage Stale Issues and Pull Requests (scheduled)"
+        type: boolean
+        default: false
+      unreproducible_issues:
+        description: "🕵️ Manage Unreproducible Issues (scheduled)"
+        type: boolean
+        default: false
+      sync_labels:
+        description: "🏷️ Synchronize Repository Labels"
+        type: boolean
+        default: false
+      cleanup_actions:
+        description: "🧹 Clean Up Actions: old caches and workflow runs (scheduled)"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Simulation (do not change any workflow)"
+        type: boolean
+        default: false
+
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
+
+concurrency:
+  group: manage-workflows-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  switch:
+    name: 🎛️ Switch the workflows on or off
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+
+    permissions:
+      actions: write # Enable and disable the workflows through the API.
+
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      INPUTS: ${{ toJSON(inputs) }}
+
+    steps:
+      - name: 🏁 Notify start of process
+        env:
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          echo "::notice title=Workflow started::🎛️ Switching workflows of $REPO"
+          echo "::group::ℹ️ Execution context"
+          echo "Repository: $REPO"
+          echo "Triggered by: ${GITHUB_ACTOR}"
+          echo "Dry run: ${INPUT_DRY_RUN}"
+          echo "::endgroup::"
+
+      - name: 🎛️ Switch the workflows
+        id: switch
+        run: |
+          set -Eeuo pipefail
+          echo "::group::🎛️ Switching workflows"
+
+          python3 - <<'PY'
+          import json
+          import os
+          import subprocess
+          import sys
+
+          repo = os.environ["REPO"]
+          wanted = json.loads(os.environ["INPUTS"])
+          dry_run = bool(wanted.pop("dry_run", False))
+          directory = ".github/workflows/"
+
+
+          def gh(*args):
+              result = subprocess.run(["gh", *args], capture_output=True, text=True)
+              return result.returncode, result.stdout, result.stderr
+
+
+          def note(level, title, message):
+              print(f"::{level} title={title}::{message}")
+
+
+          code, out, err = gh("api", f"repos/{repo}/actions/workflows?per_page=100")
+          if code != 0:
+              note("error", "Workflows not readable", f"❌ The workflows could not be read: {err.strip()}")
+              sys.exit(1)
+          found = {
+              item["path"][len(directory):]: item
+              for item in json.loads(out)["workflows"]
+              if item["path"].startswith(directory)
+          }
+
+          rows, failed, changed = [], 0, 0
+          for key, value in wanted.items():
+              want_on = str(value).lower() == "true"
+              item = found.get(f"{key}.yml")
+              label = f"`{key}.yml`"
+              if item is None:
+                  rows.append((label, "—", "—", "⏭️ File not found"))
+                  note("warning", "Not found", f"⚠️ {key}.yml is not in {directory}, so there is nothing to switch")
+                  continue
+
+              is_on = item["state"] == "active"
+              before = "on" if is_on else "off"
+              after = "on" if want_on else "off"
+              if is_on == want_on:
+                  rows.append((label, before, after, "✅ Unchanged"))
+                  continue
+
+              if dry_run:
+                  rows.append((label, before, after, f"🔍 Would switch {after}"))
+                  continue
+
+              action = "enable" if want_on else "disable"
+              code, _, err = gh("api", "--method", "PUT", f"repos/{repo}/actions/workflows/{item['id']}/{action}")
+              if code != 0:
+                  failed += 1
+                  rows.append((label, before, after, "❌ Failed"))
+                  note("error", "Switch failed", f"❌ {key}.yml could not be switched {after}: {err.strip()}")
+                  continue
+              changed += 1
+              rows.append((label, before, after, f"🔄 Switched {after}"))
+              note("notice", "Switched", f"🎛️ {key}.yml is switched {after}")
+
+          # Workflows in the folder that have no checkbox. This workflow itself is left out on purpose.
+          unmanaged = sorted(name for name in found if name != "manage_workflows.yml" and name[:-4] not in wanted)
+          for name in unmanaged:
+              note("warning", "Not managed", f"⚠️ {name} has no checkbox in manage_workflows.yml, so this workflow does not switch it")
+
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "master_table.md"), "w", encoding="utf-8") as handle:
+              handle.write("| Workflow | Was | Wanted | Result |\n| :------- | :-: | :----: | :----- |\n")
+              for row in rows:
+                  handle.write("| " + " | ".join(row) + " |\n")
+              if unmanaged:
+                  handle.write("\nNot managed (no checkbox in `manage_workflows.yml`): " + ", ".join(f"`{n}`" for n in unmanaged) + "\n")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(f"changed={changed}\nfailed={failed}\n")
+
+          if failed:
+              sys.exit(1)
+          PY
+
+          echo "::endgroup::"
+
+      - name: 📊 Generate job summary
+        if: always()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SWITCH: ${{ steps.switch.outcome }}
+          CHANGED: ${{ steps.switch.outputs.changed }}
+          FAILED: ${{ steps.switch.outputs.failed }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          OVERALL: ${{ job.status == 'success' && '✅' || '❌' }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::📊 Generating Summary Report"
+
+          MODE="${DRY_RUN/true/Dry run (nothing changed)}"
+          MODE="${MODE/false/Live}"
+
+          TABLE="No result"
+          if [[ -f "$RUNNER_TEMP/master_table.md" ]]; then
+            TABLE=$(cat "$RUNNER_TEMP/master_table.md")
+          fi
+
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## ${OVERALL} Manage Workflows Summary
+
+          Execution completed at: $(date -u)
+
+          ### 📈 Workflows
+
+          ${TABLE}
+
+          ### ⚙️ Runtime Configuration
+
+          - **Mode:** ${MODE}
+          - **Switched:** ${CHANGED:-0}
+          - **Failed:** ${FAILED:-0}
+
+          - Workflow Run: [View Details](${RUN_URL})
+          EOF
+
+          echo "::endgroup::"

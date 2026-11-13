@@ -1,7 +1,7 @@
 # GitHub Actions
 
 - **Policy ID:** ENG-CI-001
-- **Version:** 1.4.0
+- **Version:** 1.7.0
 - **Status:** Active
 - **Effective Date:** 2026-10-29
 - **Owner:** Homelab-Alpha
@@ -89,15 +89,35 @@ signal is added.
 
 ### Permissions
 
-- Every workflow or job **must** declare explicit `permissions`.
+- Every workflow **must** declare `permissions: {}` at the workflow level, and
+  every job **must** declare the `permissions` it needs. Default permissions
+  should never be relied upon implicitly.
 - Follow the **principle of least privilege**: grant only the permissions
   required for the job to complete.
-- Default permissions should never be relied upon implicitly.
+- Never grant a write permission at the workflow level. This includes
+  `id-token: write` and `pages: write`: a job added later would get them without
+  anyone choosing so.
+- A workflow-level block with read permissions only is allowed when every job of
+  the workflow needs them, for example `contents: read`.
+- Explain every permission with a short comment on the same line, saying what
+  the job does with it. Only `contents: read` needs no comment. A reader should
+  not have to search the steps to find out why a job can write. zizmor reports a
+  missing comment with `--persona pedantic` (`undocumented-permissions`). Super
+  Linter does not use that persona, so run it by hand.
 
 ```yaml
-permissions:
-  contents: read
-  issues: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
+
+jobs:
+  cleanup:
+    name: 🔍 Process stale items
+    runs-on: ubuntu-26.04
+    timeout-minutes: 15
+
+    permissions:
+      contents: read
+      issues: write # Label, comment on, and close stale issues.
 ```
 
 ### Concurrency
@@ -141,6 +161,42 @@ jobs:
 - A runner image cannot be pinned to a SHA. Use a versioned label such as
   `ubuntu-26.04` in `runs-on`, never `ubuntu-latest` or `macos-latest`, so a
   change of the image is a reviewed change and not a silent migration.
+
+### Expressions in Scripts
+
+- A `run:` block **must not** contain a template expression (`${{ ... }}`).
+  GitHub fills in the expression before the shell reads the script, so the value
+  becomes a part of the code. A branch name or a title with shell characters
+  would then run as a command.
+- Pass the value through `env:` of the step and use the shell variable. For
+  values that the runner already exports, use that variable: `$GITHUB_ACTOR`,
+  `$GITHUB_REF_NAME`, `$GITHUB_REPOSITORY`, `$RUNNER_OS`, and so on.
+- Validate an input before you use it as a number. The shell evaluates the text
+  of a variable as an expression in arithmetic (`$(( ))`, `(( ))`, and the
+  numeric tests of `[[ ]]`), so a value such as `a[$(command)]` would run the
+  command. Stop with an error unless the value matches `^[0-9]+$`.
+
+```yaml
+- name: 🚀 Create the release
+  env:
+    NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+  run: |
+    gh release create "$NEW_TAG" --target "$GITHUB_REF_NAME"
+```
+
+### Checkout Credentials
+
+- Every `actions/checkout` step **must** set `persist-credentials: false`.
+  Without it the token stays in `.git/config`, where every later step can read
+  it. The workflows change the repository through the GitHub API with
+  `GH_TOKEN`, so they do not need the stored token.
+
+```yaml
+- name: 📥 Checkout repository
+  uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+  with:
+    persist-credentials: false
+```
 
 ### Bots
 
@@ -230,7 +286,8 @@ that cannot be replicated with the permitted tools above:
   and of Dart Sass from their releases on GitHub, because the build of the site
   needs both. The workflow **must** verify each download with SHA-256 before it
   installs it: Hugo against the checksums file of the release, and Dart Sass
-  against a SHA-256 that is set in the workflow next to its version.
+  against the SHA-256 digest that GitHub records for the release asset (read
+  with `gh api`), so Renovate can update the version on its own.
 - Requests for new tooling exceptions **must** include a justification
   explaining why the task cannot be accomplished with the permitted tools.
 
@@ -419,6 +476,11 @@ if ! gh api --method POST "repos/$REPO/pulls/$PR_NUMBER/requested_reviewers" \
   echo "::warning title=Reviewer not requested::⚠️ Review could not be requested."
 fi
 ```
+
+Set `REVIEWER` in the `env` of the job to `${{ github.repository_owner }}`.
+Never put a template placeholder in a workflow file: `init.sh` would fill it in,
+and the `GITHUB_TOKEN` cannot commit a change to a workflow file, so the
+Initialize Repository workflow would fail.
 
 ### Multi-file Commits via GraphQL
 
@@ -727,6 +789,10 @@ Use emojis consistently across all summaries to improve scannability:
 | 🗑️     | Deletion or cleanup        |
 | 🔍     | Scanning or analysis       |
 | ⏭️     | Skipped                    |
+| 🔏     | Signing or verification    |
+
+The emoji reference in [`logs.md`](./logs.md#emoji-reference) is the canonical
+table. Keep both tables the same.
 
 ### Reference Implementation (Normative)
 
@@ -767,9 +833,8 @@ on:
         default: 3
         type: number
 
-permissions:
-  issues: write
-  pull-requests: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: stale-${{ github.ref }}
@@ -781,8 +846,13 @@ jobs:
     runs-on: ubuntu-26.04
         timeout-minutes: 15
 
+    permissions:
+      issues: write # Label, comment on, and close stale issues.
+      pull-requests: write # Label, comment on, and close stale pull requests.
+
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
       DAYS_BEFORE_STALE_ISSUES:
         ${{ github.event.inputs.days_before_stale_issue || '11' }}
       DAYS_BEFORE_CLOSE_ISSUES:
@@ -797,9 +867,9 @@ jobs:
         run: |
           echo "::notice title=Workflow started::🔍 Stale processing started"
           echo "::group::ℹ️ Execution context"
-          echo "Repository: ${{ github.repository }}"
-          echo "Workflow ref: ${{ github.ref }}"
-          echo "Runner OS: ${{ runner.os }}"
+          echo "Repository: $REPO"
+          echo "Workflow ref: $GITHUB_REF"
+          echo "Runner OS: $RUNNER_OS"
           echo "::endgroup::"
 
       - name: 🔍 Process stale issues
@@ -807,10 +877,10 @@ jobs:
         run: |
           echo "::group::🔍 Stale issue detection"
           gh issue list \
-            --repo "${{ github.repository }}" \
+            --repo "$REPO" \
             --state open \
             --json number,updatedAt,labels \
-            --jq '.[] | select(.updatedAt < (now - ($DAYS_BEFORE_STALE_ISSUES | tonumber * 86400) | todate))' \
+            --jq '.[] | select(.updatedAt < (now - (env.DAYS_BEFORE_STALE_ISSUES | tonumber * 86400) | todate))' \
             || true
           echo "::endgroup::"
 
@@ -819,20 +889,24 @@ jobs:
         run: |
           echo "::group::🔍 Stale PR detection"
           gh pr list \
-            --repo "${{ github.repository }}" \
+            --repo "$REPO" \
             --state open \
             --json number,updatedAt,labels \
-            --jq '.[] | select(.updatedAt < (now - ($DAYS_BEFORE_STALE_PRS | tonumber * 86400) | todate))' \
+            --jq '.[] | select(.updatedAt < (now - (env.DAYS_BEFORE_STALE_PRS | tonumber * 86400) | todate))' \
             || true
           echo "::endgroup::"
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          ISSUE_STATUS:
+            ${{ steps.process_issues.outcome == 'success' && '✅ Success' || '❌
+            Failed' }}
+          PR_STATUS:
+            ${{ steps.process_prs.outcome == 'success' && '✅ Success' || '❌
+            Failed' }}
         run: |
           echo "::group::📊 Generating Summary Report"
-
-          ISSUE_STATUS="${{ steps.process_issues.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
-          PR_STATUS="${{ steps.process_prs.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## 🕵️ Stale Management Summary
@@ -848,13 +922,13 @@ jobs:
 
           ### ⚙️ Runtime Configuration
 
-          - **Issue Stale Threshold:** ${{ env.DAYS_BEFORE_STALE_ISSUES }} days
-          - **PR Stale Threshold:** ${{ env.DAYS_BEFORE_STALE_PRS }} days
-          - **Close Grace Period:** ${{ env.DAYS_BEFORE_CLOSE_ISSUES }} days
+          - **Issue Stale Threshold:** $DAYS_BEFORE_STALE_ISSUES days
+          - **PR Stale Threshold:** $DAYS_BEFORE_STALE_PRS days
+          - **Close Grace Period:** $DAYS_BEFORE_CLOSE_ISSUES days
 
           ### 🧩 Notes
 
-          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - Workflow Run: [View Details]($GITHUB_SERVER_URL/$REPO/actions/runs/$GITHUB_RUN_ID)
           EOF
 
           echo "::endgroup::"
@@ -914,7 +988,9 @@ Use this checklist when authoring or reviewing a workflow:
 
 ### Security and Permissions
 
-- [ ] `permissions` are declared at the workflow or job level.
+- [ ] `permissions: {}` is set at the workflow level and every job declares its
+      own `permissions`.
+- [ ] Every permission has a comment with the reason, except `contents: read`.
 - [ ] No secrets are logged in plain text.
 - [ ] `GH_TOKEN` is set at the job level via `env`.
 
@@ -963,6 +1039,8 @@ Use this checklist when authoring or reviewing a workflow:
 | 1.3.0   | 2026-10-29 | Homelab-Alpha | Add `jq` and `yq`, and name `release_manager.yml` as the reference for multi-file commits.              |
 | 1.4.0   | 2026-10-29 | Homelab-Alpha | Skip the push that creates a repository from the template.                                              |
 | 1.5.0   | 2026-11-05 | Homelab-Alpha | Request the maintainer as reviewer, and verify the Hugo and Dart Sass downloads.                        |
+| 1.6.0   | 2026-11-13 | Homelab-Alpha | Require `permissions: {}` with commented job permissions, and input checks before arithmetic.           |
+| 1.7.0   | 2026-11-13 | Homelab-Alpha | Add the signing emoji to the emoji reference, in line with `logs.md`.                                   |
 
 ## 🏁 Final Statement
 

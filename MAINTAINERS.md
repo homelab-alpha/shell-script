@@ -164,8 +164,10 @@ candidate. It is a recognition of sustained commitment and leadership.
 > [!NOTE]
 >
 > No maintainers have stepped down yet. This section will be populated as
-> maintainers leave the project or step down from their role. | Maintainer |
-> Role | | :--------- | :--- |
+> maintainers leave the project or step down from their role.
+
+| Maintainer | Role |
+| :--------- | :--- |
 
 ## Additional Guidelines
 

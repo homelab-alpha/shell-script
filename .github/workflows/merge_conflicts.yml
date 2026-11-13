@@ -18,9 +18,8 @@ on:
     types:
       - synchronize
 
-permissions:
-  issues: write
-  pull-requests: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: conflict-${{ github.event.pull_request.number || github.run_id }}
@@ -36,6 +35,10 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 15
 
+    permissions:
+      issues: write # Add and remove the conflict label (labels belong to the issues API).
+      pull-requests: write # Comment on the pull request about the conflict.
+
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RETRY_AFTER: 60
@@ -43,14 +46,16 @@ jobs:
 
     steps:
       - name: 🏁 Notify start of process
+        env:
+          EVENT_PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number || 'N/A' }}
         run: |
           set -Eeuo pipefail
           echo "::notice title=Workflow started::🔍 Merge conflict detection started"
           echo "::group::ℹ️ Execution context"
-          echo "Repository: ${{ github.repository }}"
-          echo "Event: ${{ github.event_name }}"
-          echo "PR Number: ${{ github.event.pull_request.number || 'N/A' }}"
-          echo "Runner OS: ${{ runner.os }}"
+          echo "Repository: ${GITHUB_REPOSITORY}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
+          echo "PR Number: ${EVENT_PULL_REQUEST_NUMBER}"
+          echo "Runner OS: ${RUNNER_OS}"
           echo "::endgroup::"
 
       - name: 🔍 Check for merge conflicts
@@ -105,11 +110,11 @@ jobs:
 
       - name: 📊 Generate job summary
         if: always()
+        env:
+          CHECK_STATUS: ${{ steps.conflict_check.outcome == 'success' && '✅ Success' || '❌ Failed' }}
         run: |
           set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
-
-          CHECK_STATUS="${{ steps.conflict_check.outcome == 'success' && '✅ Success' || '❌ Failed' }}"
 
           cat <<EOF >> "$GITHUB_STEP_SUMMARY"
           ## ⚔️ Merge Conflict Detection Summary
@@ -118,7 +123,7 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Target          |     Action     | Result        |
+          | Target          | Action         | Result        |
           | :-------------- | :------------: | :------------ |
           | 🔀 Pull Request | Conflict Check | $CHECK_STATUS |
 
@@ -133,7 +138,7 @@ jobs:
 
           - **Exception:** \`eps1lon/actions-label-merge-conflict@v3.1.0\` (approved per ENG-CI-001)
           - If "Failed", check logs for API rate limits or permission issues.
-          - Workflow Run: [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          - Workflow Run: [View Details](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})
           EOF
 
           echo "::endgroup::"

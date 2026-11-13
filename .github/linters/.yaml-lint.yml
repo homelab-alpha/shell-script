@@ -12,6 +12,7 @@ rules:
   commas: enable
   comments:
     level: warning
+    min-spaces-from-content: 1 # Prettier writes one space before a comment
   comments-indentation:
     level: warning
   document-end: disable
@@ -36,3 +37,4 @@ rules:
   trailing-spaces: enable
   truthy:
     level: warning
+    check-keys: false # `on:` in a workflow is a key, not a boolean

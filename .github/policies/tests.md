@@ -13,7 +13,7 @@
 > priorities.
 
 This document describes the testing standards, structure, and expectations for
-the Blueprint repository. All contributors are expected to follow these
+the shell-script repository. All contributors are expected to follow these
 guidelines when adding or modifying code.
 
 <details>
@@ -41,7 +41,7 @@ guidelines when adding or modifying code.
 
 ## Purpose
 
-Tests are the primary mechanism for verifying that the Blueprint behaves
+Tests are the primary mechanism for verifying that shell-script behaves
 correctly and continues to do so as the codebase evolves. A well-tested codebase
 makes refactoring safer, bugs easier to catch, and reviews more confident.
 
@@ -70,21 +70,20 @@ stubbed.
 
 Use unit tests for:
 
-- Core logic in `core/` (storage, retrieval, categorization).
+- Core logic of the project.
 - Utility functions and helpers.
 - Edge cases and error handling paths.
 
 ### Integration Tests
 
 Integration tests verify that multiple components work correctly together. They
-may interact with real files in the `data/` directory using a temporary or
-sandboxed environment.
+may interact with real files, using a temporary or sandboxed environment.
 
 Use integration tests for:
 
-- End-to-end flows (e.g., storing a memory and retrieving it).
-- Interactions between the core logic and the data layer.
-- Command-line tool behavior in `scripts/`.
+- End-to-end flows across several components.
+- Interactions between the core logic and its storage or other services.
+- Command-line tool behavior.
 
 ## Writing Tests
 
@@ -110,24 +109,24 @@ Use integration tests for:
 Test files and test cases must use descriptive names that clearly communicate
 what is being tested and what the expected outcome is.
 
-| Item           | Convention                            | Example                                      |
-| :------------- | :------------------------------------ | :------------------------------------------- |
-| Test files     | `<module>.test.<ext>`                 | `retrieval.test.py`                          |
-| Test functions | `test_<behavior>_<condition>`         | `test_retrieve_returns_empty_on_missing_key` |
-| Fixture files  | Descriptive name in `tests/fixtures/` | `sample_memory.json`                         |
+| Item           | Convention                            | Example                                   |
+| :------------- | :------------------------------------ | :---------------------------------------- |
+| Test files     | `<module>.test.<ext>`                 | `parser.test.py`                          |
+| Test functions | `test_<behavior>_<condition>`         | `test_parse_returns_empty_on_missing_key` |
+| Fixture files  | Descriptive name in `tests/fixtures/` | `sample_input.json`                       |
 
 ### Test Structure
 
 Follow the **Arrange – Act – Assert** (AAA) pattern for all tests:
 
 ```python
-def test_store_saves_memory_to_data_directory():
+def test_save_writes_record_to_output_directory(tmp_path):
     # Arrange
-    archive = MemoryArchive(data_dir=tmp_path)
-    memory = {"id": "abc123", "content": "Test memory", "type": "fact"}
+    store = FileStore(output_dir=tmp_path)
+    record = {"id": "abc123", "content": "Test record"}
 
     # Act
-    archive.store(memory)
+    store.save(record)
 
     # Assert
     assert (tmp_path / "abc123.json").exists()
@@ -160,7 +159,7 @@ The exact command depends on the language and framework chosen for the project.
 <test-runner> tests/integration/
 
 # Run a specific test file
-<test-runner> tests/unit/retrieval.test.<ext>
+<test-runner> tests/unit/parser.test.<ext>
 ```
 
 All tests must pass locally before submitting a pull request. Do not rely on CI
@@ -171,11 +170,11 @@ to catch test failures that could have been caught locally.
 Test coverage measures how much of the codebase is exercised by the test suite.
 While 100% coverage is not a strict requirement, the following guidelines apply:
 
-- **Core logic** (`core/`): Aim for **high coverage**. Critical storage and
-  retrieval paths must be thoroughly tested.
-- **Scripts** (`scripts/`): Cover the main execution paths and error handling.
-- **Examples** (`examples/`): Not required to have automated test coverage, but
-  example scripts must be manually verified to work correctly.
+- **Core logic**: Aim for **high coverage**. Critical paths must be thoroughly
+  tested.
+- **Scripts**: Cover the main execution paths and error handling.
+- **Examples**: Not required to have automated test coverage, but example
+  scripts must be manually verified to work correctly.
 
 Coverage reports should be generated as part of the test run and reviewed during
 pull request review for any significant regressions.
@@ -212,6 +211,7 @@ pre-commit hooks run on your own computer:
 | Secret detection          | Gitleaks                | All files                 | `main`                  |
 | Infrastructure security   | Checkov                 | Workflow and config files | `main`                  |
 | Workflow syntax           | actionlint              | `.github/workflows/`      | `main`                  |
+| Workflow security         | zizmor                  | `.github/workflows/`      | `main`                  |
 | Dependency config         | Renovate validator      | `.github/renovate.json`   | `main`                  |
 | Markdown structure        | markdownlint            | `.md` files               | Pre-commit hook (local) |
 | YAML validity             | yamllint                | `.yml` / `.yaml` files    | Pre-commit hook (local) |

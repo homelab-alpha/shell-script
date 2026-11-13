@@ -93,7 +93,8 @@ A good vulnerability report includes:
 - **Code Review**: All changes to `main` are reviewed by a maintainer before
   merging to catch potential security issues early.
 - **Infrastructure Scanning**: [Checkov](https://www.checkov.io/) scans GitHub
-  Actions workflows and configuration files for misconfigurations.
+  Actions workflows and configuration files for misconfigurations, and
+  [zizmor](https://docs.zizmor.sh/) audits the workflows for security problems.
 - **No Sensitive Data in Code**: Never commit API keys, passwords, tokens, or
   any sensitive credentials. Use environment variables or a secrets manager.
 - **Dependency Review**: The

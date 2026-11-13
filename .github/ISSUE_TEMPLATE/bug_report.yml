@@ -18,7 +18,7 @@ body:
         > [!IMPORTANT]
         >
         > If you believe this bug has **security implications**, do **not** file it here.
-        > Instead, follow our [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) and submit a private[GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+        > Instead, follow our [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) and submit a private [GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
 
   - type: checkboxes
     id: duplicate-check

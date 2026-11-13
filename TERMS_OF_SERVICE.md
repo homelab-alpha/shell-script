@@ -75,8 +75,7 @@ non-commercial purposes in accordance with the terms of that license.
 Attribution is required, and adapted material must be shared under the same
 license.
 
-Contributions submitted to this project are governed by the same license, as
-described in [CONTRIBUTING.md](./CONTRIBUTING.md).
+Contributions submitted to this project are governed by the same license.
 
 ## 3. Vulnerability Reporting
 

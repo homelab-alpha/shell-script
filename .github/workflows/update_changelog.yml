@@ -32,9 +32,8 @@ on:
 
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+# No permission for the workflow as a whole. Each job asks for what it needs.
+permissions: {}
 
 concurrency:
   group: changelog-${{ github.repository }}
@@ -46,10 +45,14 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
 
+    permissions:
+      contents: write # Commit CHANGELOG.md to a branch through the API.
+      pull-requests: write # Read the merged pull requests and open the pull request for the changelog.
+
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       REPO: ${{ github.repository }}
-      REVIEWER: "homelab-alpha"
+      REVIEWER: ${{ github.repository_owner }}
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
@@ -58,7 +61,7 @@ jobs:
           echo "::notice title=Workflow started::📖 Changelog update for $REPO"
           echo "::group::ℹ️ Execution context"
           echo "Repository: $REPO"
-          echo "Event: ${{ github.event_name }}"
+          echo "Event: ${GITHUB_EVENT_NAME}"
           echo "::endgroup::"
 
       # Only the .github folder: the script that builds the pull request description and its template.
@@ -364,6 +367,7 @@ jobs:
           MODE: ${{ steps.entry.outputs.mode }}
           COUNT: ${{ steps.entry.outputs.count }}
           PR_URL: ${{ steps.entry.outputs.url }}
+          OVERALL: ${{ job.status == 'success' && '✅' || '❌' }}
         run: |
           set -Eeuo pipefail
           echo "::group::📊 Generating Summary Report"
@@ -376,8 +380,6 @@ jobs:
               *) echo "⏭️ Skipped" ;;
             esac
           }
-
-          OVERALL="${{ job.status == 'success' && '✅' || '❌' }}"
 
           case "${MODE:-}" in
             direct) RESULT="Committed to the default branch" ;;
@@ -394,9 +396,9 @@ jobs:
 
           ### 📈 Execution Results
 
-          | Step                | Result                  |
-          | :------------------ | :---------------------- |
-          | 📝 Add the entries  | $(status "$ENTRY_STEP") |
+          | Step               | Result                  |
+          | :----------------- | :---------------------- |
+          | 📝 Add the entries | $(status "$ENTRY_STEP") |
 
           ### ⚙️ Runtime Configuration
 
