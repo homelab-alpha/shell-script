@@ -2,8 +2,8 @@
 
 Thank you to everyone who has contributed to **shell-script**! This file is
 automatically updated by the
-[Contributors workflow](./.github/workflows/contributors.yml) and reflects all
-individuals who have contributed a commit to the `main` branch.
+[Update Contributors workflow](./.github/workflows/contributors.yml) and
+reflects all individuals who have contributed a commit to the `main` branch.
 
 > [!NOTE]
 >
