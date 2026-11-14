@@ -143,6 +143,10 @@ Code contributions are welcome! Please make sure your changes align with the
 project's goals and follow the guidelines in this document before opening a pull
 request.
 
+If you use AI tools, read the
+[AI Contribution Policy](./.github/policies/ai_contribution_policy.md) first.
+You remain fully responsible for everything you submit.
+
 ## Development Guidelines
 
 ### Branch Naming
@@ -314,6 +318,9 @@ for the full changelog conventions.
 - [ ] Your commits follow the [commit message convention](#commit-messages).
 - [ ] Your code follows the [code style guidelines](#code-style).
 - [ ] You have tested your changes locally.
+- [ ] You understand and have reviewed every line, and you have said in the pull
+      request which AI tools you used, as described in the
+      [AI Contribution Policy](./.github/policies/ai_contribution_policy.md).
 - [ ] Linting passes locally.
 - [ ] You have updated any relevant documentation.
 - [ ] The title of your pull request is a conventional commit, because it

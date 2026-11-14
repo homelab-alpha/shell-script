@@ -214,6 +214,7 @@ shell-script/
 │   │   ├── .yaml-lint.yml                      # YAML linting rules
 │   │   └── actionlint.yml                      # GitHub Actions workflow linting rules
 │   ├── policies/                               # Internal policies and documentation
+│   │   ├── ai_contribution_policy.md           # AI contribution policy (ENG-AI-001)
 │   │   ├── github_actions.md                   # Workflow standards (ENG-CI-001)
 │   │   ├── labels.md                           # Label color strategy and rules
 │   │   ├── logs.md                             # Logging policies and practices
@@ -292,7 +293,6 @@ shell-script/
 ├── .pre-commit-config.yaml                     # Local pre-commit hooks (mirrors CI)
 ├── .prettierignore                             # Files excluded from Prettier formatting
 ├── .prettierrc                                 # Prettier configuration file
-├── AI_CONTRIBUTION_POLICY.md                   # Rules for contributions made with AI assistance
 ├── CHANGELOG.md                                # Project change history
 ├── CLAUDE.md                                   # Project rules for Claude Code
 ├── CODE_OF_CONDUCT.md                          # Contributor Covenant Code of Conduct
@@ -396,6 +396,7 @@ These are documented in `.github/policies/` and in root-level files:
 
 | Document                                                                                               | Purpose                                              |
 | :----------------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
+| [`.github/policies/ai_contribution_policy.md`](./.github/policies/ai_contribution_policy.md)           | Rules for AI-assisted contributions and code agents  |
 | [`.github/policies/github_actions.md`](./.github/policies/github_actions.md)                           | Workflow structure, security, and logging standards  |
 | [`.github/policies/labels.md`](./.github/policies/labels.md)                                           | Label naming, color strategy, and usage rules        |
 | [`.github/policies/logs.md`](./.github/policies/logs.md)                                               | Logging conventions for workflows and scripts        |
@@ -403,7 +404,6 @@ These are documented in `.github/policies/` and in root-level files:
 | [`.github/policies/security.md`](./.github/policies/security.md)                                       | Security scanning and vulnerability management       |
 | [`.github/policies/tests.md`](./.github/policies/tests.md)                                             | Testing standards, structure, and conventions        |
 | [`.github/docs/code_style_and_standards_guides.md`](./.github/docs/code_style_and_standards_guides.md) | Coding style guidelines and Prettier configuration   |
-| [`AI_CONTRIBUTION_POLICY.md`](./AI_CONTRIBUTION_POLICY.md)                                             | Rules for contributions made with AI assistance      |
 | [`GOVERNANCE.md`](./GOVERNANCE.md)                                                                     | Project governance model and decision-making process |
 | [`MAINTAINERS.md`](./MAINTAINERS.md)                                                                   | Maintainer roles, responsibilities, and current list |
 | [`TERMS_OF_SERVICE.md`](./TERMS_OF_SERVICE.md)                                                         | Terms of use for the repository                      |
@@ -434,7 +434,7 @@ If you discover a bug or experience an issue not listed here, please
 Contributions are welcome. See [CONTRIBUTING.md](./CONTRIBUTING.md) for
 contribution guidelines, branch naming conventions, commit message format, and
 the review process. AI-assisted contributions follow
-[AI_CONTRIBUTION_POLICY.md](./AI_CONTRIBUTION_POLICY.md).
+[ai_contribution_policy.md](./.github/policies/ai_contribution_policy.md).
 
 ## Support
 

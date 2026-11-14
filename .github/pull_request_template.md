@@ -143,6 +143,7 @@ without review.
 ### General
 
 - [ ] I have read and followed the [Contributing Guidelines](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md).
+- [ ] I have read the [AI Contribution Policy](https://github.com/homelab-alpha/shell-script/blob/main/.github/policies/ai_contribution_policy.md) and, if I used AI tools, I have said so in the description of this pull request.
 - [ ] I have searched for existing issues and pull requests related to this change to avoid duplicates.
 - [ ] This pull request does not introduce any secrets, credentials, or sensitive information.
 
