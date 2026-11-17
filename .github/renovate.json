@@ -7,7 +7,6 @@
     ":enablePreCommit",
     ":semanticCommits"
   ],
-  "dependencyDashboard": true,
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "addLabels": ["security"]
