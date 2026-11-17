@@ -206,7 +206,7 @@ When a reviewer requests changes:
 | Scenario                                | Strategy                                                                    |
 | :-------------------------------------- | :-------------------------------------------------------------------------- |
 | Standard pull requests                  | **Squash and merge** — combines all commits into one clean commit on `main` |
-| Automated dependency updates (Renovate) | **Squash and merge** — automerged or merged by a maintainer (see below)     |
+| Automated dependency updates (Renovate) | **Squash and merge** — merged by a maintainer (see below)                   |
 
 Squash merging keeps the `main` branch history clean and linear, with one commit
 per logical change. The squash commit message must follow the
@@ -219,18 +219,17 @@ Dependency updates are handled automatically by
 review process:
 
 - **Grouping**: updates of the same kind arrive in one pull request, for example
-  "github actions (minor)" or "npm (minor)". Major updates stay in their own
+  "github actions (minor)" or "npm (non-major)". Major updates stay in their own
   pull request.
-- **Automerge**: patch, pin, and digest updates of GitHub Actions, pre-commit
-  hooks, and npm dev dependencies are merged by Renovate (squash) once all
-  required checks pass.
-- **Maintainer review**: minor updates, major updates, and every other update
-  are never automerged. A maintainer reviews and merges each one.
-- **Security vulnerability updates** are prioritized, labeled `security`, kept
-  out of groups, and never automerged.
+- **Release age**: Renovate opens the pull request for the newest version at
+  once, but its check stays pending until the release is 3 days old.
+- **Maintainer review**: Renovate never automerges. A maintainer reviews and
+  merges every update.
+- **Security vulnerability updates** are prioritized, labeled `security`, and
+  kept out of groups.
 - **No draft**: Pull Request Automation (`pull_request.yml`) puts the pull
   requests of people back to draft when they are opened or reopened, but not the
-  pull requests of Renovate, because a draft cannot automerge.
+  pull requests of Renovate.
 - Renovate is not limited to a schedule.
 
 Automated pull requests are labeled with the update type and the dependency
