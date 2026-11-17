@@ -360,11 +360,10 @@ and consistency. Here is what to expect:
   Complex changes may take longer, and we will communicate any delays.
 
 Dependency updates are opened automatically by
-[Renovate](https://docs.renovatebot.com/), grouped by update type. Patch, pin,
-and digest updates of GitHub Actions, pre-commit hooks, and npm dev dependencies
-are automerged when the checks pass. A maintainer reviews and merges every other
-update. Pull Request Automation leaves these pull requests open for review, as a
-draft cannot automerge.
+[Renovate](https://docs.renovatebot.com/), grouped by update type. All non-major
+npm updates arrive in one pull request. Nothing is automerged; a maintainer
+reviews and merges every update. Pull Request Automation leaves these pull
+requests open for review.
 
 For a detailed overview of the review workflow, see
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).

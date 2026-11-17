@@ -381,13 +381,12 @@ hooks use.
 Dependency updates are managed by [Renovate](https://github.com/apps/renovate).
 The configuration in `.github/renovate.json` pins GitHub Actions to commit SHAs
 and npm packages to exact versions, pins container images and pre-commit hooks
-to digests or commit SHAs, waits 7 days before it proposes a new release, and
-prioritizes security updates. Renovate groups updates by kind. Renovate
-automerges patch, pin, and digest updates of GitHub Actions, pre-commit hooks,
-and npm dev dependencies once the checks pass. A maintainer reviews every other
+to digests or commit SHAs, opens a pull request for the newest release at once
+but waits until it is 3 days old before it can be merged, and prioritizes
+security updates. Renovate groups updates by kind, and all non-major npm updates
+arrive in one pull request. Nothing is automerged; a maintainer reviews every
 update. Pull Request Automation does not put the pull requests of Renovate back
-to draft, because a draft cannot automerge. Renovate also keeps a dependency
-dashboard issue.
+to draft. Renovate also keeps a dependency dashboard issue.
 
 ## Policies and Standards
 
