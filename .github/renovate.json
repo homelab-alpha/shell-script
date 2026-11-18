@@ -65,6 +65,12 @@
       "groupName": "npm (non-major)"
     },
     {
+      "description": "Group all Docker Compose image non-major updates in one pull request, reviewed by a maintainer",
+      "matchManagers": ["docker-compose"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest"],
+      "groupName": "docker compose (non-major)"
+    },
+    {
       "description": "Group Hugo and Dart Sass minor and patch updates in one pull request, reviewed by a maintainer",
       "matchManagers": ["custom.regex"],
       "matchDepNames": ["hugo", "dart-sass"],

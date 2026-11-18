@@ -395,7 +395,9 @@ Dependencies are managed automatically by **Renovate** (see
   pull requests (the time zone is Europe/Amsterdam).
 - Renovate groups updates by kind (for example `github actions (minor)`), so a
   week of updates is a few pull requests. All non-major npm updates arrive in
-  one `npm (non-major)` pull request. Major updates stay separate.
+  one `npm (non-major)` pull request, and all non-major Docker Compose image
+  updates in one `docker compose (non-major)` pull request. Major updates stay
+  separate.
 - Renovate waits until a release is 3 days old (`minimumReleaseAge`). It opens
   the pull request for the newest version at once, with a pending check, so it
   does not step through older releases (`internalChecksFilter: none`).

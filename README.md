@@ -384,9 +384,10 @@ and npm packages to exact versions, pins container images and pre-commit hooks
 to digests or commit SHAs, opens a pull request for the newest release at once
 but waits until it is 3 days old before it can be merged, and prioritizes
 security updates. Renovate groups updates by kind, and all non-major npm updates
-arrive in one pull request. Nothing is automerged; a maintainer reviews every
-update. Pull Request Automation does not put the pull requests of Renovate back
-to draft. Renovate also keeps a dependency dashboard issue.
+arrive in one pull request, as do all non-major Docker Compose image updates.
+Nothing is automerged; a maintainer reviews every update. Pull Request
+Automation does not put the pull requests of Renovate back to draft. Renovate
+also keeps a dependency dashboard issue.
 
 ## Policies and Standards
 
