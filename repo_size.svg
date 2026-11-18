@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 24" width="156" height="24" role="img" aria-label="Repo size: 1.5 MB">
-  <title>Repo size: 1.5 MB</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 156 24" width="156" height="24" role="img" aria-label="Repo size: 1.6 MB">
+  <title>Repo size: 1.6 MB</title>
   <style>
     .tile { fill: #eaeef2; stroke: #c3c9cf; }
     .icon { stroke: #5c5c61; }
@@ -23,6 +23,6 @@
   <rect class="tile" x="0.5" y="0.5" width="155" height="23" rx="11.5" stroke-width="1"/>
   <g class="icon" transform="translate(12 6.0) scale(0.75)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5 L8 2 L14 5 V11 L8 14 L2 11 Z M2 5 L8 8 L14 5 M8 8 V14"/></g>
   <text class="label" x="32" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="400" textLength="52.3" lengthAdjust="spacing">Repo size</text>
-  <text class="value" x="88.3" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="41.6" lengthAdjust="spacing">1.5 MB</text>
+  <text class="value" x="88.3" y="16" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="600" textLength="41.6" lengthAdjust="spacing">1.6 MB</text>
   <circle class="dot-now" cx="140.9" cy="12.0" r="3.0"/>
 </svg>
