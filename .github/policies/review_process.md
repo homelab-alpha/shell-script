@@ -219,8 +219,8 @@ Dependency updates are handled automatically by
 review process:
 
 - **Grouping**: updates of the same kind arrive in one pull request, for example
-  "github actions (minor)" or "npm (non-major)". Major updates stay in their own
-  pull request.
+  "github actions (minor)", "npm (non-major)", or "docker compose (non-major)".
+  Major updates stay in their own pull request.
 - **Release age**: Renovate opens the pull request for the newest version at
   once, but its check stays pending until the release is 3 days old.
 - **Maintainer review**: Renovate never automerges. A maintainer reviews and

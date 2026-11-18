@@ -361,9 +361,9 @@ and consistency. Here is what to expect:
 
 Dependency updates are opened automatically by
 [Renovate](https://docs.renovatebot.com/), grouped by update type. All non-major
-npm updates arrive in one pull request. Nothing is automerged; a maintainer
-reviews and merges every update. Pull Request Automation leaves these pull
-requests open for review.
+npm updates arrive in one pull request, and so do all non-major Docker Compose
+image updates. Nothing is automerged; a maintainer reviews and merges every
+update. Pull Request Automation leaves these pull requests open for review.
 
 For a detailed overview of the review workflow, see
 [`.github/policies/review_process.md`](./.github/policies/review_process.md).
