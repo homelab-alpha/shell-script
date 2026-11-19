@@ -90,14 +90,6 @@
       "groupName": "go modules"
     },
     {
-      "description": "Prioritize security updates and keep them out of groups",
-      "matchPackageNames": ["*"],
-      "isVulnerabilityAlert": true,
-      "groupName": null,
-      "prPriority": 100,
-      "minimumReleaseAge": "0 days"
-    },
-    {
       "description": "Keep Node.js on major version 24 (LTS)",
       "matchPackageNames": ["node", "@types/node"],
       "matchManagers": ["npm", "nodenv", "dockerfile"],
