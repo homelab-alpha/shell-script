@@ -2,8 +2,8 @@
 
 # Filename: new_docker_project.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-06-17T07:20:35+02:00
-# Version: 2.1.4
+# Date: 2026-11-19T11:20:24+01:00
+# Version: 2.2.0
 
 # Description: This script creates a new Docker container directory structure
 # and configuration files based on user input.
@@ -68,9 +68,11 @@ if ! touch "$dir_path/.dockerignore" "$dir_path/Dockerfile" "$dir_path/README.md
   exit 1
 fi
 
-# Add content to docker-compose.yml
-cat <<EOL >"$dir_path/production/docker-compose.yml"
+# Add content to compose.yml
+cat <<EOL >"$dir_path/production/compose.yml"
 ---
+name: ${container_name}
+
 networks:
   ${container_name}_net:
     attachable: false # If is set to true: then standalone containers should be able to attach to this network.
@@ -148,12 +150,12 @@ services:
       # - /docker/${container_name}/production/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -230,8 +232,6 @@ services:
         restart: true
       ${container_name}_redis:
         condition: service_healthy
-    links:
-      - ${container_name}_db
     volumes:
       # rw: Read and write access. ro: Read-only access. z: multiple containers. Z: private and unshared
       # - ${container_name}_app:/change_me
@@ -242,12 +242,12 @@ services:
       # - /docker/${container_name}/production/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -301,7 +301,6 @@ services:
     cap_drop:
       - CHANGE_ME
     labels:
-      com.docker.compose.project: "${container_name}"
       com.${container_name}.description: "change_me."
     healthcheck:
       disable: true
@@ -319,9 +318,11 @@ volumes:
     external: true
 EOL
 
-# Add content to docker-compose.yml
-cat <<EOL >"$dir_path/testing/docker-compose.yml"
+# Add content to compose.yml
+cat <<EOL >"$dir_path/testing/compose.yml"
 ---
+name: ${container_name}_testing
+
 networks:
   ${container_name}_testing_net:
     attachable: false # If is set to true: then standalone containers should be able to attach to this network.
@@ -399,12 +400,12 @@ services:
       # - /docker/${container_name}/testing/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -481,8 +482,6 @@ services:
         restart: true
       ${container_name}_testing_redis:
         condition: service_healthy
-    links:
-      - ${container_name}_testing_db
     volumes:
       # rw: Read and write access. ro: Read-only access. z: multiple containers. Z: private and unshared
       # - ${container_name}_testing_app:/change_me
@@ -493,12 +492,12 @@ services:
       # - /docker/${container_name}/testing/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -552,7 +551,6 @@ services:
     cap_drop:
       - CHANGE_ME
     labels:
-      com.docker.compose.project: "${container_name}_testing"
       com.${container_name}.test.description: "change_me."
     healthcheck:
       disable: true
@@ -884,7 +882,7 @@ cat <<EOL >"$dir_path/README.md"
 │   ├── log                  - Log files.
 │   ├── redis                - Redis database files.
 │   ├── .env                 - Environment variables for the Docker containers.
-│   ├── docker-compose.yml   - Docker Compose configuration.
+│   ├── compose.yml          - Docker Compose configuration.
 │   └── stack.env            - Environment variables specific to Portainer or the stack setup.
 │
 ├── testing                  - Configuration files and data for the testing environment.
@@ -896,7 +894,7 @@ cat <<EOL >"$dir_path/README.md"
 │   ├── log                  - Log files.
 │   ├── redis                - Redis database files.
 │   ├── .env                 - Environment variables for the Docker containers.
-│   ├── docker-compose.yml   - Docker Compose configuration.
+│   ├── compose.yml          - Docker Compose configuration.
 │   └── stack.env            - Environment variables specific to Portainer or the stack setup.
 │
 ├── .dockerignore            - Excludes files from Docker builds.
