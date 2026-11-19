@@ -96,7 +96,7 @@
       "allowedVersions": "^24.0.0"
     },
     {
-      "description": "General labeling for all updates",
+      "description": "Label every update type and dependency in the pull request, also in a group (up to 15 dependencies)",
       "matchUpdateTypes": [
         "major",
         "minor",
@@ -109,7 +109,33 @@
         "bump",
         "replacement"
       ],
-      "addLabels": ["{{{updateType}}}", "{{{depName}}}"]
+      "addLabels": [
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"major\")}}major{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"minor\")}}minor{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"patch\")}}patch{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"pin\")}}pin{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"pinDigest\")}}pinDigest{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"digest\")}}digest{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"lockFileMaintenance\")}}lockFileMaintenance{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"rollback\")}}rollback{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"bump\")}}bump{{/if}}",
+        "{{#if (includes (lookupArray upgrades \"updateType\") \"replacement\")}}replacement{{/if}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 0}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 1}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 2}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 3}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 4}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 5}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 6}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 7}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 8}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 9}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 10}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 11}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 12}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 13}}}",
+        "{{{lookup (distinct (lookupArray upgrades \"depName\")) 14}}}"
+      ]
     },
     {
       "description": "Mark dependencies",
