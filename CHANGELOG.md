@@ -81,6 +81,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(scripts): restore pull_request_body.py logic [fc5bd79](https://github.com/homelab-alpha/shell-script/commit/fc5bd79781ad588f978e5f805d90bcab6c61196c) by [@homelab-alpha](https://github.com/homelab-alpha)
 - fix(changelog): remove the Unreleased link [8eba1bb](https://github.com/homelab-alpha/shell-script/commit/8eba1bb34b0e4d23684dfa80554629630cbf4895) by [@homelab-alpha](https://github.com/homelab-alpha)
 - fix(workflow): do not draft Renovate PRs [7b8d72d](https://github.com/homelab-alpha/shell-script/commit/7b8d72db08d869c9626fc2dbb4780f6f47434e38) by [@homelab-alpha](https://github.com/homelab-alpha)
+- fix(renovate): remove invalid security rule that disabled grouping [4b82602](https://github.com/homelab-alpha/shell-script/commit/4b82602a1abb45000c9e39dfadeeb4b695a8138a) by [@homelab-alpha](https://github.com/homelab-alpha)
+- fix(renovate): label all updates in a group [35634cd](https://github.com/homelab-alpha/shell-script/commit/35634cd8cccf532536937e6c49382b0dd666bfcf) by [@homelab-alpha](https://github.com/homelab-alpha)
 
 ### Security
 
