@@ -37,6 +37,7 @@ super_linter.log
 # Coverage Files
 
 # Docker
+compose.override.yml
 docker-compose.override.yml
 
 # Environment and Configuration Files

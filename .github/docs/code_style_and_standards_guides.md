@@ -69,8 +69,8 @@ General formatting rules that apply across all file types:
 
 - File and folder names use **lowercase letters**. Files use **underscores** as
   separators (e.g., `review_process.md`, `super_linter.env`); folders use
-  **hyphens** (e.g., `docker`, `docker-compose`). Root community files keep
-  their GitHub names (e.g., `README.md`).
+  **hyphens** (e.g., `docker`, `compose-files`). Root community files keep their
+  GitHub names (e.g., `README.md`).
 - Configuration files for tooling live in `.github/linters/`.
 - GitHub Actions workflows live in `.github/workflows/`.
 - Policy documents live in `.github/policies/`.

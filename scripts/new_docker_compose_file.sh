@@ -2,19 +2,19 @@
 
 # Filename: new_docker_compose_file.sh
 # Author: GJS (homelab-alpha)
-# Date: 2025-06-17T07:20:39+02:00
-# Version: 2.1.4
+# Date: 2026-11-19T11:20:24+01:00
+# Version: 2.2.0
 
 # Description:
-# This script automates the creation of a Docker-Compose environment based
+# This script automates the creation of a Docker Compose environment based
 # on user input. It sets up a new project by creating necessary directory
 # structures, Docker Compose files, and configuration files for a database
 # and application container setup. It requires the user to input a valid
 # container name, and checks the existence of required tools such as mkdir,
 # touch, and chown to ensure that the system is properly set up for container
 # creation. The script generates the following files:
-#   - docker-compose.yml: Defines Docker services and networks.
-#   - testing_docker-compose.yml: A second configuration file for testing.
+#   - compose.yml: Defines Docker services and networks.
+#   - compose_testing.yml: A second configuration file for testing.
 #   - .env: Environment file with database and application configuration.
 #   - stack.env: Custom configuration file.
 #   - my.cnf: MariaDB configuration file.
@@ -70,14 +70,16 @@ for dir in "${directories[@]}"; do
 done
 
 # Create Docker startup files
-if ! touch "$dir_path/docker-compose.yml" "$dir_path/docker-compose_testing.yml" "$dir_path/.env" "$dir_path/stack.env" "$dir_path/my.cnf"; then
+if ! touch "$dir_path/compose.yml" "$dir_path/compose_testing.yml" "$dir_path/.env" "$dir_path/stack.env" "$dir_path/my.cnf"; then
   display_message "Failed to create Docker startup files in $dir_path."
   exit 1
 fi
 
-# Add content to docker-compose.yml
-cat <<EOL >"$dir_path/docker-compose.yml"
+# Add content to compose.yml
+cat <<EOL >"$dir_path/compose.yml"
 ---
+name: ${container_name}
+
 networks:
   ${container_name}_net:
     attachable: false # If is set to true: then standalone containers should be able to attach to this network.
@@ -150,12 +152,12 @@ services:
       - /docker/${container_name}/production/my.cnf:/etc/my.cnf
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -232,8 +234,6 @@ services:
         restart: true
       ${container_name}_redis:
         condition: service_healthy
-    links:
-      - ${container_name}_db
     volumes:
       # rw: Read and write access. ro: Read-only access. z: multiple containers. Z: private and unshared
       # - ${container_name}_app:/change_me
@@ -244,12 +244,12 @@ services:
       # - /docker/${container_name}/production/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -303,7 +303,6 @@ services:
     cap_drop:
       - CHANGE_ME
     labels:
-      com.docker.compose.project: "${container_name}"
       com.${container_name}.description: "change_me."
     healthcheck:
       disable: true
@@ -321,9 +320,11 @@ volumes:
     external: true
 EOL
 
-# Add content to testing_docker-compose.yml
-cat <<EOL >"$dir_path/docker-compose_testing.yml"
+# Add content to compose_testing.yml
+cat <<EOL >"$dir_path/compose_testing.yml"
 ---
+name: ${container_name}_testing
+
 networks:
   ${container_name}_testing_net:
     attachable: false # If is set to true: then standalone containers should be able to attach to this network.
@@ -396,12 +397,12 @@ services:
       - /docker/${container_name}/testing/my.cnf:/etc/my.cnf
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -478,8 +479,6 @@ services:
         restart: true
       ${container_name}_testing_redis:
         condition: service_healthy
-    links:
-      - ${container_name}_testing_db
     volumes:
       # rw: Read and write access. ro: Read-only access. z: multiple containers. Z: private and unshared
       # - ${container_name}_testing_app:/change_me
@@ -490,12 +489,12 @@ services:
       # - /docker/${container_name}/testing/redis:/change_me
     env_file:
       # adds environment variables to the container based on the file content.
-      # Choose the correct environment file:
-      # - Use '.env' for Docker Compose.
-      # - Use 'stack.env' for Portainer.
-      # Comment out the file you are not using in the Compose file to avoid issues.
-      - .env
-      - stack.env
+      # Compose loads each file that exists and skips a missing one:
+      # '.env' for the Docker Compose CLI, 'stack.env' for Portainer.
+      - path: .env
+        required: false
+      - path: stack.env
+        required: false
     environment:
       # Any boolean values; "true", "false", "yes", "no", should be enclosed in quotes.
       PUID: "1000" # UserID
@@ -548,7 +547,6 @@ services:
     cap_drop:
       - CHANGE_ME
     labels:
-      com.docker.compose.project: "${container_name}_testing"
       com.${container_name}.test.description: "change_me."
     healthcheck:
       disable: true
