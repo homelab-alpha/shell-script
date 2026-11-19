@@ -13,11 +13,11 @@ with Speedtest Tracker within a Docker environment.
 To integrate your custom PHP widgets into **Speedtest Tracker**, you'll need to
 mount the PHP widget files into the running Docker container. This can be done
 by modifying your
-[`docker-compose.yml`](https://github.com/homelab-alpha/docker/blob/main/docker-compose-files/speedtest-tracker/docker-compose.yml).
+[`compose.yml`](https://github.com/homelab-alpha/docker/blob/main/compose-files/speedtest-tracker/compose.yml).
 
 ### Step-by-Step Instructions
 
-1. **Modify your `docker-compose.yml` file**:
+1. **Modify your `compose.yml` file**:
 
    Add the following volume mappings under your service definition. These
    mappings link your local widget files to the appropriate locations inside the
@@ -39,11 +39,11 @@ by modifying your
    (`/docker/speedtest-tracker/...`) match the actual location of your custom
    widget files on your system.
 
-3. **Redeploy the Container**: After updating the `docker-compose.yml` file,
-   redeploy your container with the following command:
+3. **Redeploy the Container**: After updating the `compose.yml` file, redeploy
+   your container with the following command:
 
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 
    This will apply the changes and mount your custom widgets into the container.

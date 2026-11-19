@@ -6,7 +6,7 @@ Custom Slack notification provider for Docker deployment.
 
 To use your custom Slack notification script in **Uptime Kuma**, mount the
 JavaScript file into the running container via your
-[`docker-compose.yml`](https://github.com/homelab-alpha/docker/blob/main/docker-compose-files/uptime-kuma/docker-compose.yml).
+[`compose.yml`](https://github.com/homelab-alpha/docker/blob/main/compose-files/uptime-kuma/compose.yml).
 Add the following volume mapping under your service definition:
 
 ```yaml
