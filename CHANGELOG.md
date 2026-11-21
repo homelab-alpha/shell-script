@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(renovate): group npm updates in one pr [b8b5892](https://github.com/homelab-alpha/shell-script/commit/b8b5892babfd5fc7909e117622796647e15483ed) by [@homelab-alpha](https://github.com/homelab-alpha)
 - chore(renovate): group docker compose images [c3c9dad](https://github.com/homelab-alpha/shell-script/commit/c3c9dad5d9b2e87835cfcaeb8dd2ba57c77c186e) by [@homelab-alpha](https://github.com/homelab-alpha)
 - refactor(docker): generate Compose spec files [d783db3](https://github.com/homelab-alpha/shell-script/commit/d783db3106111410d2282f4b7eedd5e41dd02766) by [@homelab-alpha](https://github.com/homelab-alpha)
+- chore(labels): add renovate dependency labels [e910a38](https://github.com/homelab-alpha/shell-script/commit/e910a384109fb1e0bc0c889b9f1b7d60a1dcd761) by [@homelab-alpha](https://github.com/homelab-alpha)
 
 ### Deprecated
 
