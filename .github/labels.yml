@@ -119,6 +119,11 @@
     color: "1f6feb",
     description: "Dependency: HAProxy Ubuntu Docker image updates.",
   }
+- {
+    name: "docker.io/jc21/nginx-proxy-manager",
+    color: "1f6feb",
+    description: "Dependency: Nginx Proxy Manager Docker image updates.",
+  }
 - { name: "docker.io/mariadb", color: "1f6feb", description: "Dependency: MariaDB Docker image updates." }
 - { name: "docker.io/mongo", color: "1f6feb", description: "Dependency: MongoDB Docker image updates." }
 - { name: "docker.io/nginx", color: "1f6feb", description: "Dependency: nginx Docker image updates." }
@@ -229,7 +234,17 @@
     color: "1f6feb",
     description: "Dependency: UniFi Network Application (LinuxServer.io) container image updates.",
   }
+- {
+    name: "ghcr.io/netbootxyz/netbootxyz",
+    color: "1f6feb",
+    description: "Dependency: netboot.xyz container image updates.",
+  }
 - { name: "ghcr.io/netdata/netdata", color: "1f6feb", description: "Dependency: Netdata container image updates." }
+- {
+    name: "ghcr.io/nicholas-fedor/watchtower",
+    color: "1f6feb",
+    description: "Dependency: Watchtower (nicholas-fedor) container image updates.",
+  }
 - { name: "ghcr.io/pi-hole/pihole", color: "1f6feb", description: "Dependency: Pi-hole container image updates." }
 - {
     name: "github-actions",
@@ -283,6 +298,11 @@
     description: "Does not follow the required issue or pull request template format.",
   }
 - { name: "localized", color: "8250df", description: "Adds or updates translations or locale-specific content." }
+- {
+    name: "lscr.io/linuxserver/socket-proxy",
+    color: "1f6feb",
+    description: "Dependency: Socket Proxy (LinuxServer.io) container image updates.",
+  }
 - {
     name: "major",
     color: "d97706",
@@ -345,6 +365,7 @@
     color: "d97706",
     description: "Introduces a measurable degradation in performance compared to a previous version.",
   }
+- { name: "pin", color: "1f6feb", description: "Dependency: Pins a dependency to an exact version." }
 - { name: "pinDigest", color: "1f6feb", description: "Dependency: Pins a dependency to its immutable digest." }
 - { name: "playwright-core", color: "1f6feb", description: "Dependency: Playwright core automation library updates." }
 - {
@@ -369,9 +390,49 @@
   }
 - { name: "prettier", color: "1f6feb", description: "Dependency: Prettier code formatter updates." }
 - {
+    name: "prettier-plugin-go-template",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for Go template formatting updates.",
+  }
+- {
+    name: "prettier-plugin-jinja-template",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for Jinja template formatting updates.",
+  }
+- {
+    name: "prettier-plugin-prisma",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for Prisma schema formatting updates.",
+  }
+- {
+    name: "prettier-plugin-properties",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for properties file formatting updates.",
+  }
+- {
+    name: "prettier-plugin-rust",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for Rust formatting updates.",
+  }
+- {
+    name: "prettier-plugin-sh",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for shell script formatting updates.",
+  }
+- {
+    name: "prettier-plugin-sql",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for SQL formatting updates.",
+  }
+- {
     name: "prettier-plugin-tailwindcss",
     color: "1f6feb",
     description: "Dependency: Prettier plugin for Tailwind CSS class sorting updates.",
+  }
+- {
+    name: "prettier-plugin-toml",
+    color: "1f6feb",
+    description: "Dependency: Prettier plugin for TOML formatting updates.",
   }
 - {
     name: "pull request",
@@ -440,6 +501,7 @@
     color: "d73a4a",
     description: "One or more automated tests are currently failing and must be fixed before merging.",
   }
+- { name: "textlint", color: "1f6feb", description: "Dependency: textlint natural language linter updates." }
 - {
     name: "triage",
     color: "f2cc60",
