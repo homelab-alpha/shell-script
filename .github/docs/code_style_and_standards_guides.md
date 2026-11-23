@@ -126,11 +126,13 @@ update               (not descriptive)
 ### Commit Message Guidelines
 
 Always write commit messages in **English** and follow the
-[Conventional Commits](https://conventionalcommits.org) specification.
+[Conventional Commits](https://conventionalcommits.org) specification. For a
+quick reference, see the
+[Conventional Commits Cheatsheet](./conventional_commits_cheatsheet.md).
 
 **Header (First Line):**
 
-- **Format**: `type(scope): brief subject`
+- **Format**: `type(scope)!: brief subject`
 - **Types**:
   - `feat`: New feature.
   - `fix`: Bugfix.
@@ -139,14 +141,16 @@ Always write commit messages in **English** and follow the
   - `refactor`: Code restructuring (no feature/fix).
   - `perf`: Performance improvements.
   - `test`: Test updates.
-  - `chore`: General maintenance, build updates.
+  - `chore`: General maintenance and dependency updates (`chore(deps)`).
   - `revert`: Reverting a previous commit.
-  - `build`: Build tool or dependency changes.
+  - `build`: Build tool or build setup changes.
   - `ci`: CI configuration and workflow changes.
 - **Scope (Optional)**: The part of the codebase affected (e.g., `core`, `data`,
   `cli`, `docs`).
 - **Subject**: Written in **imperative mood** (e.g., "Add export", "Fix bug").
   Keep it **under 50 characters**. Do not end with a period.
+- **Breaking change**: Any type can be a breaking change. Mark it with `!`
+  directly before the colon (`feat(api)!: remove the v1 endpoints`).
 
 **Body (Optional):**
 
@@ -154,6 +158,13 @@ Always write commit messages in **English** and follow the
 - Explain **what** you changed and **why** — not how.
 - Use **bullet points** (`-`) for multiple details.
 - Keep lines under **72 characters**.
+
+**Footer (Optional):**
+
+- Leave a **blank line** after the body.
+- Use a token, then `: ` or ` #`, then a value (`Refs: 1a2b3c4`, `Closes #42`).
+- Describe a breaking change with `BREAKING CHANGE: <description>`, in
+  uppercase.
 
 **Examples:**
 
@@ -487,9 +498,9 @@ type decides the category:
 
 The last three rows only count for pull requests of a person. Pull requests of a
 bot (the release, the contributors list, dependency updates) are left out. A `!`
-after the type marks a breaking change. A commit that was pushed to `main`
-without a pull request is listed on its own, under `Changed` when its subject
-has no type.
+directly before the colon marks a breaking change. A commit that was pushed to
+`main` without a pull request is listed on its own, under `Changed` when its
+subject has no type.
 
 The pull request list is only used when `[Unreleased]` has no entries. Text that
 you write under `[Unreleased]` replaces it, so add every change by hand in that
