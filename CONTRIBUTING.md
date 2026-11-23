@@ -211,12 +211,14 @@ dev/v1.2.1/fix-deprecated-params
 ### Commit Messages
 
 All commit messages must be written in **English** and follow the
-[Conventional Commits](https://conventionalcommits.org) specification.
+[Conventional Commits](https://conventionalcommits.org) specification. For a
+quick reference, see the
+[Conventional Commits Cheatsheet](./.github/docs/conventional_commits_cheatsheet.md).
 
 **Format:**
 
 ```none
-type(scope): brief subject
+type(scope)!: brief subject
 ```
 
 - The **type** must be one of: `feat`, `fix`, `docs`, `style`, `refactor`,
@@ -226,6 +228,9 @@ type(scope): brief subject
   (e.g., `core`, `data`, `cli`).
 - The **subject** must be written in imperative mood and kept under **50
   characters**.
+- Mark a **breaking change** of any type with `!` directly before the colon
+  (`feat(api)!: remove the v1 endpoints`). Use `!` in the title of the pull
+  request too.
 
 **Optional body:**
 
@@ -233,6 +238,13 @@ type(scope): brief subject
 - Explain _what_ changed and _why_ (not how).
 - Use bullet points (`-`) for multiple items.
 - Keep lines under **72 characters**.
+
+**Optional footer:**
+
+- Leave a blank line after the body.
+- Use a token, then `: ` or ` #`, then a value (`Refs: 1a2b3c4`, `Closes #42`).
+- Describe a breaking change with `BREAKING CHANGE: <description>`, in
+  uppercase.
 
 **Examples:**
 

@@ -204,6 +204,8 @@ shell-script/
 │   │   └── social_preview.svg                  # Source of the social preview
 │   ├── docs/                                   # Repository style guide (not project docs)
 │   │   ├── code_style_and_standards_guides.md  # Coding standards and style guidelines
+│   │   ├── conventional_commits_cheatsheet.md  # Quick reference for commit messages
+│   │   ├── conventional_commits_flowchart.svg  # Flowchart to choose the commit type
 │   │   └── .placeholder                        # Placeholder for empty folder
 │   ├── linters/                                # Configuration files for Super Linter
 │   │   ├── .checkov.yaml                       # Infrastructure-as-code security rules
@@ -404,6 +406,7 @@ These are documented in `.github/policies/` and in root-level files:
 | [`.github/policies/security.md`](./.github/policies/security.md)                                       | Security scanning and vulnerability management       |
 | [`.github/policies/tests.md`](./.github/policies/tests.md)                                             | Testing standards, structure, and conventions        |
 | [`.github/docs/code_style_and_standards_guides.md`](./.github/docs/code_style_and_standards_guides.md) | Coding style guidelines and Prettier configuration   |
+| [`.github/docs/conventional_commits_cheatsheet.md`](./.github/docs/conventional_commits_cheatsheet.md) | Quick reference for commit messages and PR titles    |
 | [`GOVERNANCE.md`](./GOVERNANCE.md)                                                                     | Project governance model and decision-making process |
 | [`MAINTAINERS.md`](./MAINTAINERS.md)                                                                   | Maintainer roles, responsibilities, and current list |
 | [`TERMS_OF_SERVICE.md`](./TERMS_OF_SERVICE.md)                                                         | Terms of use for the repository                      |

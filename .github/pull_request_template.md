@@ -57,15 +57,15 @@ Select the type of change this pull request introduces by replacing [ ] with
 
 - [ ] 🐛 `fix` — Bugfix (non-breaking change that resolves an issue)
 - [ ] ✨ `feat` — New feature (non-breaking change that adds functionality)
-- [ ] 💥 `feat!` — Breaking change (fix or feature that causes existing functionality to behave differently)
+- [ ] 💥 `!` — Breaking change of any type, such as `feat!` or `fix!` (existing functionality behaves differently)
 - [ ] 📝 `docs` — Documentation update (no code changes)
 - [ ] 🎨 `style` — Code formatting (no logic change)
 - [ ] ♻️ `refactor` — Code restructuring (no feature or fix)
 - [ ] ⚡ `perf` — Performance improvement
 - [ ] 🧪 `test` — Adding or updating tests
-- [ ] 🔧 `chore` — Maintenance, build updates, or dependency changes
+- [ ] 🔧 `chore` — Maintenance or dependency updates
 - [ ] ⏪ `revert` — Reverting a previous commit
-- [ ] 🏗️ `build` — Build tool or dependency changes
+- [ ] 🏗️ `build` — Build tool or build setup changes
 - [ ] 👷 `ci` — CI configuration and workflow changes
 
 ---
