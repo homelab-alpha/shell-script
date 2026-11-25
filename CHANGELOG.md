@@ -62,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - refactor(docker): generate Compose spec files [d783db3](https://github.com/homelab-alpha/shell-script/commit/d783db3106111410d2282f4b7eedd5e41dd02766) by [@homelab-alpha](https://github.com/homelab-alpha)
 - chore(labels): add renovate dependency labels [e910a38](https://github.com/homelab-alpha/shell-script/commit/e910a384109fb1e0bc0c889b9f1b7d60a1dcd761) by [@homelab-alpha](https://github.com/homelab-alpha)
 - docs: add conventional commits cheatsheet [250c19d](https://github.com/homelab-alpha/shell-script/commit/250c19d1ad2ae386586df7e1d193c2076287da5b) by [@homelab-alpha](https://github.com/homelab-alpha)
+- chore(scripts): align versions with dotfiles [3b75de2](https://github.com/homelab-alpha/shell-script/commit/3b75de21c57bfc08d0b021cecb50121a9b377c85) by [@homelab-alpha](https://github.com/homelab-alpha)
 
 ### Deprecated
 
