@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add the `badges.yml` workflow and `.github/scripts/generate_badges.py` to render the
   README badges, including Super Linter and CodeQL, as SVG files on the `badges`
   branch
+- feat(github): add accessibility checks [545cb64](https://github.com/homelab-alpha/shell-script/commit/545cb64ff082666720007e2bef4e6c9021b99772) by [@homelab-alpha](https://github.com/homelab-alpha)
+- feat(scripts): support NO_COLOR [3f049ca](https://github.com/homelab-alpha/shell-script/commit/3f049ca70c00ff34f1a527e85c3a02ec52a20406) by [@homelab-alpha](https://github.com/homelab-alpha)
 
 ### Changed
 
@@ -63,6 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(labels): add renovate dependency labels [e910a38](https://github.com/homelab-alpha/shell-script/commit/e910a384109fb1e0bc0c889b9f1b7d60a1dcd761) by [@homelab-alpha](https://github.com/homelab-alpha)
 - docs: add conventional commits cheatsheet [250c19d](https://github.com/homelab-alpha/shell-script/commit/250c19d1ad2ae386586df7e1d193c2076287da5b) by [@homelab-alpha](https://github.com/homelab-alpha)
 - chore(scripts): align versions with dotfiles [3b75de2](https://github.com/homelab-alpha/shell-script/commit/3b75de21c57bfc08d0b021cecb50121a9b377c85) by [@homelab-alpha](https://github.com/homelab-alpha)
+- docs(readme): add values to badge alt text [4f051bf](https://github.com/homelab-alpha/shell-script/commit/4f051bfc13a8f56496a3fda9d7fa8284ac18ac11) by [@homelab-alpha](https://github.com/homelab-alpha)
+- docs: add accessibility statement [acb4049](https://github.com/homelab-alpha/shell-script/commit/acb404973b737a0fdae1171c5be8c601ac948eeb) by [@homelab-alpha](https://github.com/homelab-alpha)
+- docs: link the accessibility statement [3d84811](https://github.com/homelab-alpha/shell-script/commit/3d8481145b0eb8c08b1761ea3da2cb5db75952de) by [@homelab-alpha](https://github.com/homelab-alpha)
+- docs: document NO_COLOR support [f61d88d](https://github.com/homelab-alpha/shell-script/commit/f61d88dc6bb1e7576e00ddd9b7839576fd661f1c) by [@homelab-alpha](https://github.com/homelab-alpha)
+- docs: update the accessibility statement [ff0dcb1](https://github.com/homelab-alpha/shell-script/commit/ff0dcb1b908480578c86e60b042f33808d5bd5c7) by [@homelab-alpha](https://github.com/homelab-alpha)
 
 ### Deprecated
 
