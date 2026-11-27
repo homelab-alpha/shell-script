@@ -22,10 +22,11 @@ everything you need to know to contribute effectively.
       2. [Fork and Clone](#fork-and-clone)
    3. [How to Contribute](#how-to-contribute)
       1. [Reporting Bugs](#reporting-bugs)
-      2. [Reporting Security Vulnerabilities](#reporting-security-vulnerabilities)
-      3. [Requesting Features](#requesting-features)
-      4. [Improving Documentation](#improving-documentation)
-      5. [Submitting Code Changes](#submitting-code-changes)
+      2. [Reporting Accessibility Barriers](#reporting-accessibility-barriers)
+      3. [Reporting Security Vulnerabilities](#reporting-security-vulnerabilities)
+      4. [Requesting Features](#requesting-features)
+      5. [Improving Documentation](#improving-documentation)
+      6. [Submitting Code Changes](#submitting-code-changes)
    4. [Development Guidelines](#development-guidelines)
       1. [Branch Naming](#branch-naming)
       2. [Commit Messages](#commit-messages)
@@ -107,6 +108,16 @@ A good bug report includes:
 - What you expected to happen vs. what actually happened.
 - Relevant logs or error messages.
 - Your environment details (OS, software version, runtime, etc.).
+
+### Reporting Accessibility Barriers
+
+If something is hard or impossible to use, for example with a keyboard or a
+screen reader, please
+[open an Accessibility Barrier issue](https://github.com/homelab-alpha/shell-script/issues/new?template=accessibility_report.yml).
+You never need to share a diagnosis or other medical information.
+
+See the [Accessibility Statement](./ACCESSIBILITY.md) for our goals, the known
+limitations, and what to expect from contributions.
 
 ### Reporting Security Vulnerabilities
 

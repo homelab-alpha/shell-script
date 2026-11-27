@@ -11,9 +11,10 @@ where to report issues.
    1. [Before You Ask](#before-you-ask)
    2. [Where to Get Help](#where-to-get-help)
    3. [Reporting Bugs](#reporting-bugs)
-   4. [Reporting Security Vulnerabilities](#reporting-security-vulnerabilities)
-   5. [Response Times](#response-times)
-   6. [Supported Versions](#supported-versions)
+   4. [Reporting Accessibility Barriers](#reporting-accessibility-barriers)
+   5. [Reporting Security Vulnerabilities](#reporting-security-vulnerabilities)
+   6. [Response Times](#response-times)
+   7. [Supported Versions](#supported-versions)
 
   </p>
 </details>
@@ -59,6 +60,13 @@ using the issue template. A good bug report includes:
 - What you expected to happen versus what actually happened.
 - Relevant logs, error messages, or screenshots.
 - Your environment details (OS, software version, runtime, etc.).
+
+## Reporting Accessibility Barriers
+
+If something is hard or impossible to use, please
+[open an Accessibility Barrier issue](https://github.com/homelab-alpha/shell-script/issues/new?template=accessibility_report.yml).
+The [Accessibility Statement](./ACCESSIBILITY.md) describes what to include and
+what is already known.
 
 ## Reporting Security Vulnerabilities
 

@@ -34,9 +34,10 @@ transparent, and respectful of everyone's time.
       1. [Correctness](#correctness)
       2. [Code Quality](#code-quality)
       3. [Documentation](#documentation)
-      4. [Security](#security)
-      5. [Tests](#tests)
-      6. [Git Hygiene](#git-hygiene)
+      4. [Accessibility](#accessibility)
+      5. [Security](#security)
+      6. [Tests](#tests)
+      7. [Git Hygiene](#git-hygiene)
    6. [Responding to Review Feedback](#responding-to-review-feedback)
    7. [Merge Strategy](#merge-strategy)
    8. [Automated Dependency Updates](#automated-dependency-updates)
@@ -161,6 +162,15 @@ Reviewers assess pull requests against the following criteria:
   merged.
 - Is any affected documentation updated to reflect the change?
 - Are new features or behaviors documented clearly?
+
+### Accessibility
+
+- Are headings, link text, and alternative text descriptive and in a logical
+  order?
+- Is information also available without color?
+- Does an interface stay usable with a keyboard?
+- Does [ACCESSIBILITY.md](../../ACCESSIBILITY.md) need an update, for example
+  for a new or solved limitation?
 
 ### Security
 
