@@ -278,6 +278,9 @@ tooling (for example, `init.sh`). The same conventions apply in both contexts.
 - Use `$()` for command substitution instead of backticks.
 - Quote all variable expansions: `"$VARIABLE"` not `$VARIABLE`.
 - Use `[[ ]]` for conditionals in Bash.
+- Do not color output when `NO_COLOR` is set to a non-empty value (see
+  [no-color.org](https://no-color.org)), and keep a text label next to every
+  color.
 - Prefer named variables over positional parameters for clarity.
 - Write meaningful log output using `echo "::notice ..."`,
   `echo "::warning ..."`, and `echo "::error ..."` for GitHub Actions
