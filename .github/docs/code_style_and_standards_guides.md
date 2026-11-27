@@ -219,6 +219,10 @@ Markdown is used for all documentation, policy files, and templates.
 - Use **2-space indentation** for nested lists.
 - Use fenced code blocks (` ``` `) with a language identifier.
 - Do not use bare URLs — always use descriptive link text.
+- Use headings in a logical order and do not skip levels.
+- Give every image alternative text that conveys the same information. For a
+  badge with a fixed value, include the value.
+- Do not use color as the only way to convey information.
 - Use GitHub-flavored callouts where appropriate:
 
   ```markdown

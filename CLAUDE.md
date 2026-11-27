@@ -12,7 +12,8 @@ More detail: [`README.md`](./README.md) (what the repository does and how it is
 organized), [`CONTRIBUTING.md`](./CONTRIBUTING.md) (branches, commits, and pull
 requests),
 [`.github/docs/code_style_and_standards_guides.md`](./.github/docs/code_style_and_standards_guides.md)
-(code style), and [`.github/policies/`](./.github/policies/) (workflows,
+(code style), [`ACCESSIBILITY.md`](./ACCESSIBILITY.md) (accessibility goals and
+expectations), and [`.github/policies/`](./.github/policies/) (workflows,
 reviews, security, tests, and logs).
 
 ## Commands

@@ -47,9 +47,10 @@ optimization.
        1. [Currently Being Addressed](#currently-being-addressed)
    11. [Contributing](#contributing)
    12. [Support](#support)
-   13. [Security](#security)
-   14. [Roadmap](#roadmap)
-   15. [License](#license)
+   13. [Accessibility](#accessibility)
+   14. [Security](#security)
+   15. [Roadmap](#roadmap)
+   16. [License](#license)
 
   </p>
 </details>
@@ -445,6 +446,11 @@ the review process. AI-assisted contributions follow
 
 For setup questions, troubleshooting, and general help, see
 [SUPPORT.md](./SUPPORT.md).
+
+## Accessibility
+
+Our accessibility goals, the known limitations, and how to report a barrier are
+described in [ACCESSIBILITY.md](./ACCESSIBILITY.md).
 
 ## Security
 
