@@ -1,0 +1,79 @@
+---
+name: ♿ Accessibility Barrier
+description: >
+  Is something in this project hard or impossible to use? Report the barrier here and help us make it accessible.
+labels: ["a11y", "P2: moderate", "triage"]
+assignees:
+  - "homelab-alpha"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ♿ Accessibility Barrier
+
+        Thank you for taking the time to report an accessibility barrier!
+        You never need to share a diagnosis or other medical information.
+
+        > [!IMPORTANT]
+        >
+        > If you believe this issue has **security implications**, do **not** file it here.
+        > Instead, follow our [Security Policy](https://github.com/homelab-alpha/shell-script/security/policy) and submit a private [GitHub Security Advisory](https://github.com/homelab-alpha/shell-script/security/advisories/new).
+
+  - type: checkboxes
+    id: duplicate-check
+    attributes:
+      label: ⚠️ Please check if this barrier has already been reported
+      options:
+        - label: >
+            I have searched the [existing
+            issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and
+            found no similar reports.
+          required: true
+
+  - type: textarea
+    id: goal
+    validations:
+      required: true
+    attributes:
+      label: 🎯 What Were You Trying to Do?
+      placeholder: |
+        e.g., Open the installation guide with only a keyboard.
+
+  - type: textarea
+    id: barrier
+    validations:
+      required: true
+    attributes:
+      label: 🚧 What Happened, and What Did You Expect?
+      placeholder: |
+        Describe the barrier and what should have happened instead.
+
+  - type: input
+    id: location
+    validations:
+      required: true
+    attributes:
+      label: 📍 Where Is the Barrier?
+      description: The page, file, or script involved.
+      placeholder: |
+        e.g., README.md, or a link to the page
+
+  - type: textarea
+    id: environment
+    validations:
+      required: false
+    attributes:
+      label: 💻 Environment
+      description: Share what you can. This helps us reproduce the barrier.
+      value: |
+        - **Operating system**:
+        - **Browser or terminal**:
+        - **Assistive technology** (screen reader, magnifier, etc.):
+
+  - type: textarea
+    id: additional-context
+    validations:
+      required: false
+    attributes:
+      label: 📋 Additional Context
+      description: Add a workaround, screenshots, or anything else that helps.
