@@ -21,9 +21,14 @@ HAS_THROTTLED=0x40000
 HAS_SOFT_TEMPLIMIT=0x80000
 
 # Text Colors
-GREEN=$(tput setaf 2)
-RED=$(tput setaf 1)
-NC=$(tput sgr0)
+# Empty when NO_COLOR is set (https://no-color.org)
+if [[ -n "${NO_COLOR:-}" ]]; then
+  GREEN="" RED="" NC=""
+else
+  GREEN=$(tput setaf 2)
+  RED=$(tput setaf 1)
+  NC=$(tput sgr0)
+fi
 
 # Output Strings
 GOOD="${GREEN}NO${NC}"

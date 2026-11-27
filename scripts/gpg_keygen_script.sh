@@ -32,7 +32,11 @@
 
 # Function to print text in cyan color
 print_cyan() {
-  echo -e "\e[36m$1\e[0m"
+  if [[ -n "${NO_COLOR:-}" ]]; then
+    echo -e "$1"
+  else
+    echo -e "\e[36m$1\e[0m"
+  fi
 }
 
 # Function to print section headers

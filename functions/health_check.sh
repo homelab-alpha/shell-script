@@ -19,6 +19,13 @@ function health-check() {
   red="\e[31m"
   end="\e[0m"
 
+  # Respect NO_COLOR (https://no-color.org)
+  if [[ -n "${NO_COLOR:-}" ]]; then
+    green=""
+    red=""
+    end=""
+  fi
+
   if [ -z "$1" ]; then
     echo "Please provide a URL to check."
     return 1
