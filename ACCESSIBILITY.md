@@ -22,7 +22,8 @@ This is a goal, not a claim of verified conformance.
 - A reading menu to change the font (including Atkinson Hyperlegible and
   OpenDyslexic), text size, spacing, column width, and motion.
 - Development tests with axe-core and Lighthouse. These tests are run manually
-  and are not part of CI.
+  and are not part of CI. On November 27, 2026, axe-core found no violations on
+  the tested pages in English and Dutch.
 
 ### Kairos card (`kairos`)
 
@@ -31,6 +32,8 @@ This is a goal, not a claim of verified conformance.
 - Support for user preferences such as reduced motion, increased contrast, and
   forced colors.
 - Interface in English and Dutch.
+- On November 27, 2026, an axe-core check of the card and its editor led to
+  fixes for text contrast and button names.
 
 ## Supported environments
 
@@ -51,8 +54,18 @@ VoiceOver, or TalkBack.
 - The statistics cards on the Homelab-Alpha profile are images. A text version
   is linked at the bottom of the profile, but it has no section headings.
 - The OpenDyslexic font on the documentation site supports Latin script only.
+- In the date picker of the Kairos card, the accessible name of a day button
+  lists the day and price in another order than the button shows.
+- The contrast of part of the chart text in the Kairos card, and of custom Home
+  Assistant themes, has not been checked.
 - Not all content has been reviewed against WCAG 2.2.
 - Third-party software and embedded content are outside our control.
+
+## Keeping this statement current
+
+We update this statement after each round of accessibility fixes. We aim to
+repeat the manual checks once a year, and after a large redesign. Automated
+tools find only part of all barriers.
 
 ## Reporting a barrier
 
