@@ -18,6 +18,13 @@ function dns-checker() {
   end="\e[0m"                             # ANSI color code to reset text formatting
   stamp="$(date +'[%b %d, %Y - %H%M%S]')" # Timestamp for log messages
 
+  # Respect NO_COLOR (https://no-color.org)
+  if [[ -n "${NO_COLOR:-}" ]]; then
+    green=""
+    red=""
+    end=""
+  fi
+
   # Function to log messages with timestamp
   function log_message() {
     local message="$1"

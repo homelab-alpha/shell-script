@@ -45,6 +45,10 @@ check_requirements() {
 print_in_color() {
   local color="$1"
   local message="$2"
+  # Respect NO_COLOR (https://no-color.org)
+  if [[ -n "${NO_COLOR:-}" ]]; then
+    color=""
+  fi
   case "$color" in
   green) echo -e "\033[32m$message\033[0m" ;;
   cyan) echo -e "\033[36m$message\033[0m" ;;

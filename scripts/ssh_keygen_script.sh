@@ -42,7 +42,11 @@ log_file="$ssh_dir/ssh_keygen_script.log" # Log file path
 
 # Function to print text in cyan color
 print_cyan() {
-  echo -e "\e[36m$1\e[0m" # Print text in cyan color
+  if [[ -n "${NO_COLOR:-}" ]]; then
+    echo -e "$1"
+  else
+    echo -e "\e[36m$1\e[0m"
+  fi
 }
 
 # Function to print section headers
