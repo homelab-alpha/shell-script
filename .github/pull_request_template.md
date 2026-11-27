@@ -133,6 +133,10 @@ without review.
 - [ ] I have updated the relevant documentation to reflect my changes.
 - [ ] The title of this pull request is a conventional commit, because it becomes the [CHANGELOG.md](https://github.com/homelab-alpha/shell-script/blob/main/CHANGELOG.md) entry when it is merged.
 
+### Accessibility
+
+- [ ] My changes keep headings, link text, alternative text, color use, and keyboard access accessible, or they do not touch documentation or an interface.
+
 ### Git Hygiene
 
 - [ ] My branch name follows the [branch naming convention](https://github.com/homelab-alpha/shell-script/blob/main/CONTRIBUTING.md#branch-naming).
