@@ -26,8 +26,8 @@ body:
       options:
         - label: >
             I have searched the [existing
-            issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and
-            found no similar reports.
+            issues](https://github.com/homelab-alpha/shell-script/issues?q=is%3Aissue+sort%3Acreated-desc) and found no
+            similar reports.
           required: true
 
   - type: textarea
