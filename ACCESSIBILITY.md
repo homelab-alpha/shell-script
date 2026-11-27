@@ -46,7 +46,7 @@ VoiceOver, or TalkBack.
 
 ## Known limitations
 
-- Some shell scripts use ANSI colors in their output. They do not support the
+- The shell prompts and command color settings in `dotfiles` do not check the
   `NO_COLOR` environment variable.
 - The statistics cards on the Homelab-Alpha profile are images. A text version
   is linked at the bottom of the profile, but it has no section headings.
