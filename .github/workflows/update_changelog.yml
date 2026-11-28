@@ -5,7 +5,9 @@ name: 📖 Update Changelog
 # request that was merged into main and is not listed yet:
 #   - type(scope): subject [1a2b3c4](commit url) by [@anna](profile url)
 # The hash links to the commit on main and the name links to the profile of the
-# author.
+# author. A bare @name in the title (for example "use @use") is put in a code
+# span (`@use`), so GitHub does not mention that account or list it as a
+# contributor of the release; only the author link mentions someone.
 # The entry goes under the Keep a Changelog category of the type of the title
 # (feat is Added, fix is Fixed, fix(security) is Security, the other types are
 # Changed). Pull requests of a bot are skipped. The Release Manager workflow
@@ -111,6 +113,22 @@ jobs:
                   text=True,
               )
               return result.returncode, result.stdout, result.stderr
+
+
+          # A GitHub mention (@user, @org/team) outside a code span and not part of a word, an email address, a URL,
+          # or a link text such as [@login](...). GitHub notifies such a user and lists them as a contributor.
+          MENTION = re.compile(r"(?<![\w`\[/@.])@[A-Za-z0-9][\w.@/-]*")
+
+
+          def escape_mentions(text):
+              """Put every bare @mention of the text in a code span, so GitHub mentions no one."""
+
+              def code(match):
+                  token = match[0].rstrip(".-/")
+                  return f"`{token}`{match[0][len(token):]}"
+
+              parts = re.split(r"(`[^`\n]*`)", text)
+              return "".join(part if part.startswith("`") else MENTION.sub(code, part) for part in parts)
 
 
           def category(kind, scope):
@@ -226,7 +244,7 @@ jobs:
                   match = SUBJECT.match(title)
                   name = category(match["type"], match["scope"]) if match else "Changed"
                   entry = (
-                      f"- {title} [{sha[:7]}](https://github.com/{repo}/commit/{sha})"
+                      f"- {escape_mentions(title)} [{sha[:7]}](https://github.com/{repo}/commit/{sha})"
                       f" by [@{login}](https://github.com/{login})"
                   )
                   text = add_entry(text, name, entry)
