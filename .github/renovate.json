@@ -148,6 +148,10 @@
       "addLabels": ["dev dependencies"]
     }
   ],
+  "gitIgnoredAuthors": [
+    "163113183+homelab-alpha@users.noreply.github.com",
+    "41898282+github-actions[bot]@users.noreply.github.com"
+  ],
   "internalChecksFilter": "none",
   "minimumReleaseAge": "3 days",
   "customManagers": [
