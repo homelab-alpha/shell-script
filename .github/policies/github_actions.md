@@ -844,7 +844,7 @@ jobs:
   cleanup:
     name: 🔍 Process stale items
     runs-on: ubuntu-26.04
-        timeout-minutes: 15
+    timeout-minutes: 15
 
     permissions:
       issues: write # Label, comment on, and close stale issues.
