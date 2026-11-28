@@ -518,6 +518,19 @@ otherwise missing from the release. **Squash and merge** is the standard (see
 merge commit** works too. **Rebase and merge** leaves no pull request in the
 history, so the pull request is not listed.
 
+**Version:** for a release (release type `release`), Release Manager first makes
+one commit that moves `[Unreleased]` to the section of the release and sets the
+version in `package.json` and `package-lock.json`, on the branch
+`chore/changelog-<tag>`. The tag and the GitHub release point to that commit, so
+they have the new version everywhere. A pull request brings the commit to
+`main`: merge it after the release. Prereleases (`alpha`, `beta`, and `rc`) make
+no commit and keep the version.
+
+A bare `@name` in a title or under `[Unreleased]` (for example `use @use`) is
+put in a code span by Update Changelog and Release Manager, so GitHub does not
+mention that account or list it as a contributor of the release. Only the
+`by [@login](...)` link mentions the author.
+
 ---
 
 For contribution workflows, branch conventions, and pull request guidelines, see

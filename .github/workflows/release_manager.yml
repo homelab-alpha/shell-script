@@ -6,9 +6,13 @@ name: 🚀 Release Manager
 # alpha, beta, and rc are prereleases. It writes the release notes from the text under [Unreleased]
 # in CHANGELOG.md or, when that is empty, from the pull requests merged since the last tag. It
 # creates the GitHub release and posts an announcement to GitHub Discussions (category
-# "Announcements"). For release_type release it also opens a pull request that updates CHANGELOG.md
-# and the version in package.json and package-lock.json; merge it after the release. Start Update
-# Changelog by hand first. It runs by hand only, and has a dry run.
+# "Announcements"). For release_type release it first makes a commit that updates CHANGELOG.md and
+# the version in package.json and package-lock.json, on the branch chore/changelog-<tag>, and tags
+# that commit, so the tag and the release have the new version everywhere. A pull request brings the
+# commit to main; merge it after the release. Start Update Changelog by hand first. It runs by hand
+# only, and has a dry run. A bare @name in the notes (from a pull request title or the [Unreleased]
+# text) is put in a code span, so GitHub mentions no one and lists no stranger as a contributor; the
+# "by [@login](...)" links still credit the authors.
 
 on:
   workflow_dispatch:
@@ -234,6 +238,22 @@ jobs:
           )
 
 
+          # A GitHub mention (@user, @org/team) outside a code span and not part of a word, an email address, a URL,
+          # or a link text such as [@login](...). GitHub notifies such a user and lists them as a contributor.
+          MENTION = re.compile(r"(?<![\w`\[/@.])@[A-Za-z0-9][\w.@/-]*")
+
+
+          def escape_mentions(text):
+              """Put every bare @mention of the text in a code span, so GitHub mentions no one."""
+
+              def code(match):
+                  token = match[0].rstrip(".-/")
+                  return f"`{token}`{match[0][len(token):]}"
+
+              parts = re.split(r"(`[^`\n]*`)", text)
+              return "".join(part if part.startswith("`") else MENTION.sub(code, part) for part in parts)
+
+
           def category(kind, scope, bot):
               if kind == "feat":
                   return "Added"
@@ -294,7 +314,7 @@ jobs:
 
               commit = f"[{sha[:7]}](https://github.com/{repo}/commit/{sha})"
               by = f" by [@{login}](https://github.com/{login})" if login and not bot else ""
-              entries[name].append(f"- {title} {commit}{by}")
+              entries[name].append(f"- {escape_mentions(title)} {commit}{by}")
 
 
           def render():
@@ -375,7 +395,23 @@ jobs:
                       body.append(line)
               return "\n\n".join(blocks)
 
-          curated = drop_empty_sections("\n".join(unreleased).strip("\n"))
+          # A GitHub mention (@user, @org/team) outside a code span and not part of a word, an email address, a URL,
+          # or a link text such as [@login](...). GitHub notifies such a user and lists them as a contributor.
+          MENTION = re.compile(r"(?<![\w`\[/@.])@[A-Za-z0-9][\w.@/-]*")
+
+
+          def escape_mentions(text):
+              """Put every bare @mention of the text in a code span, so GitHub mentions no one."""
+
+              def code(match):
+                  token = match[0].rstrip(".-/")
+                  return f"`{token}`{match[0][len(token):]}"
+
+              parts = re.split(r"(`[^`\n]*`)", text)
+              return "".join(part if part.startswith("`") else MENTION.sub(code, part) for part in parts)
+
+
+          curated = escape_mentions(drop_empty_sections("\n".join(unreleased).strip("\n")))
           generated = pathlib.Path("changelog_entry.tmp").read_text(encoding="utf-8").splitlines()
           if curated.strip():
               source, body = "the [Unreleased] text", curated
@@ -490,22 +526,20 @@ jobs:
 
           echo "::endgroup::"
 
-      - name: 💾 Create pull request for CHANGELOG.md changes
-        # A prerelease (alpha, beta, or rc) does not open a pull request: [Unreleased] stays as it is
-        # and the next release moves its entries to the section of that release.
+      - name: 🔏 Create release commit
+        # A prerelease (alpha, beta, or rc) makes no commit: [Unreleased] stays as it is, the next
+        # release moves its entries to the section of that release, and the version stays.
+        # The release is tagged on this commit, so a failure here stops the release.
         if: inputs.dry_run == false && inputs.release_type == 'release'
-        id: changelog_pr
-        # The release does not depend on this pull request, so a failure here must not stop the release.
-        continue-on-error: true
+        id: release_commit
         shell: bash
         env:
           NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
           PACKAGE_FILES: ${{ steps.package_versions.outputs.files }}
           BASE_BRANCH: ${{ github.ref_name }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -Eeuo pipefail
-          echo "::group::💾 Creating pull request for CHANGELOG.md"
+          echo "::group::🔏 Creating the release commit"
 
           BRANCH="chore/changelog-${NEW_TAG}"
 
@@ -559,6 +593,11 @@ jobs:
 
           COMMIT_RESPONSE=$(gh api graphql --input "$RUNNER_TEMP/release_commit.json")
           COMMIT_SHA=$(echo "$COMMIT_RESPONSE" | jq -r '.data.createCommitOnBranch.commit.oid')
+          if [[ ! "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "$COMMIT_RESPONSE"
+            echo "::error title=Commit failed::❌ The release commit could not be created on ${BRANCH}, so ${NEW_TAG} is not released"
+            exit 1
+          fi
           echo "::notice title=Commit created::🔏 Commit ${COMMIT_SHA:0:7} created by github-actions[bot] at $(date -u)"
 
           VERIFIED=$(gh api "repos/${REPO}/commits/${COMMIT_SHA}" \
@@ -570,11 +609,32 @@ jobs:
             echo "::notice title=Signature Verified::🔏 Commit ${COMMIT_SHA:0:7} is verified"
           fi
 
+          {
+            echo "sha=${COMMIT_SHA}"
+            echo "branch=${BRANCH}"
+          } >> "$GITHUB_OUTPUT"
+          echo "::endgroup::"
+
+      - name: 💾 Create pull request for the release commit
+        if: inputs.dry_run == false && inputs.release_type == 'release'
+        id: changelog_pr
+        # The release does not depend on this pull request, so a failure here must not stop the release.
+        continue-on-error: true
+        shell: bash
+        env:
+          NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+          BRANCH: ${{ steps.release_commit.outputs.branch }}
+          BASE_BRANCH: ${{ github.ref_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -Eeuo pipefail
+          echo "::group::💾 Creating pull request for the release commit"
+
           # The description follows .github/pull_request_template.md.
           PR_BODY=$(python3 .github/scripts/pull_request_body.py \
             --repo "${REPO}" \
             --type chore \
-            --description "Updates \`CHANGELOG.md\` and the version in the package files for release **${NEW_TAG}**." \
+            --description "Updates \`CHANGELOG.md\` and the version in the package files for release **${NEW_TAG}**. The tag **${NEW_TAG}** points to the commit of this pull request." \
             --steps "1. Open the **Files changed** tab.
           2. Check that the section for **${NEW_TAG}** in \`CHANGELOG.md\` lists the right changes.
           3. Check that \`package.json\` and \`package-lock.json\` (where present) have the version of **${NEW_TAG}**." \
@@ -582,7 +642,8 @@ jobs:
 
           > [!IMPORTANT]
           >
-          > Merge this pull request **after** the release has been published.")
+          > Merge this pull request **after** the release has been published. Until then, \`main\` and the
+          > site keep the previous version.")
 
           if ! PR_RESPONSE=$(gh api --method POST "/repos/${REPO}/pulls" \
             -f title="chore(release): ${NEW_TAG}" \
@@ -590,7 +651,7 @@ jobs:
             -f base="${BASE_BRANCH}" \
             -f body="${PR_BODY}" 2>&1); then
             echo "$PR_RESPONSE"
-            echo "::error title=Pull request failed::❌ The changelog pull request could not be created, but the release continues. Check that Settings, Actions, General, Workflow permissions allows GitHub Actions to create pull requests. The changelog commit is on ${BRANCH}: open the pull request from there."
+            echo "::error title=Pull request failed::❌ The pull request for the release commit could not be created, but the release continues. Check that Settings, Actions, General, Workflow permissions allows GitHub Actions to create pull requests. The changelog commit is on ${BRANCH}: open the pull request from there."
             exit 1
           fi
 
@@ -616,6 +677,8 @@ jobs:
         shell: bash
         env:
           NEW_TAG: ${{ steps.versioning.outputs.new_tag }}
+          # A release is tagged on the release commit; a prerelease on the branch the workflow runs on.
+          TARGET: ${{ steps.release_commit.outputs.sha || github.ref_name }}
         run: |
           set -Eeuo pipefail
           echo "::group::💾 Publishing release"
@@ -629,7 +692,7 @@ jobs:
           fi
 
           gh release create "$NEW_TAG" \
-            --target "${GITHUB_REF_NAME}" \
+            --target "${TARGET}" \
             --title "$NEW_TAG" \
             --notes-file release_notes.md \
             $PRERELEASE_FLAG \
@@ -737,6 +800,8 @@ jobs:
           NEW_TAG: ${{ steps.versioning.outputs.new_tag || 'N/A' }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           STEP_CHANGELOG_PR_OUTCOME: ${{ steps.changelog_pr.outcome }}
+          STEP_RELEASE_COMMIT_OUTCOME: ${{ steps.release_commit.outcome }}
+          RELEASE_COMMIT_SHA: ${{ steps.release_commit.outputs.sha || '' }}
           STEP_PUSH_STEP_OUTCOME: ${{ steps.push_step.outcome }}
           STEP_ANNOUNCEMENT_OUTCOME: ${{ steps.announcement.outcome }}
         run: |
@@ -744,9 +809,16 @@ jobs:
           echo "::group::📊 Generating Summary Report"
 
           if [[ "$DRY_RUN" == "true" ]]; then
+            COMMIT_STATUS="⏭️ Skipped (dry run)"
             PR_STATUS="⏭️ Skipped (dry run)"
             REL_STATUS="⏭️ Skipped (dry run)"
           else
+            case "${STEP_RELEASE_COMMIT_OUTCOME}" in
+              success) COMMIT_STATUS="✅ ${RELEASE_COMMIT_SHA:0:7}" ;;
+              skipped) COMMIT_STATUS="⏭️ Skipped (prerelease)" ;;
+              *) COMMIT_STATUS="❌ Failed" ;;
+            esac
+
             case "${STEP_CHANGELOG_PR_OUTCOME}" in
               success) PR_STATUS="✅ Success" ;;
               skipped) PR_STATUS="⏭️ Skipped (prerelease)" ;;
@@ -796,6 +868,7 @@ jobs:
           | :--------------- | :----------------------: | :------------------ |
           | 🔢 Versioning    | ${VER_STATUS}            | Calculate New Tag   |
           | 📖 Documentation | ${LOG_STATUS}            | Generate Changelog  |
+          | 🔏 Commit        | ${COMMIT_STATUS}         | Version and Tag     |
           | 💾 Pull Request  | ${PR_STATUS}${PR_LINK}   | Create Changelog PR |
           | 🚀 Distribution  | ${REL_STATUS}            | GH CLI Release      |
           | 📣 Announcement  | ${ANN_STATUS}${ANN_LINK} | Post to Discussions |
