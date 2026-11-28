@@ -70,6 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - docs: link the accessibility statement [3d84811](https://github.com/homelab-alpha/shell-script/commit/3d8481145b0eb8c08b1761ea3da2cb5db75952de) by [@homelab-alpha](https://github.com/homelab-alpha)
 - docs: document NO_COLOR support [f61d88d](https://github.com/homelab-alpha/shell-script/commit/f61d88dc6bb1e7576e00ddd9b7839576fd661f1c) by [@homelab-alpha](https://github.com/homelab-alpha)
 - docs: update the accessibility statement [ff0dcb1](https://github.com/homelab-alpha/shell-script/commit/ff0dcb1b908480578c86e60b042f33808d5bd5c7) by [@homelab-alpha](https://github.com/homelab-alpha)
+- chore(renovate): ignore bot and owner commits [7f969a2](https://github.com/homelab-alpha/shell-script/commit/7f969a244b544e445d4113d4fe0825295837318c) by [@homelab-alpha](https://github.com/homelab-alpha)
+- ci(release): tag version commit, fix mentions [2f591a9](https://github.com/homelab-alpha/shell-script/commit/2f591a96a2c3b654289ee781112bb995f484885e) by [@homelab-alpha](https://github.com/homelab-alpha)
+- docs(policy): fix timeout-minutes indentation [446a7e0](https://github.com/homelab-alpha/shell-script/commit/446a7e0575da9abbc4b2463b2b7cd562ce94663d) by [@homelab-alpha](https://github.com/homelab-alpha)
 
 ### Deprecated
 
